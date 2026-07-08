@@ -1,1997 +1,2541 @@
 """
-🚀 NIFTY 50 OPTIONS BOT v6.3 PRO
-==================================
-Platform  : NSE via Upstox API v2
-Asset     : NIFTY 50 Weekly Options
-Lot Size  : 75 (updated Apr 2024)
-Updated   : Feb 2026
-
-✅ v6.3 CHANGES:
-- POLLING: 5-min → 3-min (NSE OI updates every ~3 min)
-- OI WINDOW: 30-min removed → 15-min only (cache[-5] = 15-min at 3-min polling)
-- ADAPTIVE CACHE: cache[-5] preferred, fallback [-3] → [-1] if cache small
-- STRONG OI DIRECT AI: PUT/CALL OI >20% + Vol >25% → lगech AI call, no Phase wait
-- CANDLE RESAMPLE: 1min → 3min (was 5min, matches polling)
-- OPTION CHAIN VWAP: total CE+PE volume from snapshots (fixes ₹0 bug for index)
-- ANALYSIS CYCLE: every 5th cycle = 15-min (was 30-min)
-- STRIKE-WISE COMPARE: ATM shift safe (compares per-strike, not ATM-to-ATM)
-- START: 9:25 IST compatible (adaptive cache handles small cache gracefully)
-
-✅ v6.2 FIXES KEPT:
-- Phase 1+2 same-cycle bug fixed (MIN_P1_P2_GAP = 4 min)
-- VWAP volume=0 fallback (now replaced with option chain volume)
+╔══════════════════════════════════════════════════════╗
+║       NIFTY50 ZONE ASSISTANT BOT — V3               ║
+║       Smart Assistant | Manual Trade Confirm         ║
+║       Output: BUY CE / BUY PE / WAIT                ║
+║                                                        ║
+║  V3 FIXES (on top of V2):                            ║
+║  FIX 4  : tg_send() silent-failure + HTML escaping   ║
+║  FIX 5  : closing_job() order (EOD summary before    ║
+║           OPEN→EOD_OPEN rename, else "Open:0" bug)   ║
+║  FIX 6  : OI snapshot decoupled from zone-touch gate ║
+║           (saved every 5min tick → history not N/A)  ║
+║  FIX 7  : Nearest expiry fetched from Upstox API,    ║
+║           cached 6hr (holiday-shift safe), with      ║
+║           hardcoded-Tuesday fallback                 ║
+║  FIX 8  : Model split — Sonnet for first analysis,   ║
+║           Haiku for zone decision. max_tokens split  ║
+║           (2500 / 1000) — was truncating zones JSON  ║
+║  FIX 9  : Dynamic zone-touch buffer (15% of zone     ║
+║           width, min 10) replaces flat ZONE_NEAR_PTS ║
+║  FIX 10 : Wick threshold 0.25→0.30 for support/      ║
+║           resistance rejection (kept body>=-3 —      ║
+║           strict body>=0 would reject real hammers)  ║
+║  FIX 11 : Liquidity-fight module now conditional —   ║
+║           Python detects dominance candle + 50%      ║
+║           reclaim, only injects module when found    ║
+║  FIX 12 : get_context_zones() — adds factual S/R     ║
+║           range + position% to prompt, no AI-biasing ║
+║           "lean" language                            ║
+║  FIX 18 : Logging timestamps now IST (was server     ║
+║           local/UTC) — ISTFormatter                  ║
+║  FIX 19 : Restart-persistence — main() no longer     ║
+║           blindly re-runs morning_job() on restart.  ║
+║           If today's zones+context already in Redis, ║
+║           recover them instead (Telegram alert +     ║
+║           recovery_log entry, shown in EOD summary)  ║
+║  FIX 20 : Structure-shift flag — Python tracks zone  ║
+║           flips in real time (flip_log), flags 2+    ║
+║           same-direction flips within 60min to the   ║
+║           AI without waiting for next hourly bias    ║
+║  FIX 21 : ZONE_DECISION_SYSTEM now tells the AI the  ║
+║           [MORNING CONTEXT] bias can be ~58min stale ║
+║           — weigh current candles over old bias      ║
+║  FIX 22 : PCR-reversal confluence module — injected  ║
+║           only for reversal-type events, applies     ║
+║           PCR>1.5@support / PCR<0.7@resistance rule  ║
+║  FIX 23 : AI reason/risk_note/confirmations now      ║
+║           logged directly (Koyeb logs), not just     ║
+║           buried in Redis ai_raw_log                 ║
+╚══════════════════════════════════════════════════════╝
 """
 
-import asyncio
-import aiohttp
-import pandas as pd
-import numpy as np
-from datetime import datetime
-from collections import deque
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
-import json
-import logging
+# ═══════════════════════════════════════════════════════
+# SECTION 1: IMPORTS + CONFIG
+# ═══════════════════════════════════════════════════════
+
 import os
+import json
+import math
+import time
+import html
+import logging
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
+from urllib.parse import quote
 import pytz
-import time as time_module
+from dotenv import load_dotenv
+from flask import Flask
+from apscheduler.schedulers.background import BackgroundScheduler
 
-# ============================================================
-#  CONFIGURATION
-# ============================================================
-UPSTOX_ACCESS_TOKEN = os.getenv("UPSTOX_ACCESS_TOKEN", "YOUR_TOKEN")
-TELEGRAM_BOT_TOKEN  = os.getenv("TELEGRAM_BOT_TOKEN",  "YOUR_BOT_TOKEN")
-TELEGRAM_CHAT_ID    = os.getenv("TELEGRAM_CHAT_ID",     "YOUR_CHAT_ID")
-DEEPSEEK_API_KEY    = os.getenv("DEEPSEEK_API_KEY",     "YOUR_DEEPSEEK_KEY")
+load_dotenv()
 
-UPSTOX_BASE    = "https://api.upstox.com/v2"
-INSTRUMENT_KEY = "NSE_INDEX|Nifty 50"
-
-LOT_SIZE        = 75
-STRIKE_INTERVAL = 50
-ATM_RANGE       = 4          # ±4 strikes = ±200 pts (9 strikes total)
-
-# v6.3: 3-min polling
-SNAPSHOT_INTERVAL = 3 * 60
-CANDLE_COUNT      = 20
-
-# Cache: 3-min snapshots, 72 = 3.6 hrs
-CACHE_SIZE = 72
-
-# v6.3: OI comparison windows (in cache indices at 3-min polling)
-# cache[-1] = 3-min ago
-# cache[-3] = 9-min ago
-# cache[-5] = 15-min ago  ← primary
-WINDOW_SHORT  = 1   # 3-min ago
-WINDOW_MEDIUM = 5   # 15-min ago  ← main window
-
-# v6.3: Analysis every 5th cycle = 15-min
-ANALYSIS_EVERY_N = 5
-
-# OI thresholds
-MIN_OI_CHANGE    = 8.0
-STRONG_OI_CHANGE = 15.0
-MIN_VOLUME_CHG   = 15.0
-PCR_BULL         = 1.2
-PCR_BEAR         = 0.8
-
-# v6.3: Strong OI → direct AI trigger thresholds
-STRONG_OI_DIRECT_PCT = 20.0   # % OI change in 15-min
-STRONG_VOL_PCT       = 25.0   # % volume change in 15-min
-STRONG_OI_COOLDOWN   = 10 * 60  # 10-min cooldown between strong OI AI calls
-
-MIN_CONFIDENCE = 7
-
-# Phase detection
-PHASE1_OI_BUILD_PCT   = 6.0
-PHASE1_VOL_MAX_PCT    = 12.0
-PHASE2_VOL_SPIKE_PCT  = 15.0
-PHASE2_OI_MIN_PCT     = 3.0
-PHASE3_PRICE_MOVE_PCT = 0.25
-
-# Alert thresholds
-OI_ALERT_PCT  = 12.0
-VOL_SPIKE_PCT = 25.0
-PCR_ALERT_PCT = 10.0
-ATM_PROX_PTS  = 50
-
-# Weights
-ATM_WEIGHT      = 3.0
-NEAR_ATM_WEIGHT = 2.0
-FAR_WEIGHT      = 1.0
-MTF_OVERALL_THRESHOLD = 8
-
-MAX_RETRIES      = 3
-API_DELAY        = 0.3
-DEEPSEEK_TIMEOUT = 45
-
+# ── Timezone (moved above logging setup — FIX 18 needs this first) ──
 IST = pytz.timezone("Asia/Kolkata")
-MARKET_START = (9, 15)
-MARKET_END   = (15, 30)
-
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
 
 
-# ============================================================
-#  DATA STRUCTURES
-# ============================================================
-
-@dataclass
-class OISnapshot:
-    strike:    int
-    ce_oi:     float
-    pe_oi:     float
-    ce_volume: float
-    pe_volume: float
-    ce_ltp:    float
-    pe_ltp:    float
-    ce_iv:     float
-    pe_iv:     float
-    ce_delta:  float   # v6.4: Delta for strike selection
-    pe_delta:  float
-    pcr:       float
-    timestamp: datetime
-
-
-@dataclass
-class MarketSnapshot:
-    timestamp:    datetime
-    spot_price:   float
-    atm_strike:   int
-    expiry:       str
-    strikes_oi:   Dict[int, OISnapshot]
-    overall_pcr:  float
-    total_ce_oi:  float
-    total_pe_oi:  float
-    total_ce_vol: float
-    total_pe_vol: float
-    india_vix:    float = 0.0   # v6.4: India VIX
-    max_pain:     int   = 0     # v6.4: Max Pain strike
-
-
-@dataclass
-class PhaseSignal:
-    phase:            int
-    dominant_side:    str
-    direction:        str
-    oi_change_pct:    float
-    vol_change_pct:   float
-    price_change_pct: float
-    atm_strike:       int
-    spot_price:       float
-    confidence:       float
-    message:          str
-
-
-@dataclass
-class TrendInfo:
-    day_trend:      str
-    intraday_trend: str
-    trend_3min:     str
-    vwap:           float
-    spot_vs_vwap:   str
-    all_agree:      bool
-    summary:        str
-
-
-@dataclass
-class PriceActionInsight:
-    price_change_3m:   float
-    price_change_15m:  float
-    price_momentum:    str
-    vol_rolling_avg:   float
-    vol_spike_ratio:   float
-    oi_vol_corr:       float
-    support_levels:    List[float]
-    resistance_levels: List[float]
-    trend_strength:    float
-    triple_confirmed:  bool
-    trend:             TrendInfo
-
-
-@dataclass
-class StrikeAnalysis:
-    strike:         int
-    is_atm:         bool
-    distance_atm:   int
-    weight:         float
-    ce_oi:          float
-    pe_oi:          float
-    ce_volume:      float
-    pe_volume:      float
-    ce_ltp:         float
-    pe_ltp:         float
-    ce_iv:          float
-    pe_iv:          float
-    # 3-min changes
-    ce_oi_3:        float
-    pe_oi_3:        float
-    ce_vol_3:       float
-    pe_vol_3:       float
-    # 15-min changes
-    ce_oi_15:       float
-    pe_oi_15:       float
-    ce_vol_15:      float
-    pe_vol_15:      float
-    pcr_ch_15:      float
-    pcr:            float
-    ce_action:      str
-    pe_action:      str
-    tf3_signal:     str
-    tf15_signal:    str
-    mtf_confirmed:  bool
-    vol_confirms:   bool
-    vol_strength:   str
-    is_support:     bool
-    is_resistance:  bool
-    bull_strength:  float
-    bear_strength:  float
-    recommendation: str
-    confidence:     float
-    ce_delta:       float = 0.0   # v6.4
-    pe_delta:       float = 0.0
-
-
-@dataclass
-class SupportResistance:
-    support_strike:     int
-    support_put_oi:     float
-    resistance_strike:  int
-    resistance_call_oi: float
-    near_support:       bool
-    near_resistance:    bool
-
-
-# ============================================================
-#  SINGLE CACHE (3-min snapshots)
-# ============================================================
-
-class SnapshotCache:
+# ── Logging (FIX 18: IST timestamps, not server-local/UTC) ─────────
+class ISTFormatter(logging.Formatter):
     """
-    v6.3: Single cache at 3-min polling.
-    cache[-1] = 3-min ago
-    cache[-5] = 15-min ago (primary comparison window)
-    Adaptive: uses best available window if cache is small (early market).
+    Koyeb (and most hosts) run containers on UTC. Default logging.Formatter
+    uses time.localtime() → UTC on the server → every log line was showing
+    UTC time, ~5.5hr behind actual IST market time, making log correlation
+    with Telegram alerts / candle times confusing.
+    This formatter converts record.created (a UTC epoch timestamp) to IST
+    explicitly, using the same `IST` pytz object used everywhere else in
+    the bot — no separate zoneinfo import, no second source of truth.
     """
-    def __init__(self):
-        self._cache = deque(maxlen=CACHE_SIZE)
-        self._lock  = asyncio.Lock()
-
-    async def add(self, snap: MarketSnapshot):
-        async with self._lock:
-            self._cache.append(snap)
-        logger.info(
-            f"📦 Cache: {len(self._cache)}/{CACHE_SIZE} | "
-            f"PCR:{snap.overall_pcr:.2f} | Spot:{snap.spot_price:,.0f}"
-        )
-
-    async def get_ago(self, n: int) -> Optional[MarketSnapshot]:
-        """Get snapshot n indices ago. cache[-1] = most recent."""
-        async with self._lock:
-            lst = list(self._cache)
-            # lst[-1] = latest, lst[-(n+1)] = n ago
-            idx = len(lst) - 1 - n
-            return lst[idx] if idx >= 0 else None
-
-    async def get_best_prev(self) -> Tuple[Optional[MarketSnapshot], int]:
-        """
-        Adaptive cache: returns best available previous snapshot.
-        Preferred: 15-min ago (cache[-5])
-        Fallback:  9-min ago (cache[-3])
-        Minimum:   3-min ago (cache[-1])
-        Returns (snapshot, actual_minutes_ago)
-        """
-        async with self._lock:
-            lst = list(self._cache)
-            n   = len(lst)
-            if n > WINDOW_MEDIUM:    # >= 6 snapshots → 15-min
-                return lst[-(WINDOW_MEDIUM+1)], 15
-            elif n > 3:              # 4-5 snapshots → 9-min
-                return lst[-4], 9
-            elif n > 1:              # 2-3 snapshots → 3-6 min
-                return lst[-2], 3
-            return None, 0
-
-    async def get_recent(self, n: int) -> List[MarketSnapshot]:
-        async with self._lock:
-            lst = list(self._cache)
-            return lst[-n:] if len(lst) >= n else lst
-
-    async def get_short(self) -> Optional[MarketSnapshot]:
-        """3-min ago snapshot"""
-        return await self.get_ago(WINDOW_SHORT)
-
-    def size(self) -> int:
-        return len(self._cache)
-
-    def has_data(self) -> bool:
-        return len(self._cache) >= 2
+    def formatTime(self, record, datefmt=None):
+        dt = datetime.fromtimestamp(record.created, tz=pytz.utc).astimezone(IST)
+        if datefmt:
+            return dt.strftime(datefmt)
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
-# ============================================================
-#  UPSTOX CLIENT
-# ============================================================
+_log_handler = logging.StreamHandler()
+_log_handler.setFormatter(
+    ISTFormatter("%(asctime)s IST | %(levelname)s | %(message)s")
+)
+logging.basicConfig(level=logging.INFO, handlers=[_log_handler])
+log = logging.getLogger("ZoneBot")
 
-class UpstoxClient:
+# ── ENV Variables ─────────────────────────────────────
+UPSTOX_TOKEN  = os.getenv("UPSTOX_ANALYTICS_TOKEN", "")
+ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+TG_BOT_TOKEN  = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TG_CHAT_ID    = os.getenv("TELEGRAM_CHAT_ID", "")
+REDIS_URL     = os.getenv("REDIS_URL", "redis://localhost:6379")
 
-    def __init__(self, token: str):
-        self.token   = token
-        self.session = None
-        self.headers = {
-            "Authorization": f"Bearer {token}",
-            "Accept":        "application/json"
-        }
+# ── Upstox ───────────────────────────────────────────
+NIFTY_KEY     = "NSE_INDEX|Nifty 50"
+NIFTY_KEY_ENC = quote("NSE_INDEX|Nifty 50")
+UPSTOX_V2     = "https://api.upstox.com/v2"
+UPSTOX_V3     = "https://api.upstox.com/v3"
+UPSTOX_HDRS   = {
+    "Authorization": f"Bearer {UPSTOX_TOKEN}",
+    "Accept": "application/json"
+}
 
-    async def init(self):
-        self.session = aiohttp.ClientSession(
-            headers=self.headers,
-            timeout=aiohttp.ClientTimeout(total=30)
-        )
+# ── Bot Settings ──────────────────────────────────────
+# NOTE (FIX 9): flat ZONE_NEAR_PTS removed — replaced by zone_buffer()
+# dynamic buffer (15% of zone width, min 10pts). See SECTION 4.
+WAIT_COOLDOWN_MIN   = int(os.getenv("WAIT_COOLDOWN_MIN",   "25"))
+SIGNAL_COOLDOWN_MIN = int(os.getenv("SIGNAL_COOLDOWN_MIN", "30"))
+MAX_ZONES           = int(os.getenv("MAX_ZONES",            "7"))
+MAX_AI_RAW_LOG      = int(os.getenv("MAX_AI_RAW_LOG",     "100"))
+MIN_CONFIRMATIONS   = int(os.getenv("MIN_CONFIRMATIONS",    "2"))
 
-    async def close(self):
-        if self.session:
-            await self.session.close()
+# ── Candle Trigger Engine Constants ───────────────────
+ZONE_TOUCH_BUFFER    = int(os.getenv("ZONE_TOUCH_BUFFER",   "12"))
+SIDEWAYS_CANDLE_CNT  = int(os.getenv("SIDEWAYS_CANDLE_CNT",  "4"))
+SIDEWAYS_MAX_RANGE   = int(os.getenv("SIDEWAYS_MAX_RANGE",  "30"))
+BREAKOUT_BUFFER      = int(os.getenv("BREAKOUT_BUFFER",     "10"))
+LAST_AI_CALL_MINUTE  = int(os.getenv("LAST_AI_CALL_MINUTE",  "5"))
+# FIX 10: wick threshold raised 0.25 → 0.30 (used in detect_candle_event)
+REJECTION_WICK_RATIO = float(os.getenv("REJECTION_WICK_RATIO", "0.30"))
+# Minimum range (pts) for a candle to count as a "dominance candle"
+DOMINANCE_MIN_RANGE  = int(os.getenv("DOMINANCE_MIN_RANGE", "15"))
+DOMINANCE_LOOKBACK   = int(os.getenv("DOMINANCE_LOOKBACK",  "15"))
 
-    async def _get(self, url: str, params: Dict = None) -> Optional[Dict]:
-        for attempt in range(MAX_RETRIES):
-            try:
-                async with self.session.get(url, params=params) as r:
-                    if r.status == 200:
-                        return await r.json()
-                    if r.status == 429:
-                        await asyncio.sleep((attempt + 1) * 5)
-                        continue
-                    txt = await r.text()
-                    logger.warning(f"⚠️ {r.status}: {txt[:80]}")
-                    return None
-            except aiohttp.ClientConnectorError:
-                logger.error(f"❌ Network ({attempt+1}/{MAX_RETRIES})")
-                await asyncio.sleep(3)
-            except Exception as e:
-                logger.error(f"❌ Request: {e}")
-                await asyncio.sleep(2)
-        return None
+# ── AI Models (FIX 8: split by task) ──────────────────
+ANALYSIS_MODEL            = os.getenv("ANALYSIS_MODEL", "claude-sonnet-4-6")
+DECISION_MODEL            = os.getenv("DECISION_MODEL", "claude-haiku-4-5-20251001")
+FIRST_ANALYSIS_MAX_TOKENS = int(os.getenv("FIRST_ANALYSIS_MAX_TOKENS", "2500"))
+ZONE_DECISION_MAX_TOKENS  = int(os.getenv("ZONE_DECISION_MAX_TOKENS",  "1000"))
 
-    async def get_nearest_expiry(self) -> Optional[str]:
-        data = await self._get(
-            f"{UPSTOX_BASE}/option/contract",
-            params={"instrument_key": INSTRUMENT_KEY}
-        )
-        if not data or data.get("status") != "success":
-            return None
 
-        now_ist = datetime.now(IST)
-        cutoff  = now_ist.replace(hour=15, minute=30, second=0, microsecond=0)
-        today   = now_ist.date()
+# ── Small helper (FIX 4) ──────────────────────────────
+def esc(text):
+    """HTML-escape any AI-generated free text before sending to Telegram
+    with parse_mode=HTML. Prevents silent send failures when AI text
+    contains '<', '>' or '&' (e.g. 'price < zone')."""
+    if text is None:
+        return text
+    return html.escape(str(text), quote=False)
 
-        expiries = sorted(set(
-            c.get("expiry") for c in data.get("data", []) if c.get("expiry")
-        ))
-        for exp in expiries:
-            exp_date = datetime.strptime(exp, "%Y-%m-%d").date()
-            if exp_date < today: continue
-            if exp_date == today and now_ist >= cutoff: continue
-            logger.info(f"📅 Expiry: {exp}")
-            return exp
-        return None
 
-    async def _fetch_raw_candles(self, resolution: str) -> pd.DataFrame:
-        """
-        Upstox V2 supports: 1minute, 30minute only.
-        """
-        url  = f"{UPSTOX_BASE}/historical-candle/intraday/{INSTRUMENT_KEY}/{resolution}"
-        data = await self._get(url)
-        if not data or data.get("status") != "success":
-            return pd.DataFrame()
+# ═══════════════════════════════════════════════════════
+# SECTION 2: UPSTOX DATA FETCH
+# ═══════════════════════════════════════════════════════
 
-        raw = data.get("data", {}).get("candles", [])
-        if not raw:
-            return pd.DataFrame()
-
-        rows = []
-        for c in raw:
-            try:
-                rows.append({
-                    "timestamp": pd.to_datetime(c[0]),
-                    "open":      float(c[1]),
-                    "high":      float(c[2]),
-                    "low":       float(c[3]),
-                    "close":     float(c[4]),
-                    "volume":    int(c[5]) if len(c) > 5 else 0
-                })
-            except Exception:
-                continue
-
-        if not rows:
-            return pd.DataFrame()
-
-        return pd.DataFrame(rows).set_index("timestamp").sort_index()
-
-    async def get_candles(self) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """
-        2 API calls (Upstox V2):
-        - 1min raw → resample to 3min (matches polling)
-        - 30min direct → day context, S/R
-        Returns: (df_1m, df_3m, df_30m)
-        """
-        df_1m_raw = await self._fetch_raw_candles("1minute")
-        await asyncio.sleep(API_DELAY)
-        df_30m_raw = await self._fetch_raw_candles("30minute")
-
-        df_1m = df_1m_raw.tail(CANDLE_COUNT) if not df_1m_raw.empty else pd.DataFrame()
-
-        # Resample 1min → 3min
-        if not df_1m_raw.empty:
-            df_3m = df_1m_raw.resample("3min").agg({
-                "open": "first", "high": "max",
-                "low": "min", "close": "last", "volume": "sum"
-            }).dropna().tail(CANDLE_COUNT)
-            logger.info(f"📊 1min→3min: {len(df_3m)} candles")
-        else:
-            df_3m = pd.DataFrame()
-
-        df_30m = df_30m_raw.tail(CANDLE_COUNT) if not df_30m_raw.empty else pd.DataFrame()
-        logger.info(f"📊 30min: {len(df_30m)} candles")
-
-        return df_1m, df_3m, df_30m
-
-    async def fetch_snapshot(self, expiry: str) -> Optional[MarketSnapshot]:
-        url  = f"{UPSTOX_BASE}/option/chain"
-        data = await self._get(url, params={
-            "instrument_key": INSTRUMENT_KEY,
-            "expiry_date":    expiry
-        })
-        if not data or data.get("status") != "success":
-            return None
-
-        chain = data.get("data", [])
-        if not chain:
-            return None
-
-        spot = 0.0
-        for item in chain:
-            spot = float(item.get("underlying_spot_price", 0))
-            if spot > 0:
-                break
-        if spot <= 0:
-            return None
-
-        atm   = round(spot / STRIKE_INTERVAL) * STRIKE_INTERVAL
-        min_s = atm - ATM_RANGE * STRIKE_INTERVAL
-        max_s = atm + ATM_RANGE * STRIKE_INTERVAL
-
-        strikes_oi: Dict[int, OISnapshot] = {}
-        t_ce_oi = t_pe_oi = t_ce_vol = t_pe_vol = 0.0
-
-        for item in chain:
-            strike = int(item.get("strike_price", 0))
-            if not (min_s <= strike <= max_s):
-                continue
-
-            ce = item.get("call_options", {}).get("market_data", {})
-            pe = item.get("put_options",  {}).get("market_data", {})
-            cg = item.get("call_options", {}).get("option_greeks", {})
-            pg = item.get("put_options",  {}).get("option_greeks", {})
-
-            ce_oi  = float(ce.get("oi",     0) or 0)
-            pe_oi  = float(pe.get("oi",     0) or 0)
-            ce_vol = float(ce.get("volume", 0) or 0)
-            pe_vol = float(pe.get("volume", 0) or 0)
-            ce_ltp = float(ce.get("ltp",    0) or 0)
-            pe_ltp = float(pe.get("ltp",    0) or 0)
-            # v6.4 FIX: Upstox returns IV as decimal (0.1675 = 16.75%)
-            # Multiply by 100 only once
-            ce_iv  = float(cg.get("iv", 0) or 0) * 100
-            pe_iv  = float(pg.get("iv", 0) or 0) * 100
-            # Safety clamp: IV > 200% is definitely a bug
-            ce_iv  = ce_iv if ce_iv <= 200.0 else ce_iv / 100.0
-            pe_iv  = pe_iv if pe_iv <= 200.0 else pe_iv / 100.0
-            # Delta
-            ce_delta = float(cg.get("delta", 0) or 0)
-            pe_delta = float(pg.get("delta", 0) or 0)
-            pcr    = (pe_oi / ce_oi) if ce_oi > 0 else 0.0
-
-            t_ce_oi  += ce_oi;  t_pe_oi  += pe_oi
-            t_ce_vol += ce_vol; t_pe_vol += pe_vol
-
-            strikes_oi[strike] = OISnapshot(
-                strike=strike, ce_oi=ce_oi, pe_oi=pe_oi,
-                ce_volume=ce_vol, pe_volume=pe_vol,
-                ce_ltp=ce_ltp, pe_ltp=pe_ltp,
-                ce_iv=ce_iv, pe_iv=pe_iv,
-                ce_delta=ce_delta, pe_delta=pe_delta,
-                pcr=pcr, timestamp=datetime.now(IST)
-            )
-
-        if not strikes_oi:
-            return None
-
-        overall_pcr = (t_pe_oi / t_ce_oi) if t_ce_oi > 0 else 0.0
-
-        # v6.4: India VIX from index quote
-        india_vix = 0.0
+def upstox_get(url, retries=3):
+    for attempt in range(retries):
         try:
-            vix_data = await self._get(
-                f"{UPSTOX_BASE}/market-quote/quotes",
-                params={"instrument_key": "NSE_INDEX|India VIX"}
-            )
-            if vix_data and vix_data.get("status") == "success":
-                vix_d = vix_data.get("data", {})
-                # Key format: NSE_INDEX:India VIX
-                for k, v in vix_d.items():
-                    india_vix = float(v.get("last_price", 0) or 0)
-                    break
+            r = requests.get(url, headers=UPSTOX_HDRS, timeout=15)
+            if r.status_code == 200:
+                d = r.json()
+                if d.get("status") == "success":
+                    return d.get("data", {})
+            elif r.status_code == 429:
+                time.sleep(2 ** attempt)
+        except Exception as e:
+            log.error(f"API error: {e}")
+        time.sleep(1)
+    return None
+
+
+def get_ltp():
+    url  = f"{UPSTOX_V3}/market-quote/ltp?instrument_key={NIFTY_KEY_ENC}"
+    data = upstox_get(url)
+    if data:
+        first = next(iter(data.values()), None)
+        if first and "last_price" in first:
+            return float(first["last_price"])
+    log.error("LTP fetch failed")
+    return None
+
+
+def fetch_historical(unit, interval, candles_needed):
+    """Fetch historical OHLC — includes yesterday + older data"""
+    now     = datetime.now(IST)
+    to_date = now.strftime("%Y-%m-%d")
+
+    if unit == "days":
+        from_date = (now - timedelta(days=candles_needed + 10)).strftime("%Y-%m-%d")
+    elif unit == "hours":
+        from_date = (now - timedelta(days=15)).strftime("%Y-%m-%d")
+    else:  # minutes
+        from_date = (now - timedelta(days=3)).strftime("%Y-%m-%d")
+
+    url  = (f"{UPSTOX_V3}/historical-candle/"
+            f"{NIFTY_KEY_ENC}/{unit}/{interval}/{to_date}/{from_date}")
+    data = upstox_get(url)
+    if not data or "candles" not in data:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(
+        data["candles"],
+        columns=["ts", "o", "h", "l", "c", "v", "oi"]
+    )
+    df["ts"] = pd.to_datetime(df["ts"])
+    df = df.sort_values("ts").reset_index(drop=True)
+    df[["o","h","l","c"]] = df[["o","h","l","c"]].round(0).astype(int)
+    return df.tail(candles_needed)
+
+
+def fetch_intraday(unit, interval):
+    """Fetch today's intraday OHLC"""
+    url  = (f"{UPSTOX_V3}/historical-candle/intraday/"
+            f"{NIFTY_KEY_ENC}/{unit}/{interval}")
+    data = upstox_get(url)
+    if not data or "candles" not in data:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(
+        data["candles"],
+        columns=["ts", "o", "h", "l", "c", "v", "oi"]
+    )
+    df["ts"] = pd.to_datetime(df["ts"])
+    df = df.sort_values("ts").reset_index(drop=True)
+    df[["o","h","l","c"]] = df[["o","h","l","c"]].round(0).astype(int)
+    return df
+
+
+def fetch_all_data():
+    """
+    Fetch all TF data.
+    Works for any start time — 9:20 or 12:00.
+    15M/5M historical gives yesterday + today candles.
+    """
+    log.info("Fetching all TF data...")
+
+    daily  = fetch_historical("days",    1, 15)
+    hourly = fetch_historical("hours",   1, 30)
+    m15_hist = fetch_historical("minutes", 15, 60)
+
+    m5 = fetch_intraday("minutes", 5)
+    if m5.empty or len(m5) < 10:
+        log.warning("Intraday 5M empty → using historical")
+        m5 = fetch_historical("minutes", 5, 80)
+
+    return {
+        "daily":  daily,
+        "hourly": hourly,
+        "m15":    m15_hist,
+        "m5":     m5
+    }
+
+
+def fetch_zone_decision_data():
+    """Light fetch for zone decision — 15M + 5M only"""
+    m15 = fetch_intraday("minutes", 15)
+    m5  = fetch_intraday("minutes", 5)
+    if m15.empty:
+        m15 = fetch_historical("minutes", 15, 30)
+    if m5.empty:
+        m5  = fetch_historical("minutes", 5,  40)
+    return {"m15": m15, "m5": m5}
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 2.5: OI + PCR TRACKING
+# ═══════════════════════════════════════════════════════
+
+def get_weekly_expiry_fallback():
+    """
+    FIX 7: This is now only a FALLBACK if the live expiry API fails.
+    Hardcoded 'next Tuesday' logic breaks on holiday shifts
+    (NSE moves expiry to Wed/other day around holidays, budget day etc).
+    """
+    now = datetime.now(IST)
+    days_to_tue = (1 - now.weekday()) % 7
+    if days_to_tue == 0 and now.hour >= 15:
+        days_to_tue = 7
+    return (now + timedelta(days=days_to_tue)).strftime("%Y-%m-%d")
+
+
+def get_nearest_expiry():
+    """
+    FIX 7: Fetch real expiry dates from Upstox option/contract endpoint.
+    Cached 6hr (Redis/RAM) so we don't hit this every 5min tick.
+    Falls back to hardcoded-Tuesday calc if API fails — this is the
+    real reason OI was silently dead since day 1 (wrong expiry → empty
+    chain → fetch_oi_chain() returns None → OI module never added to
+    the AI prompt, not even once).
+    """
+    cached = _get("nearest_expiry_cache")
+    if cached and cached.get("fetched_at"):
+        try:
+            fetched_at = datetime.fromisoformat(cached["fetched_at"])
+            if fetched_at.tzinfo is None:
+                fetched_at = IST.localize(fetched_at)
+            if datetime.now(IST) - fetched_at < timedelta(hours=6):
+                return cached["expiry"]
         except Exception:
             pass
 
-        # v6.4: Max Pain = strike with max total loss for option buyers
-        max_pain = atm  # default ATM
+    try:
+        url  = f"{UPSTOX_V2}/option/contract?instrument_key={NIFTY_KEY_ENC}"
+        data = upstox_get(url)
+
+        expiries = set()
+        if isinstance(data, list):
+            for item in data:
+                exp = item.get("expiry")
+                if exp:
+                    expiries.add(exp)
+        elif isinstance(data, dict):
+            # some Upstox responses nest under a list-valued key
+            for v in data.values():
+                if isinstance(v, list):
+                    for item in v:
+                        exp = item.get("expiry") if isinstance(item, dict) else None
+                        if exp:
+                            expiries.add(exp)
+
+        if not expiries:
+            log.warning("Expiry API returned no expiries — using fallback calc")
+            return get_weekly_expiry_fallback()
+
+        nearest = sorted(expiries)[0]
+        _set("nearest_expiry_cache", {
+            "expiry":     nearest,
+            "fetched_at": datetime.now(IST).isoformat()
+        }, ttl=6 * 3600 + 300)
+        log.info(f"✅ Nearest expiry fetched: {nearest}")
+        return nearest
+
+    except Exception as e:
+        log.error(f"get_nearest_expiry error: {e} — using fallback calc")
+        return get_weekly_expiry_fallback()
+
+
+def fetch_oi_chain(ltp):
+    """
+    Fetch ATM ± 3 strikes OI + volume from Upstox.
+    Nifty strike gap = 50 pts → 7 strikes total.
+    Returns compact dict or None.
+    """
+    try:
+        atm    = round(ltp / 50) * 50
+        expiry = get_nearest_expiry()           # FIX 7
+        url    = (f"{UPSTOX_V2}/option/chain"
+                  f"?instrument_key={NIFTY_KEY_ENC}"
+                  f"&expiry_date={expiry}")
+
+        resp = upstox_get(url)
+        if not resp:
+            log.warning("OI chain fetch failed")
+            return None
+
+        target = {atm + (i * 50) for i in range(-3, 4)}
+        strikes = {}
+
+        for opt in resp:
+            sp = int(opt.get("strike_price", 0))
+            if sp not in target:
+                continue
+            ce = opt.get("call_options", {}).get("market_data", {})
+            pe = opt.get("put_options",  {}).get("market_data", {})
+            strikes[sp] = {
+                "ce_oi":  int(ce.get("oi",     0)),
+                "pe_oi":  int(pe.get("oi",     0)),
+                "ce_vol": int(ce.get("volume", 0)),
+                "pe_vol": int(pe.get("volume", 0)),
+            }
+
+        if not strikes:
+            log.warning(f"OI: no strikes found for ATM {atm}")
+            return None
+
+        tot_ce_oi  = sum(v["ce_oi"]  for v in strikes.values())
+        tot_pe_oi  = sum(v["pe_oi"]  for v in strikes.values())
+        tot_ce_vol = sum(v["ce_vol"] for v in strikes.values())
+        tot_pe_vol = sum(v["pe_vol"] for v in strikes.values())
+        pcr        = round(tot_pe_oi / tot_ce_oi, 3) if tot_ce_oi > 0 else 1.0
+        ce_wall    = max(strikes, key=lambda s: strikes[s]["ce_oi"])
+        pe_wall    = max(strikes, key=lambda s: strikes[s]["pe_oi"])
+
+        return {
+            "atm":         atm,
+            "expiry":      expiry,
+            "strikes":     strikes,
+            "tot_ce_oi":   tot_ce_oi,
+            "tot_pe_oi":   tot_pe_oi,
+            "tot_ce_vol":  tot_ce_vol,
+            "tot_pe_vol":  tot_pe_vol,
+            "pcr":         pcr,
+            "ce_wall":     ce_wall,
+            "pe_wall":     pe_wall,
+        }
+    except Exception as e:
+        log.error(f"fetch_oi_chain error: {e}")
+        return None
+
+
+def save_oi_snapshot(data):
+    """Save OI snapshot keyed by current 5-min slot"""
+    now  = datetime.now(IST)
+    slot = now.strftime("%H:%M")
+    _set(f"oi:{slot}", data, ttl=7200)
+    log.info(f"OI snapshot saved: {slot} | PCR:{data.get('pcr')}")
+
+
+def get_oi_snapshot(minutes_ago):
+    """Retrieve OI snapshot from N minutes ago (rounded to 5min)"""
+    past = datetime.now(IST) - timedelta(minutes=minutes_ago)
+    rounded = (past.minute // 5) * 5
+    slot = past.replace(minute=rounded, second=0).strftime("%H:%M")
+    return _get(f"oi:{slot}")
+
+
+def _fmt_chg(past_data, key):
+    if past_data is None:
+        return "N/A"
+    val = past_data.get(key)
+    return f"{val:+.1f}%" if val is not None else "N/A"
+
+
+def _vol_label(current_total, past_5min_total, baseline_total, elapsed_min):
+    """
+    FIX 15: Compare INCREMENTAL volume over the last 5min against the
+    day's average 5-min run-rate so far, instead of cumulative-day-volume
+    vs the single near-zero 9:20AM baseline snapshot. Upstox's option
+    chain `volume` field is the day's running total (confirmed via
+    Upstox docs) — a cumulative-vs-morning-baseline ratio grows just
+    from time passing, regardless of any real spike, so by midday it
+    always reads "HIGH" even with nothing unusual happening.
+    """
+    if past_5min_total is None or elapsed_min is None or elapsed_min <= 0:
+        return "?"
+    incremental_5m = current_total - past_5min_total
+    avg_5m_rate    = (current_total - baseline_total) / (elapsed_min / 5)
+    if avg_5m_rate <= 0:
+        return "?"
+    r = incremental_5m / avg_5m_rate
+    if r >= 2.0: return f"HIGH({r:.1f}x)"
+    if r >= 1.0: return f"MED({r:.1f}x)"
+    return f"LOW({r:.1f}x)"
+
+
+def format_oi_context(current):
+    """
+    FIX 6: Pure formatter — takes an ALREADY-FETCHED `current` OI dict
+    and turns it into the compact AI-prompt string. Does NOT fetch or
+    save anything itself anymore (that's now done once per tick in
+    zone_monitor_job, decoupled from zone-touch gating — see SECTION 8).
+    """
+    if not current:
+        return None
+
+    baseline          = _get("oi_baseline") or {}
+    base_ce_vol       = baseline.get("tot_ce_vol", 0)
+    base_pe_vol       = baseline.get("tot_pe_vol", 0)
+    baseline_saved_at = baseline.get("saved_at")
+
+    # FIX 15: elapsed minutes since baseline — needed for the incremental
+    # volume comparison below. Floored at 5 to avoid a huge/undefined
+    # rate in the first few minutes after baseline is saved.
+    elapsed_min = None
+    if baseline_saved_at:
         try:
-            min_pain = float("inf")
-            for test_strike in sorted(strikes_oi.keys()):
-                total_loss = 0.0
-                for s, snap in strikes_oi.items():
-                    # CE buyers lose if test_strike > strike
-                    if test_strike > s:
-                        total_loss += snap.ce_oi * (test_strike - s)
-                    # PE buyers lose if test_strike < strike
-                    if test_strike < s:
-                        total_loss += snap.pe_oi * (s - test_strike)
-                if total_loss < min_pain:
-                    min_pain  = total_loss
-                    max_pain  = test_strike
+            bt = datetime.fromisoformat(baseline_saved_at)
+            if bt.tzinfo is None:
+                bt = IST.localize(bt)
+            elapsed_min = max(5, (datetime.now(IST) - bt).total_seconds() / 60)
         except Exception:
-            pass
+            elapsed_min = None
 
-        logger.info(
-            f"💰 NIFTY:{spot:,.2f} | ATM:{atm} | PCR:{overall_pcr:.2f} | "
-            f"VIX:{india_vix:.2f} | MaxPain:{max_pain}"
-        )
-        return MarketSnapshot(
-            timestamp=datetime.now(IST),
-            spot_price=spot, atm_strike=atm, expiry=expiry,
-            strikes_oi=strikes_oi, overall_pcr=overall_pcr,
-            total_ce_oi=t_ce_oi, total_pe_oi=t_pe_oi,
-            total_ce_vol=t_ce_vol, total_pe_vol=t_pe_vol,
-            india_vix=india_vix, max_pain=max_pain
-        )
+    past5        = get_oi_snapshot(5)
+    past5_ce_vol = past5.get("tot_ce_vol") if past5 else None
+    past5_pe_vol = past5.get("tot_pe_vol") if past5 else None
 
-
-# ============================================================
-#  TREND CALCULATOR
-# ============================================================
-
-class TrendCalculator:
-
-    @staticmethod
-    def vwap_from_snapshots(snaps: List[MarketSnapshot]) -> float:
-        """
-        v6.3: Option chain volume VWAP.
-        Fixes ₹0 bug — NSE index candles have volume=0.
-        Uses total CE+PE volume from each snapshot as weight.
-        """
-        if not snaps:
-            return 0.0
-        total_vol = sum(s.total_ce_vol + s.total_pe_vol for s in snaps)
-        if total_vol <= 0:
-            # Fallback: simple price average
-            return float(np.mean([s.spot_price for s in snaps]))
-        weighted = sum(
-            s.spot_price * (s.total_ce_vol + s.total_pe_vol)
-            for s in snaps
-        )
-        return weighted / total_vol
-
-    @staticmethod
-    def trend_from_snaps(snaps: List[MarketSnapshot]) -> str:
-        if len(snaps) < 3:
-            return "SIDEWAYS"
-        prices = [s.spot_price for s in snaps]
-        if prices[-1] > prices[-3] * 1.001:  return "UPTREND"
-        if prices[-1] < prices[-3] * 0.999:  return "DOWNTREND"
-        return "SIDEWAYS"
-
-    @staticmethod
-    def trend_from_df(df: pd.DataFrame) -> str:
-        if df.empty or len(df) < 3:
-            return "SIDEWAYS"
-        c = df["close"].values
-        if c[-1] > c[-3] * 1.001:  return "UPTREND"
-        if c[-1] < c[-3] * 0.999:  return "DOWNTREND"
-        return "SIDEWAYS"
-
-    @staticmethod
-    def calculate(snaps: List[MarketSnapshot],
-                  df_3m: pd.DataFrame, df_30m: pd.DataFrame) -> TrendInfo:
-        spot      = snaps[-1].spot_price if snaps else 0.0
-        vwap_val  = TrendCalculator.vwap_from_snapshots(snaps)
-        day_t     = TrendCalculator.trend_from_df(df_30m)
-        intra_t   = TrendCalculator.trend_from_df(df_3m)
-        t3        = TrendCalculator.trend_from_snaps(snaps[-5:] if len(snaps) >= 5 else snaps)
-        spot_vwap = "ABOVE" if vwap_val > 0 and spot > vwap_val else "BELOW"
-        tfs       = [day_t, intra_t, t3]
-        all_agree = len(set(tfs)) == 1 and tfs[0] != "SIDEWAYS"
-
-        if all(t == "UPTREND"   for t in tfs):
-            summary = f"📈 ALL UPTREND | Spot {spot_vwap} VWAP ₹{vwap_val:.0f}"
-        elif all(t == "DOWNTREND" for t in tfs):
-            summary = f"📉 ALL DOWNTREND | Spot {spot_vwap} VWAP ₹{vwap_val:.0f}"
+    chg = {}
+    for mins in [5, 15, 30]:
+        past = get_oi_snapshot(mins)
+        if past and past.get("tot_ce_oi", 0) > 0:
+            chg[mins] = {
+                "ce_chg": round(
+                    (current["tot_ce_oi"] - past["tot_ce_oi"])
+                    / past["tot_ce_oi"] * 100, 1),
+                "pe_chg": round(
+                    (current["tot_pe_oi"] - past["tot_pe_oi"])
+                    / past["tot_pe_oi"] * 100, 1),
+                "pcr": past.get("pcr"),
+            }
         else:
-            summary = f"Mixed | Spot {spot_vwap} VWAP ₹{vwap_val:.0f}"
-
-        return TrendInfo(day_t, intra_t, t3, vwap_val, spot_vwap, all_agree, summary)
-
-
-# ============================================================
-#  PRICE ACTION CALCULATOR
-# ============================================================
-
-class PriceActionCalculator:
-
-    @staticmethod
-    def calculate(snaps: List[MarketSnapshot],
-                  df_3m: pd.DataFrame, df_30m: pd.DataFrame) -> PriceActionInsight:
-        trend = TrendCalculator.calculate(snaps, df_3m, df_30m)
-
-        if len(snaps) < 2:
-            return PriceActionCalculator._empty(trend)
-
-        prices = np.array([s.spot_price for s in snaps])
-        curr   = prices[-1]
-
-        def pct(ago: int) -> float:
-            return ((curr - prices[-(ago+1)]) / prices[-(ago+1)] * 100
-                    if len(prices) > ago else 0.0)
-
-        p3m  = pct(1)   # 3-min price change
-        p15m = pct(5)   # 15-min price change
-        momentum = "BULLISH" if p3m > 0.15 else "BEARISH" if p3m < -0.15 else "NEUTRAL"
-
-        # Volume spike from option chain (CE+PE vol)
-        vols        = np.array([s.total_ce_vol + s.total_pe_vol for s in snaps])
-        vol_rolling = float(np.mean(vols[:-1])) if len(vols) > 1 else float(vols[-1])
-        vol_spike   = float(vols[-1] / vol_rolling) if vol_rolling > 0 else 1.0
-
-        # OI-Vol correlation
-        ce_ois   = np.array([s.total_ce_oi for s in snaps])
-        pe_ois   = np.array([s.total_pe_oi for s in snaps])
-        oi_total = ce_ois + pe_ois
-        oi_vol_c = float(np.corrcoef(oi_total, vols)[0, 1]) if (
-            len(oi_total) > 2 and np.std(oi_total) > 0 and np.std(vols) > 0
-        ) else 0.0
-
-        # S/R from 30min candles
-        supports, resistances = [], []
-        if not df_30m.empty and len(df_30m) >= 5:
-            lws = df_30m["low"].values
-            hws = df_30m["high"].values
-            for i in range(1, len(lws) - 1):
-                if lws[i] < lws[i-1] and lws[i] < lws[i+1]:
-                    supports.append(float(lws[i]))
-                if hws[i] > hws[i-1] and hws[i] > hws[i+1]:
-                    resistances.append(float(hws[i]))
-            supports    = sorted(supports,    key=lambda x: abs(x - curr))[:3]
-            resistances = sorted(resistances, key=lambda x: abs(x - curr))[:3]
-
-        # Trend strength score
-        ts = 0.0
-        if abs(p3m) >= 0.3:   ts += 3.0
-        elif abs(p3m) >= 0.15: ts += 1.5
-        if vol_spike >= 1.5:   ts += 3.0
-        elif vol_spike >= 1.2: ts += 1.5
-        oi_ch = ((oi_total[-1] - oi_total[0]) / oi_total[0] * 100) if oi_total[0] > 0 else 0
-        if abs(oi_ch) >= 10:  ts += 4.0
-        elif abs(oi_ch) >= 5: ts += 2.0
-
-        price_bull = p3m > 0.15
-        price_bear = p3m < -0.15
-        oi_bull    = len(pe_ois) > 1 and pe_ois[-1] > pe_ois[0]
-        oi_bear    = len(ce_ois) > 1 and ce_ois[-1] > ce_ois[0]
-        vol_ok     = vol_spike >= 1.2
-        triple     = ((price_bull and oi_bull and vol_ok) or
-                      (price_bear and oi_bear and vol_ok))
-
-        return PriceActionInsight(
-            price_change_3m=round(p3m, 3),
-            price_change_15m=round(p15m, 3),
-            price_momentum=momentum,
-            vol_rolling_avg=round(vol_rolling, 0),
-            vol_spike_ratio=round(vol_spike, 2),
-            oi_vol_corr=round(oi_vol_c, 2),
-            support_levels=supports,
-            resistance_levels=resistances,
-            trend_strength=round(min(10.0, ts), 1),
-            triple_confirmed=triple,
-            trend=trend
-        )
-
-    @staticmethod
-    def _empty(trend: TrendInfo) -> PriceActionInsight:
-        return PriceActionInsight(0, 0, "NEUTRAL", 0, 1.0, 0, [], [], 0, False, trend)
-
-
-# ============================================================
-#  MTF OI ANALYZER (3-min + 15-min)
-# ============================================================
-
-class MTFAnalyzer:
-    """
-    v6.3: 2 timeframes only (30-min removed):
-    - 3-min  (cache short window)
-    - 15-min (cache medium window, adaptive)
-    Strike-wise comparison — safe against ATM shifts.
-    """
-
-    def __init__(self, cache: SnapshotCache):
-        self.cache = cache
-
-    @staticmethod
-    def _pct(c: float, p: float) -> float:
-        return ((c - p) / p * 100) if p > 0 else 0.0
-
-    @staticmethod
-    def _action(ch: float) -> str:
-        if ch >= 8:  return "BUILDING"
-        if ch <= -8: return "UNWINDING"
-        return "NEUTRAL"
-
-    @staticmethod
-    def _tf_signal(ce: float, pe: float, cv: float, pv: float) -> str:
-        if pe >= MIN_OI_CHANGE and pv >= MIN_VOLUME_CHG: return "BULLISH"
-        if ce >= MIN_OI_CHANGE and cv >= MIN_VOLUME_CHG: return "BEARISH"
-        if pe <= -MIN_OI_CHANGE: return "BEARISH"
-        if ce <= -MIN_OI_CHANGE: return "BULLISH"
-        return "NEUTRAL"
-
-    @staticmethod
-    def _vol_confirm(oi_ch: float, vol_ch: float) -> Tuple[bool, str]:
-        if oi_ch > 8  and vol_ch > MIN_VOLUME_CHG: return True,  "STRONG"
-        if oi_ch > 4  and vol_ch > 10:             return True,  "MODERATE"
-        if abs(oi_ch) < 4 and abs(vol_ch) < 4:    return True,  "WEAK"
-        return False, "WEAK"
-
-    def _strength(self, ce15: float, pe15: float, cv15: float, pv15: float,
-                  weight: float, mtf: bool) -> Tuple[float, float]:
-        bull = bear = 0.0
-        boost = 1.5 if mtf else 0.8
-        if   pe15 >= STRONG_OI_CHANGE: bull = 9.0
-        elif pe15 >= MIN_OI_CHANGE:    bull = 7.0
-        elif pe15 >= 5:                bull = 4.0
-        if   ce15 >= STRONG_OI_CHANGE: bear = 9.0
-        elif ce15 >= MIN_OI_CHANGE:    bear = 7.0
-        elif ce15 >= 5:                bear = 4.0
-        if pe15 <= -STRONG_OI_CHANGE:  bear = max(bear, 8.0)
-        elif pe15 <= -MIN_OI_CHANGE:   bear = max(bear, 6.0)
-        if ce15 <= -STRONG_OI_CHANGE:  bull = max(bull, 8.0)
-        elif ce15 <= -MIN_OI_CHANGE:   bull = max(bull, 6.0)
-        return min(10.0, bull * weight * boost), min(10.0, bear * weight * boost)
-
-    async def analyze(self, current: MarketSnapshot) -> Dict:
-        s3          = await self.cache.get_short()                  # 3-min ago
-        s15, mins15 = await self.cache.get_best_prev()              # 15-min ago (adaptive)
-
-        if not s3:
-            return {"available": False, "reason": "Building cache..."}
-
-        analyses: List[StrikeAnalysis] = []
-
-        for strike in sorted(current.strikes_oi.keys()):
-            c   = current.strikes_oi[strike]
-            p3  = s3.strikes_oi.get(strike)   # 3-min prev, same strike
-            p15 = s15.strikes_oi.get(strike) if s15 else None  # 15-min prev
-
-            # 3-min change (per strike — ATM shift safe)
-            ce3  = self._pct(c.ce_oi,     p3.ce_oi     if p3 else 0)
-            pe3  = self._pct(c.pe_oi,     p3.pe_oi     if p3 else 0)
-            cv3  = self._pct(c.ce_volume, p3.ce_volume  if p3 else 0)
-            pv3  = self._pct(c.pe_volume, p3.pe_volume  if p3 else 0)
-
-            # 15-min change (adaptive window)
-            ce15 = self._pct(c.ce_oi,     p15.ce_oi     if p15 else 0)
-            pe15 = self._pct(c.pe_oi,     p15.pe_oi     if p15 else 0)
-            cv15 = self._pct(c.ce_volume, p15.ce_volume  if p15 else 0)
-            pv15 = self._pct(c.pe_volume, p15.pe_volume  if p15 else 0)
-            pc15 = self._pct(c.pcr,       p15.pcr        if p15 else 0)
-
-            is_atm = (strike == current.atm_strike)
-            dist   = abs(strike - current.atm_strike)
-            weight = (ATM_WEIGHT if is_atm else
-                      NEAR_ATM_WEIGHT if dist <= STRIKE_INTERVAL else FAR_WEIGHT)
-
-            tf3  = self._tf_signal(ce3,  pe3,  cv3,  pv3)
-            tf15 = self._tf_signal(ce15, pe15, cv15, pv15)
-            mtf  = (tf3 == tf15 and tf3 != "NEUTRAL")
-
-            vc, vs = self._vol_confirm((ce15 + pe15) / 2, (cv15 + pv15) / 2)
-            bull, bear = self._strength(ce15, pe15, cv15, pv15, weight, mtf)
-            if mtf:
-                bull = min(10.0, bull * 1.3)
-                bear = min(10.0, bear * 1.3)
-
-            if   bull >= 7 and bull > bear: rec, conf = "STRONG_CALL", bull
-            elif bear >= 7 and bear > bull: rec, conf = "STRONG_PUT",  bear
-            else:                           rec, conf = "WAIT", max(bull, bear)
-
-            analyses.append(StrikeAnalysis(
-                strike=strike, is_atm=is_atm, distance_atm=dist, weight=weight,
-                ce_oi=c.ce_oi, pe_oi=c.pe_oi,
-                ce_volume=c.ce_volume, pe_volume=c.pe_volume,
-                ce_ltp=c.ce_ltp, pe_ltp=c.pe_ltp,
-                ce_iv=c.ce_iv, pe_iv=c.pe_iv,
-                ce_oi_3=ce3, pe_oi_3=pe3, ce_vol_3=cv3, pe_vol_3=pv3,
-                ce_oi_15=ce15, pe_oi_15=pe15, ce_vol_15=cv15, pe_vol_15=pv15,
-                pcr_ch_15=pc15,
-                pcr=c.pcr, ce_action=self._action(ce15), pe_action=self._action(pe15),
-                tf3_signal=tf3, tf15_signal=tf15,
-                mtf_confirmed=mtf, vol_confirms=vc, vol_strength=vs,
-                is_support=False, is_resistance=False,
-                bull_strength=bull, bear_strength=bear,
-                recommendation=rec, confidence=conf,
-                ce_delta=c.ce_delta, pe_delta=c.pe_delta   # v6.4
-            ))
-
-        sr = self._find_sr(current, analyses)
-        for sa in analyses:
-            sa.is_support    = (sa.strike == sr.support_strike)
-            sa.is_resistance = (sa.strike == sr.resistance_strike)
-
-        prev_pcr  = s15.overall_pcr if s15 else current.overall_pcr
-        pcr_trend = "BULLISH" if current.overall_pcr > prev_pcr else "BEARISH"
-        pcr_ch    = self._pct(current.overall_pcr, prev_pcr)
-        tb        = sum(sa.bull_strength for sa in analyses)
-        tr_b      = sum(sa.bear_strength for sa in analyses)
-        overall   = ("BULLISH" if tb > tr_b and tb >= MTF_OVERALL_THRESHOLD
-                     else "BEARISH" if tr_b > tb and tr_b >= MTF_OVERALL_THRESHOLD
-                     else "NEUTRAL")
-
-        return {
-            "available":       True,
-            "strike_analyses": analyses,
-            "sr":              sr,
-            "overall":         overall,
-            "total_bull":      tb,
-            "total_bear":      tr_b,
-            "overall_pcr":     current.overall_pcr,
-            "pcr_trend":       pcr_trend,
-            "pcr_ch_pct":      pcr_ch,
-            "window_mins":     mins15,
-            "has_strong":      any(
-                sa.mtf_confirmed and sa.confidence >= MIN_CONFIDENCE
-                for sa in analyses
-            )
-        }
-
-    def _find_sr(self, current: MarketSnapshot,
-                 analyses: List[StrikeAnalysis]) -> SupportResistance:
-        mp = max(analyses, key=lambda x: x.pe_oi, default=None)
-        mc = max(analyses, key=lambda x: x.ce_oi, default=None)
-        sup = mp.strike if mp else current.atm_strike
-        res = mc.strike if mc else current.atm_strike
-        return SupportResistance(
-            support_strike=sup, support_put_oi=mp.pe_oi if mp else 0,
-            resistance_strike=res, resistance_call_oi=mc.ce_oi if mc else 0,
-            near_support=abs(current.spot_price - sup) <= ATM_PROX_PTS,
-            near_resistance=abs(current.spot_price - res) <= ATM_PROX_PTS
-        )
-
-
-# ============================================================
-#  STRONG OI CHECKER — v6.3 NEW
-# ============================================================
-
-class StrongOIChecker:
-    """
-    v6.3 NEW: Direct AI trigger on strong OI buildup.
-    Does NOT wait for Phase 1→2→3.
-    Fires when: PUT or CALL OI change (15-min) > STRONG_OI_DIRECT_PCT
-                AND volume confirms (>STRONG_VOL_PCT)
-                AND both agree on direction
-
-    This fixes the core miss problem:
-    Old: Phase system missed 10:14 alert (PUT OI +61.7%) because price was down
-    New: Strong OI → immediate AI call regardless of price direction
-    """
-    def __init__(self):
-        self._last: Dict[str, float] = {}
-
-    def _can(self, k: str) -> bool:
-        return (time_module.time() - self._last.get(k, 0)) >= STRONG_OI_COOLDOWN
-
-    def _mark(self, k: str):
-        self._last[k] = time_module.time()
-
-    @staticmethod
-    def _pct(c: float, p: float) -> float:
-        return ((c - p) / p * 100) if p > 0 else 0.0
-
-    async def check(self, current: MarketSnapshot,
-                    prev: Optional[MarketSnapshot],
-                    pa: PriceActionInsight) -> Optional[Dict]:
-        """
-        Returns signal dict if strong OI detected, else None.
-        """
-        if not prev:
-            return None
-
-        ac = current.strikes_oi.get(current.atm_strike)
-        ap = prev.strikes_oi.get(current.atm_strike)
-        if not ac or not ap:
-            return None
-
-        # Per-strike percentage change
-        ce_oi_ch  = self._pct(ac.ce_oi,    ap.ce_oi)
-        pe_oi_ch  = self._pct(ac.pe_oi,    ap.pe_oi)
-        ce_vol_ch = self._pct(ac.ce_volume, ap.ce_volume)
-        pe_vol_ch = self._pct(ac.pe_volume, ap.pe_volume)
-
-        # Also check total OI (all strikes combined)
-        total_ce_ch = self._pct(current.total_ce_oi,  prev.total_ce_oi)
-        total_pe_ch = self._pct(current.total_pe_oi,  prev.total_pe_oi)
-        total_cv_ch = self._pct(current.total_ce_vol, prev.total_ce_vol)
-        total_pv_ch = self._pct(current.total_pe_vol, prev.total_pe_vol)
-
-        # Detect strong OI event
-        # Use weighted: ATM strike + total OI both must confirm
-        strong_put  = (pe_oi_ch  >= STRONG_OI_DIRECT_PCT and
-                       pe_vol_ch >= STRONG_VOL_PCT and
-                       total_pe_ch >= 10.0)   # total pn building
-        strong_call = (ce_oi_ch  >= STRONG_OI_DIRECT_PCT and
-                       ce_vol_ch >= STRONG_VOL_PCT and
-                       total_ce_ch >= 10.0)
-
-        if not (strong_put or strong_call):
-            return None
-
-        dom   = "PUT"  if (strong_put  and pe_oi_ch >= ce_oi_ch) else "CALL"
-        dirn  = "BULLISH" if dom == "PUT" else "BEARISH"
-        key   = f"STRONG_{dom}"
-
-        if not self._can(key):
-            return None
-
-        self._mark(key)
-
-        oi_ch  = pe_oi_ch  if dom == "PUT" else ce_oi_ch
-        vol_ch = pe_vol_ch if dom == "PUT" else ce_vol_ch
-
-        logger.info(
-            f"🔥 STRONG OI DETECTED: {dom} OI={oi_ch:+.1f}% "
-            f"Vol={vol_ch:+.1f}% → {dirn} → AI call!"
-        )
-
-        return {
-            "dominant":   dom,
-            "direction":  dirn,
-            "oi_ch":      oi_ch,
-            "vol_ch":     vol_ch,
-            "total_pe":   total_pe_ch,
-            "total_ce":   total_ce_ch,
-            "atm_strike": current.atm_strike,
-            "spot":       current.spot_price
-        }
-
-
-# ============================================================
-#  PHASE DETECTOR (kept, runs in parallel)
-# ============================================================
-
-class PhaseDetector:
-
-    COOLDOWN_P1 = 15 * 60
-    COOLDOWN_P2 = 10 * 60
-    COOLDOWN_P3 =  5 * 60
-    MIN_P1_P2_GAP = 4 * 60   # v6.2 fix: same-cycle bug
-
-    def __init__(self):
-        self._last:   Dict[str, float] = {}
-        self._p1_at   = 0.0
-        self._p2_at   = 0.0
-        self._p1_side = ""
-
-    def _can(self, k: str, cd: int) -> bool:
-        return (time_module.time() - self._last.get(k, 0)) >= cd
-
-    def _mark(self, k: str):
-        self._last[k] = time_module.time()
-
-    @staticmethod
-    def _pct(c: float, p: float) -> float:
-        return ((c - p) / p * 100) if p > 0 else 0.0
-
-    async def detect(self, curr: MarketSnapshot,
-                     prev: Optional[MarketSnapshot],
-                     pa: PriceActionInsight) -> List[PhaseSignal]:
-        signals = []
-        if not prev:
-            return signals
-
-        ac = curr.strikes_oi.get(curr.atm_strike)
-        ap = prev.strikes_oi.get(curr.atm_strike)
-        if not ac or not ap:
-            return signals
-
-        ce_oi_ch  = self._pct(ac.ce_oi,    ap.ce_oi)
-        pe_oi_ch  = self._pct(ac.pe_oi,    ap.pe_oi)
-        ce_vol_ch = self._pct(ac.ce_volume, ap.ce_volume)
-        pe_vol_ch = self._pct(ac.pe_volume, ap.pe_volume)
-
-        call_bld = ce_oi_ch >= PHASE1_OI_BUILD_PCT
-        put_bld  = pe_oi_ch >= PHASE1_OI_BUILD_PCT
-        if not (call_bld or put_bld):
-            return signals
-
-        dom   = "PUT" if (put_bld and pe_oi_ch >= ce_oi_ch) else "CALL"
-        oi_ch = pe_oi_ch if dom == "PUT" else ce_oi_ch
-        v_ch  = pe_vol_ch if dom == "PUT" else ce_vol_ch
-        dirn  = "BULLISH" if dom == "PUT" else "BEARISH"
-        now   = time_module.time()
-
-        # Phase 1
-        if (oi_ch >= PHASE1_OI_BUILD_PCT and abs(v_ch) < PHASE1_VOL_MAX_PCT
-                and self._can("P1", self.COOLDOWN_P1)):
-            self._p1_at = now; self._p1_side = dom; self._mark("P1")
-            signals.append(PhaseSignal(
-                phase=1, dominant_side=dom, direction=dirn,
-                oi_change_pct=oi_ch, vol_change_pct=v_ch,
-                price_change_pct=pa.price_change_3m,
-                atm_strike=curr.atm_strike, spot_price=curr.spot_price,
-                confidence=min(10, oi_ch / 1.5),
-                message=(
-                    f"⚡ PHASE 1 - SMART MONEY\n\n"
-                    f"NIFTY: {curr.spot_price:,.2f} | ATM: {curr.atm_strike}\n"
-                    f"{dom} OI: {oi_ch:+.1f}% | Vol: {v_ch:+.1f}% (quiet)\n"
-                    f"Signal: {dirn}\n{pa.trend.summary}\n\n"
-                    f"⏳ Wait for Phase 2!\n"
-                    f"{datetime.now(IST).strftime('%H:%M IST')}"
-                )
-            ))
-
-        # Phase 2 — v6.2 fix: min gap
-        p1_gap_ok = (now - self._p1_at) >= self.MIN_P1_P2_GAP
-        p1_recent = self._p1_at > 0 and p1_gap_ok and (now - self._p1_at) < (25 * 60)
-        if (pa.vol_spike_ratio >= (1 + PHASE2_VOL_SPIKE_PCT / 100)
-                and oi_ch >= PHASE2_OI_MIN_PCT
-                and p1_recent and self._p1_side == dom
-                and self._can("P2", self.COOLDOWN_P2)):
-            self._p2_at = now; self._mark("P2")
-            signals.append(PhaseSignal(
-                phase=2, dominant_side=dom, direction=dirn,
-                oi_change_pct=oi_ch, vol_change_pct=v_ch,
-                price_change_pct=pa.price_change_3m,
-                atm_strike=curr.atm_strike, spot_price=curr.spot_price,
-                confidence=min(10, pa.vol_spike_ratio * 3),
-                message=(
-                    f"🔥 PHASE 2 - VOL SPIKE! MOVE IMMINENT\n\n"
-                    f"NIFTY: {curr.spot_price:,.2f} | ATM: {curr.atm_strike}\n"
-                    f"Volume: {pa.vol_spike_ratio:.1f}x avg | OI: {oi_ch:+.1f}%\n"
-                    f"Signal: {dirn}\n{pa.trend.summary}\n\n"
-                    f"👆 {'BUY CALL' if dirn=='BULLISH' else 'BUY PUT'} near {curr.atm_strike}\n"
-                    f"{datetime.now(IST).strftime('%H:%M IST')}"
-                )
-            ))
-
-        # Phase 3
-        p2_recent = (now - self._p2_at) < (15 * 60)
-        price_ok  = ((dirn == "BULLISH" and pa.price_change_3m >= PHASE3_PRICE_MOVE_PCT) or
-                     (dirn == "BEARISH" and pa.price_change_3m <= -PHASE3_PRICE_MOVE_PCT))
-        if (p2_recent and price_ok and pa.triple_confirmed
-                and self._can("P3", self.COOLDOWN_P3)):
-            self._mark("P3")
-            signals.append(PhaseSignal(
-                phase=3, dominant_side=dom, direction=dirn,
-                oi_change_pct=oi_ch, vol_change_pct=v_ch,
-                price_change_pct=pa.price_change_3m,
-                atm_strike=curr.atm_strike, spot_price=curr.spot_price,
-                confidence=min(10, 7 + pa.trend_strength / 3),
-                message=(
-                    f"🚀 PHASE 3 - CONFIRMED! EXECUTE!\n\n"
-                    f"NIFTY: {curr.spot_price:,.2f} ({pa.price_change_3m:+.2f}%/3m)\n"
-                    f"ATM: {curr.atm_strike}\n"
-                    f"Signal: {'BUY_CALL' if dirn=='BULLISH' else 'BUY_PUT'}\n"
-                    f"✅ Triple: OI+Vol+Price confirmed!\n\n"
-                    f"VWAP: ₹{pa.trend.vwap:.0f} | Spot {pa.trend.spot_vs_vwap}\n"
-                    f"OI:{oi_ch:+.1f}% | Vol:{pa.vol_spike_ratio:.1f}x | "
-                    f"Price:{pa.price_change_3m:+.2f}%\n"
-                    f"{datetime.now(IST).strftime('%H:%M IST')}\n"
-                    f"⏳ AI confirming..."
-                )
-            ))
-
-        return signals
-
-
-# ============================================================
-#  STANDALONE ALERT CHECKER
-# ============================================================
-
-class AlertChecker:
-    COOLDOWN = 15 * 60   # v6.3: 15-min cooldown (was 30-min)
-
-    def __init__(self, cache: SnapshotCache, alerter):
-        self.cache   = cache
-        self.alerter = alerter
-        self._last: Dict[str, float] = {}
-
-    def _can(self, k: str) -> bool:
-        return (time_module.time() - self._last.get(k, 0)) >= self.COOLDOWN
-
-    def _mark(self, k: str):
-        self._last[k] = time_module.time()
-
-    @staticmethod
-    def _pct(c: float, p: float) -> float:
-        return ((c - p) / p * 100) if p > 0 else 0.0
-
-    async def check_all(self, curr: MarketSnapshot):
-        prev, _ = await self.cache.get_best_prev()
-        if not prev:
-            return
-        await self._oi(curr, prev)
-        await self._vol(curr, prev)
-        await self._pcr(curr, prev)
-        await self._prox(curr)
-
-    async def _oi(self, curr: MarketSnapshot, prev: MarketSnapshot):
-        if not self._can("OI"): return
-        ac = curr.strikes_oi.get(curr.atm_strike)
-        ap = prev.strikes_oi.get(curr.atm_strike)
-        if not ac or not ap or ap.ce_oi == 0 or ap.pe_oi == 0: return
-        ce = self._pct(ac.ce_oi, ap.ce_oi)
-        pe = self._pct(ac.pe_oi, ap.pe_oi)
-        if abs(ce) < OI_ALERT_PCT and abs(pe) < OI_ALERT_PCT: return
-        txt = (
-            f"📊 OI CHANGE ALERT\n\n"
-            f"NIFTY: {curr.spot_price:,.2f} | ATM: {curr.atm_strike}\n\n"
-            f"CALL OI: {ce:+.1f}% {'BUILDING 🔴' if ce > 0 else 'UNWINDING'}\n"
-            f"PUT  OI: {pe:+.1f}% {'BUILDING 🟢' if pe > 0 else 'UNWINDING'}\n\n"
-            f"PCR: {curr.overall_pcr:.2f}\n"
-            f"{datetime.now(IST).strftime('%H:%M IST')}"
-        )
-        await self.alerter.send_raw(txt)
-        self._mark("OI")
-
-    async def _vol(self, curr: MarketSnapshot, prev: MarketSnapshot):
-        if not self._can("VOL"): return
-        ac = curr.strikes_oi.get(curr.atm_strike)
-        ap = prev.strikes_oi.get(curr.atm_strike)
-        if not ac or not ap or ap.ce_volume == 0 or ap.pe_volume == 0: return
-        cv = self._pct(ac.ce_volume, ap.ce_volume)
-        pv = self._pct(ac.pe_volume, ap.pe_volume)
-        if max(cv, pv) < VOL_SPIKE_PCT: return
-        dom = "CALL" if cv >= pv else "PUT"
-        txt = (
-            f"⚡ VOLUME SPIKE ALERT\n\n"
-            f"NIFTY: {curr.spot_price:,.2f} | ATM: {curr.atm_strike}\n\n"
-            f"CALL Vol: {cv:+.1f}% | PUT Vol: {pv:+.1f}%\n"
-            f"Dominant: {dom} → {'BEARISH 🔴' if dom=='CALL' else 'BULLISH 🟢'}\n"
-            f"{datetime.now(IST).strftime('%H:%M IST')}"
-        )
-        await self.alerter.send_raw(txt)
-        self._mark("VOL")
-
-    async def _pcr(self, curr: MarketSnapshot, prev: MarketSnapshot):
-        if not self._can("PCR") or prev.overall_pcr <= 0: return
-        ch = self._pct(curr.overall_pcr, prev.overall_pcr)
-        if abs(ch) < PCR_ALERT_PCT: return
-        txt = (
-            f"📈 PCR CHANGE ALERT\n\n"
-            f"NIFTY: {curr.spot_price:,.2f}\n\n"
-            f"PCR: {prev.overall_pcr:.2f} → {curr.overall_pcr:.2f} ({ch:+.1f}%)\n"
-            f"{'Bulls gaining 🟢' if ch > 0 else 'Bears gaining 🔴'}\n"
-            f"{datetime.now(IST).strftime('%H:%M IST')}"
-        )
-        await self.alerter.send_raw(txt)
-        self._mark("PCR")
-
-    async def _prox(self, curr: MarketSnapshot):
-        if not self._can("PROX"): return
-        max_pe = max(curr.strikes_oi.items(), key=lambda x: x[1].pe_oi, default=None)
-        max_ce = max(curr.strikes_oi.items(), key=lambda x: x[1].ce_oi, default=None)
-        for level, item, kind in [("SUPPORT", max_pe, "PUT"), ("RESISTANCE", max_ce, "CALL")]:
-            if not item: continue
-            strike, oi_s = item
-            dist = abs(curr.spot_price - strike)
-            if dist > ATM_PROX_PTS: continue
-            oi_v = oi_s.pe_oi if kind == "PUT" else oi_s.ce_oi
-            txt  = (
-                f"🎯 PRICE NEAR {level}\n\n"
-                f"NIFTY: {curr.spot_price:,.2f}\n"
-                f"{level}: {strike} (OI: {oi_v:,.0f})\n"
-                f"Distance: {dist:.0f} pts\n"
-                f"{datetime.now(IST).strftime('%H:%M IST')}"
-            )
-            await self.alerter.send_raw(txt)
-            self._mark("PROX")
-            break
-
-
-# ============================================================
-#  CANDLESTICK PATTERN DETECTOR
-# ============================================================
-
-class PatternDetector:
-
-    @staticmethod
-    def detect(df: pd.DataFrame) -> List[Dict]:
-        pats = []
-        if df.empty or len(df) < 2: return pats
-        for i in range(1, len(df)):
-            c, p = df.iloc[i], df.iloc[i-1]
-            bc  = abs(c.close - c.open)
-            bp  = abs(p.close - p.open)
-            rng = c.high - c.low
-            if rng == 0: continue
-            if (c.close > c.open and p.close < p.open
-                    and c.open <= p.close and c.close >= p.open and bc > bp * 1.2):
-                pats.append({"time": c.name, "pattern": "BULLISH_ENGULFING",
-                             "type": "BULLISH", "strength": 8, "price": c.close})
-            elif (c.close < c.open and p.close > p.open
-                    and c.open >= p.close and c.close <= p.open and bc > bp * 1.2):
-                pats.append({"time": c.name, "pattern": "BEARISH_ENGULFING",
-                             "type": "BEARISH", "strength": 8, "price": c.close})
-            else:
-                lw = min(c.open, c.close) - c.low
-                hw = c.high - max(c.open, c.close)
-                if lw > bc * 2 and hw < bc * 0.3 and bc < rng * 0.35:
-                    pats.append({"time": c.name, "pattern": "HAMMER",
-                                 "type": "BULLISH", "strength": 7, "price": c.close})
-                elif hw > bc * 2 and lw < bc * 0.3 and bc < rng * 0.35:
-                    pats.append({"time": c.name, "pattern": "SHOOTING_STAR",
-                                 "type": "BEARISH", "strength": 7, "price": c.close})
-                elif bc < rng * 0.1:
-                    pats.append({"time": c.name, "pattern": "DOJI",
-                                 "type": "NEUTRAL", "strength": 4, "price": c.close})
-        return pats[-5:]
-
-    @staticmethod
-    def sr(df: pd.DataFrame) -> Tuple[float, float]:
-        if df.empty or len(df) < 5: return 0.0, 0.0
-        d = df.tail(20)
-        return float(d.low.min()), float(d.high.max())
-
-
-# ============================================================
-#  DEEPSEEK PROMPT BUILDER
-# ============================================================
-
-class PromptBuilder:
-
-    @staticmethod
-    def _candles(df: pd.DataFrame, label: str) -> str:
-        if df.empty: return f"{label}: no data\n"
-        out = f"\n{label} (TIME|O|H|L|C|DIR):\n"
-        for ts, row in df.tail(CANDLE_COUNT).iterrows():
-            t = ts.strftime("%H:%M") if hasattr(ts, "strftime") else str(ts)[:5]
-            d = "▲" if row.close > row.open else "▼" if row.close < row.open else "-"
-            out += f"{t}|{row.open:.0f}|{row.high:.0f}|{row.low:.0f}|{row.close:.0f}|{d}\n"
-        return out
-
-    @staticmethod
-    def build(snap: MarketSnapshot, oi: Dict, pa: PriceActionInsight,
-              df_3m: pd.DataFrame, df_30m: pd.DataFrame,
-              patterns: List[Dict], p_sup: float, p_res: float,
-              trigger: str = "MTF_ANALYSIS",
-              strong_oi: Optional[Dict] = None) -> str:
-
-        now = datetime.now(IST).strftime("%H:%M IST")
-        sr  = oi["sr"]
-        pcr = oi["overall_pcr"]
-        t   = pa.trend
-
-        p  = "You are an expert NIFTY 50 options trader. Analyze everything and give precise signal.\n\n"
-        p += f"=== MARKET | {now} | Expiry:{snap.expiry} | Lot:{LOT_SIZE} | Trigger:{trigger} ===\n"
-        p += f"NIFTY: ₹{snap.spot_price:,.2f} | ATM:{snap.atm_strike} | PCR:{pcr:.2f}({oi['pcr_trend']} Δ{oi['pcr_ch_pct']:+.1f}%)\n"
-        p += f"India VIX:{snap.india_vix:.2f} | Max Pain:{snap.max_pain}\n"
-        # VIX interpretation for AI
-        if snap.india_vix > 0:
-            if snap.india_vix < 13:   p += "VIX LOW (<13): Options cheap → ATM or 1-ITM ok\n"
-            elif snap.india_vix < 18: p += "VIX NORMAL (13-18): Standard pricing\n"
-            elif snap.india_vix < 25: p += "VIX HIGH (18-25): Options expensive → ATM only\n"
-            else:                     p += "VIX VERY HIGH (>25): Extreme premium → avoid buying options\n"
-        # Max Pain vs Spot
-        mp_diff = snap.spot_price - snap.max_pain
-        if abs(mp_diff) <= 50:
-            p += f"Spot near Max Pain (diff:{mp_diff:+.0f}) → Sideways bias near expiry\n"
-        elif mp_diff > 50:
-            p += f"Spot ABOVE Max Pain by {mp_diff:.0f}pts → Gravity pull DOWN toward {snap.max_pain}\n"
-        else:
-            p += f"Spot BELOW Max Pain by {abs(mp_diff):.0f}pts → Gravity pull UP toward {snap.max_pain}\n"
-        p += f"OI Support:{sr.support_strike} | OI Resistance:{sr.resistance_strike}\n"
-        if sr.near_support:    p += "⚠️ NEAR OI SUPPORT!\n"
-        if sr.near_resistance: p += "⚠️ NEAR OI RESISTANCE!\n"
-
-        if strong_oi:
-            p += f"\n=== 🔥 STRONG OI EVENT (Direct Trigger) ===\n"
-            p += f"Dominant:{strong_oi['dominant']} OI:{strong_oi['oi_ch']:+.1f}% Vol:{strong_oi['vol_ch']:+.1f}%\n"
-            p += f"Total PE:{strong_oi['total_pe']:+.1f}% | Total CE:{strong_oi['total_ce']:+.1f}%\n"
-            p += f"Direction:{strong_oi['direction']}\n"
-
-        p += f"\n=== TREND ===\n"
-        p += f"Day(30m):{t.day_trend} | Intraday(3m):{t.intraday_trend} | Short:{t.trend_3min}\n"
-        p += f"VWAP(OI-weighted):₹{t.vwap:.0f} | Spot {t.spot_vs_vwap} VWAP | All agree:{'✅' if t.all_agree else '❌'}\n"
-        p += f"{t.summary}\n"
-
-        p += f"\n=== PRICE ACTION ===\n"
-        p += f"Price: 3m={pa.price_change_3m:+.2f}% | 15m={pa.price_change_15m:+.2f}%\n"
-        p += f"Momentum:{pa.price_momentum} | Vol spike:{pa.vol_spike_ratio:.2f}x\n"
-        p += f"Trend strength:{pa.trend_strength:.1f}/10 | Triple confirmed:{'✅' if pa.triple_confirmed else '❌'}\n"
-        if pa.support_levels:    p += f"Price support: {', '.join(f'₹{s:.0f}' for s in pa.support_levels)}\n"
-        if pa.resistance_levels: p += f"Price resistance: {', '.join(f'₹{r:.0f}' for r in pa.resistance_levels)}\n"
-
-        p += f"\n=== OI ANALYSIS (3-min + {oi['window_mins']}-min window) ===\n"
-        p += "STRIKE|W|CE_OI(3/15%)|CE_VOL%|CE_ACT|CE_Δ|PE_OI(3/15%)|PE_VOL%|PE_ACT|PE_Δ|PCR|TF3/TF15|MTF|IV(CE/PE)|Bull|Bear\n"
-        for sa in oi["strike_analyses"]:
-            tag = "ATM" if sa.is_atm else ("SUP" if sa.is_support else ("RES" if sa.is_resistance else "   "))
-            p += (
-                f"{sa.strike}({tag}) W{sa.weight:.0f}|"
-                f"CE:{sa.ce_oi_3:+.0f}%/{sa.ce_oi_15:+.0f}% V:{sa.ce_vol_15:+.0f}%({sa.ce_action}) Δ{sa.ce_delta:.2f}|"
-                f"PE:{sa.pe_oi_3:+.0f}%/{sa.pe_oi_15:+.0f}% V:{sa.pe_vol_15:+.0f}%({sa.pe_action}) Δ{sa.pe_delta:.2f}|"
-                f"PCR:{sa.pcr:.2f}|{sa.tf3_signal[:3]}/{sa.tf15_signal[:3]}|"
-                f"MTF:{'✅' if sa.mtf_confirmed else '❌'}|"
-                f"IV:{sa.ce_iv:.1f}%/{sa.pe_iv:.1f}%|"
-                f"B:{sa.bull_strength:.0f} Br:{sa.bear_strength:.0f}\n"
-            )
-
-        p += PromptBuilder._candles(df_3m,  "3MIN CANDLES")
-        p += PromptBuilder._candles(df_30m, "30MIN CANDLES")
-
-        if patterns:
-            p += "\n=== PATTERNS ===\n"
-            for pat in patterns:
-                ts = pat["time"].strftime("%H:%M") if hasattr(pat["time"], "strftime") else str(pat["time"])[:5]
-                p += f"{ts}|{pat['pattern']}|{pat['type']}|{pat['strength']}/10|@₹{pat['price']:.0f}\n"
-
-        if p_sup or p_res: p += f"\nCandle S/R: Sup=₹{p_sup:.0f} | Res=₹{p_res:.0f}\n"
-
-        p += f"""
-=== NIFTY TRADING RULES ===
-OI: CALL OI↑+Vol↑=Resistance=BEARISH→BUY PUT | PUT OI↑+Vol↑=Support=BULLISH→BUY CALL
-OI↑ Vol flat = TRAP! | MTF(3+15 agree)=HIGH confidence
-STRONG OI (>20% in 15min): High probability directional move
-DELTA: ATM=~0.50 | OTM=0.25-0.35 | ITM=0.65-0.80
-  → Delta 0.45-0.55 = best ATM entry | Delta <0.30 = risky OTM
-VIX: <13=cheap buy options | 13-18=normal | >20=expensive avoid buying
-MAX PAIN: Expiry gravity — price pulls toward max pain as expiry nears
-  → Spot far above Max Pain = bearish expiry bias
-  → Spot far below Max Pain = bullish expiry bias
-PCR>{PCR_BULL}=bullish | PCR<{PCR_BEAR}=bearish
-TREND: Trade with day trend | VWAP above=bullish, below=bearish
-Lot={LOT_SIZE} | Strike=₹{STRIKE_INTERVAL} | SL=1 strike | Tgt=2 strikes
-Entry: MTF+Volume+Trend+Delta all confirm
-
-RESPOND ONLY JSON:
-{{
-  "signal": "BUY_CALL"|"BUY_PUT"|"WAIT",
-  "primary_strike": {snap.atm_strike},
-  "confidence": 0-10,
-  "stop_loss_strike": 0,
-  "target_strike": 0,
-  "trend_analysis": {{"day": "", "intraday": "", "all_agree": true, "vwap_confirms": true, "note": ""}},
-  "mtf": {{"tf3": "", "tf15": "", "confirmed": true}},
-  "price_action": {{"momentum": "", "triple_confirmed": true, "confirms_signal": true}},
-  "candle_pattern": {{"pattern": "", "type": "", "confirms_signal": true, "near_sr": true}},
-  "atm": {{"ce_action": "", "pe_action": "", "vol_confirms": true, "strength": "", "ce_delta": 0.0, "pe_delta": 0.0}},
-  "iv_note": {{"ce_iv": 0, "pe_iv": 0, "vix": {snap.india_vix:.2f}, "note": ""}},
-  "max_pain": {{"level": {snap.max_pain}, "spot_vs_mp": {int(snap.spot_price - snap.max_pain)}, "bias": ""}},
-  "pcr": {{"value": {pcr:.2f}, "trend": "{oi['pcr_trend']}", "supports": true}},
-  "volume": {{"ok": true, "spike_ratio": {pa.vol_spike_ratio:.2f}, "trap_warning": ""}},
-  "entry": {{"now": true, "reason": "", "wait_for": ""}},
-  "rr": {{"sl_pts": 0, "tgt_pts": 0, "ratio": 0}},
-  "levels": {{"oi_support": {sr.support_strike}, "oi_resistance": {sr.resistance_strike}, "candle_sup": {p_sup:.0f}, "candle_res": {p_res:.0f}, "max_pain": {snap.max_pain}}}
-}}"""
-        return p
-
-
-# ============================================================
-#  DEEPSEEK CLIENT
-# ============================================================
-
-class DeepSeekClient:
-    URL   = "https://api.deepseek.com/v1/chat/completions"
-    MODEL = "deepseek-chat"
-
-    def __init__(self, key: str):
-        self.key = key
-
-    async def analyze(self, prompt: str) -> Optional[Dict]:
-        hdrs = {"Authorization": f"Bearer {self.key}",
-                "Content-Type": "application/json"}
-        payload = {"model": self.MODEL,
-                   "messages": [{"role": "user", "content": prompt}],
-                   "temperature": 0.2, "max_tokens": 1500}
-        try:
-            async with aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=DEEPSEEK_TIMEOUT)
-            ) as sess:
-                async with sess.post(self.URL, headers=hdrs, json=payload) as r:
-                    if r.status != 200:
-                        logger.error(f"DeepSeek {r.status}")
-                        return None
-                    data    = await r.json()
-                    content = data["choices"][0]["message"]["content"].strip()
-                    for f in ("```json", "```"):
-                        content = content.replace(f, "")
-                    return json.loads(content.strip())
-        except asyncio.TimeoutError:
-            logger.error("❌ DeepSeek timeout")
-            return None
-        except json.JSONDecodeError as e:
-            logger.error(f"❌ JSON: {e}")
-            return None
-        except Exception as e:
-            logger.error(f"❌ DeepSeek: {e}")
-            return None
-
-
-# ============================================================
-#  TELEGRAM ALERTER
-# ============================================================
-
-class TelegramAlerter:
-
-    def __init__(self, token: str, chat_id: str):
-        self.token   = token
-        self.chat_id = chat_id
-        self.session = None
-
-    async def _sess(self):
-        if not self.session:
-            self.session = aiohttp.ClientSession()
-
-    async def close(self):
-        if self.session:
-            await self.session.close()
-
-    async def send_raw(self, text: str):
-        await self._sess()
-        url = f"https://api.telegram.org/bot{self.token}/sendMessage"
-        try:
-            async with self.session.post(url, json={
-                "chat_id": self.chat_id, "text": text, "parse_mode": "HTML"
-            }) as r:
-                if r.status != 200:
-                    logger.error(f"Telegram {r.status}: {await r.text()[:80]}")
-        except Exception as e:
-            logger.error(f"❌ Telegram: {e}")
-
-    async def send_signal(self, sig: Dict, snap: MarketSnapshot,
-                          oi: Dict, pa: PriceActionInsight,
-                          trigger: str = "MTF"):
-        mtf  = sig.get("mtf",            {})
-        atma = sig.get("atm",            {})
-        pcra = sig.get("pcr",            {})
-        vol  = sig.get("volume",         {})
-        ent  = sig.get("entry",          {})
-        rr   = sig.get("rr",             {})
-        cndl = sig.get("candle_pattern", {})
-        trnd = sig.get("trend_analysis", {})
-        iv   = sig.get("iv_note",        {})
-        mp   = sig.get("max_pain",       {})
-        st   = sig.get("signal", "WAIT")
-        opt  = "CE" if "CALL" in st else "PE" if "PUT" in st else ""
-        t    = pa.trend
-        conf = sig.get("confidence", 0)
-        bar  = "🟢" * min(conf, 10) + "⚪" * (10 - min(conf, 10))
-
-        # ATM strike Delta from OI data
-        atm_snap = snap.strikes_oi.get(snap.atm_strike)
-        ce_delta = atm_snap.ce_delta if atm_snap else 0.0
-        pe_delta = atm_snap.pe_delta if atm_snap else 0.0
-
-        # VIX label
-        vix = snap.india_vix
-        vix_label = ("🟢 Low" if vix < 13 else
-                     "🟡 Normal" if vix < 18 else
-                     "🔴 High" if vix < 25 else "🚨 Extreme")
-
-        msg = (
-            f"🚀 NIFTY OPTIONS v6.4 | {trigger}\n"
-            f"📅 {datetime.now(IST).strftime('%d-%b %H:%M IST')}\n\n"
-            f"💰 NIFTY: ₹{snap.spot_price:,.2f}\n"
-            f"📊 Signal: <b>{st}</b>\n"
-            f"⭐ Confidence: {conf}/10 {bar}\n"
-            f"📅 Expiry: {snap.expiry} | Lot:{LOT_SIZE}\n\n"
-            f"━━━ TRADE SETUP ━━━\n"
-            f"Entry: <b>{sig.get('primary_strike',0)} {opt}</b>\n"
-            f"SL: {sig.get('stop_loss_strike',0)} {opt} | "
-            f"Target: {sig.get('target_strike',0)} {opt}\n"
-            f"RR: {rr.get('ratio','N/A')} "
-            f"(SL:{rr.get('sl_pts',0)}pt → Tgt:{rr.get('tgt_pts',0)}pt)\n\n"
-            f"━━━ VIX & MAX PAIN ━━━\n"
-            f"VIX: {vix:.2f} {vix_label}\n"
-            f"Max Pain: {snap.max_pain} | "
-            f"Spot vs MP: {snap.spot_price - snap.max_pain:+.0f}pts\n"
-            f"MP Bias: {mp.get('bias','N/A')}\n\n"
-            f"━━━ TREND ━━━\n"
-            f"Day:{t.day_trend} | 3min:{t.intraday_trend}\n"
-            f"VWAP:₹{t.vwap:.0f} | Spot {t.spot_vs_vwap}\n"
-            f"All agree:{'✅' if trnd.get('all_agree') else '❌'} | "
-            f"VWAP confirms:{'✅' if trnd.get('vwap_confirms') else '❌'}\n\n"
-            f"━━━ OI (3m+15m) ━━━\n"
-            f"ATM CE:{atma.get('ce_action','N/A')} Δ{ce_delta:.2f} | "
-            f"ATM PE:{atma.get('pe_action','N/A')} Δ{pe_delta:.2f}\n"
-            f"TF3:{mtf.get('tf3','N/A')} | TF15:{mtf.get('tf15','N/A')}\n"
-            f"MTF:{'✅ HIGH CONF' if mtf.get('confirmed') else '❌ Weak'} | "
-            f"Vol:{'✅' if atma.get('vol_confirms') else '❌ TRAP?'}\n\n"
-            f"━━━ PRICE ACTION ━━━\n"
-            f"3m:{pa.price_change_3m:+.2f}% | 15m:{pa.price_change_15m:+.2f}%\n"
-            f"Triple:{'✅' if pa.triple_confirmed else '❌'} | "
-            f"Vol:{pa.vol_spike_ratio:.1f}x\n\n"
-            f"━━━ PATTERN & PCR ━━━\n"
-            f"Pattern:{cndl.get('pattern','None')} | "
-            f"Confirms:{'✅' if cndl.get('confirms_signal') else '❌'}\n"
-            f"PCR:{pcra.get('value','N/A')} ({pcra.get('trend','N/A')}) | "
-            f"Supports:{'✅' if pcra.get('supports') else '❌'}\n"
-            f"IV: CE={iv.get('ce_iv',0):.1f}% PE={iv.get('pe_iv',0):.1f}% "
-            f"| {iv.get('note','')}\n\n"
-            f"━━━ ENTRY ━━━\n"
-            f"{'✅ ENTER NOW' if ent.get('now') else '⏳ WAIT'}\n"
-            f"{ent.get('reason','')}\n\n"
-            f"DeepSeek V3 | NIFTY v6.4 | 3-min polling"
-        )
-        if vol.get("trap_warning"):
-            msg += f"\n\n⚠️ {vol['trap_warning']}"
-        await self.send_raw(msg.strip())
-
-
-# ============================================================
-#  EXIT TRACKER — v6.4 NEW
-# ============================================================
-
-@dataclass
-class ActiveTrade:
-    signal:        str    # BUY_CALL or BUY_PUT
-    entry_strike:  int
-    sl_strike:     int
-    target_strike: int
-    entry_price:   float  # spot at entry
-    entry_ltp:     float  # option LTP at entry
-    entry_time:    datetime
-    trigger:       str
-    confidence:    int
-    opt_type:      str    # CE or PE
-
-
-class ExitTracker:
-    """
-    v6.4 NEW: Tracks active trade and fires exit alerts.
-    Monitors every cycle:
-    - Target hit → EXIT profit alert
-    - SL hit     → EXIT loss alert
-    - OI reversal (30-min) → EXIT warning
-    - Market close (15:20) → Exit reminder
-    """
-
-    def __init__(self, alerter):
-        self.alerter      = alerter
-        self.active_trade: Optional[ActiveTrade] = None
-
-    def set_trade(self, sig: Dict, snap: MarketSnapshot, trigger: str):
-        st = sig.get("signal", "WAIT")
-        if st == "WAIT":
-            return
-        opt = "CE" if "CALL" in st else "PE"
-        entry_strike = sig.get("primary_strike", snap.atm_strike)
-        atm_s = snap.strikes_oi.get(entry_strike) or snap.strikes_oi.get(snap.atm_strike)
-        entry_ltp = (atm_s.ce_ltp if opt == "CE" else atm_s.pe_ltp) if atm_s else 0.0
-
-        self.active_trade = ActiveTrade(
-            signal=st,
-            entry_strike=entry_strike,
-            sl_strike=sig.get("stop_loss_strike", 0),
-            target_strike=sig.get("target_strike", 0),
-            entry_price=snap.spot_price,
-            entry_ltp=entry_ltp,
-            entry_time=datetime.now(IST),
-            trigger=trigger,
-            confidence=sig.get("confidence", 0),
-            opt_type=opt
-        )
-        logger.info(
-            f"📌 Trade set: {st} | Strike:{entry_strike} | "
-            f"LTP:{entry_ltp:.2f} | SL:{sig.get('stop_loss_strike')} | "
-            f"Tgt:{sig.get('target_strike')}"
-        )
-
-    def has_trade(self) -> bool:
-        return self.active_trade is not None
-
-    def clear_trade(self):
-        self.active_trade = None
-
-    async def check_exit(self, snap: MarketSnapshot, pa: PriceActionInsight):
-        """Called every cycle to check exit conditions."""
-        t = self.active_trade
-        if not t:
-            return
-
-        spot      = snap.spot_price
-        now       = datetime.now(IST)
-        duration  = int((now - t.entry_time).total_seconds() / 60)
-        atm_s     = snap.strikes_oi.get(t.entry_strike) or snap.strikes_oi.get(snap.atm_strike)
-        curr_ltp  = (atm_s.ce_ltp if t.opt_type == "CE" else atm_s.pe_ltp) if atm_s else 0.0
-        pnl_pts   = curr_ltp - t.entry_ltp if t.entry_ltp > 0 else 0.0
-        pnl_pct   = (pnl_pts / t.entry_ltp * 100) if t.entry_ltp > 0 else 0.0
-
-        reason = None
-        emoji  = ""
-
-        # 1. Target hit — spot crossed target strike
-        if t.target_strike:
-            if t.signal == "BUY_CALL" and spot >= t.target_strike:
-                reason = f"🎯 TARGET HIT! Spot {spot:,.0f} ≥ Target {t.target_strike}"
-                emoji  = "✅"
-            elif t.signal == "BUY_PUT" and spot <= t.target_strike:
-                reason = f"🎯 TARGET HIT! Spot {spot:,.0f} ≤ Target {t.target_strike}"
-                emoji  = "✅"
-
-        # 2. SL hit — spot crossed SL strike
-        if not reason and t.sl_strike:
-            if t.signal == "BUY_CALL" and spot <= t.sl_strike:
-                reason = f"🛑 STOP LOSS HIT! Spot {spot:,.0f} ≤ SL {t.sl_strike}"
-                emoji  = "❌"
-            elif t.signal == "BUY_PUT" and spot >= t.sl_strike:
-                reason = f"🛑 STOP LOSS HIT! Spot {spot:,.0f} ≥ SL {t.sl_strike}"
-                emoji  = "❌"
-
-        # 3. OI reversal — direction changed
-        if not reason:
-            if (t.signal == "BUY_CALL" and pa.price_momentum == "BEARISH"
-                    and pa.price_change_15m < -0.4):
-                reason = f"⚠️ TREND REVERSAL! Price {pa.price_change_15m:+.2f}% in 15m"
-                emoji  = "⚠️"
-            elif (t.signal == "BUY_PUT" and pa.price_momentum == "BULLISH"
-                    and pa.price_change_15m > 0.4):
-                reason = f"⚠️ TREND REVERSAL! Price {pa.price_change_15m:+.2f}% in 15m"
-                emoji  = "⚠️"
-
-        # 4. Market close reminder
-        if not reason and now.hour == 15 and now.minute >= 20:
-            reason = "🔔 Market closing in 10 min — review position"
-            emoji  = "🔔"
-
-        if reason:
-            await self._send_exit(t, snap, curr_ltp, pnl_pts, pnl_pct, duration, reason, emoji)
-            if emoji in ("✅", "❌"):  # hard exit — clear trade
-                self.clear_trade()
-
-    async def _send_exit(self, t: ActiveTrade, snap: MarketSnapshot,
-                         curr_ltp: float, pnl_pts: float, pnl_pct: float,
-                         duration: int, reason: str, emoji: str):
-        pnl_total = pnl_pts * LOT_SIZE
-        msg = (
-            f"{emoji} EXIT ALERT | NIFTY v6.4\n"
-            f"📅 {datetime.now(IST).strftime('%d-%b %H:%M IST')}\n\n"
-            f"Trade: {t.signal} | {t.entry_strike} {t.opt_type}\n"
-            f"Entry: ₹{t.entry_ltp:.2f} → Current: ₹{curr_ltp:.2f}\n"
-            f"P&L: {pnl_pts:+.2f}pts ({pnl_pct:+.1f}%) | "
-            f"Total: ₹{pnl_total:+.0f}\n"
-            f"Duration: {duration} min\n\n"
-            f"Spot: ₹{snap.spot_price:,.2f}\n"
-            f"SL: {t.sl_strike} | Target: {t.target_strike}\n\n"
-            f"{reason}\n\n"
-            f"Entry trigger: {t.trigger} | Conf:{t.confidence}/10"
-        )
-        await self.alerter.send_raw(msg)
-        logger.info(f"🚪 EXIT: {reason} | P&L:{pnl_pts:+.2f}pts")
-
-
-# ============================================================
-#  MAIN BOT
-# ============================================================
-
-class NiftyOptionsBot:
-
-    def __init__(self):
-        self.upstox  = UpstoxClient(UPSTOX_ACCESS_TOKEN)
-        self.cache   = SnapshotCache()
-        self.mtf     = MTFAnalyzer(self.cache)
-        self.ai      = DeepSeekClient(DEEPSEEK_API_KEY)
-        self.alerter = TelegramAlerter(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
-        self.checker = AlertChecker(self.cache, self.alerter)
-        self.phase   = PhaseDetector()
-        self.strong  = StrongOIChecker()
-        self.exit_tr = ExitTracker(self.alerter)   # v6.4: exit tracker
-        self._cycle  = 0
-        self._expiry: Optional[str] = None
-        self._expiry_date: Optional[str] = None
-
-    def is_market_open(self) -> bool:
-        now = datetime.now(IST)
-        if now.weekday() >= 5: return False
-        s = now.replace(hour=MARKET_START[0], minute=MARKET_START[1], second=0)
-        e = now.replace(hour=MARKET_END[0],   minute=MARKET_END[1],   second=0)
-        return s <= now <= e
-
-    async def _refresh_expiry(self):
-        today = datetime.now(IST).strftime("%Y-%m-%d")
-        if self._expiry_date == today and self._expiry:
-            return
-        logger.info("🔄 Fetching expiry...")
-        self._expiry      = await self.upstox.get_nearest_expiry()
-        self._expiry_date = today
-
-    async def run(self):
-        logger.info("=" * 60)
-        logger.info("NIFTY OPTIONS BOT v6.4 PRO — Koyeb")
-        logger.info(f"Polling: {SNAPSHOT_INTERVAL}s | ATM±{ATM_RANGE} | Lot:{LOT_SIZE}")
-        logger.info(f"Strong OI threshold: >{STRONG_OI_DIRECT_PCT}% OI + >{STRONG_VOL_PCT}% Vol")
-        logger.info(f"Phase1≥{PHASE1_OI_BUILD_PCT}% | Phase2≥{PHASE2_VOL_SPIKE_PCT}%")
-        logger.info("=" * 60)
-
-        await self.upstox.init()
-        await self._refresh_expiry()
-
-        try:
-            while True:
-                if not self.is_market_open():
-                    logger.info("Market closed — 60s")
-                    await asyncio.sleep(60)
-                    continue
-                try:
-                    await self._cycle_run()
-                except aiohttp.ClientConnectorError:
-                    logger.error("❌ Network — retry 60s")
-                    await asyncio.sleep(60)
-                except Exception as e:
-                    logger.error(f"❌ Cycle: {e}")
-                    logger.exception("Traceback:")
-                    await asyncio.sleep(30)
-
-                logger.info(
-                    f"⏱ Next in {SNAPSHOT_INTERVAL}s | "
-                    f"Cache:{self.cache.size()}/{CACHE_SIZE}"
-                )
-                await asyncio.sleep(SNAPSHOT_INTERVAL)
-
-        except KeyboardInterrupt:
-            logger.info("Stopped")
-        finally:
-            await self.upstox.close()
-            await self.alerter.close()
-
-    async def _cycle_run(self):
-        self._cycle += 1
-        is_analysis = (self._cycle % ANALYSIS_EVERY_N == 0)
-
-        await self._refresh_expiry()
-        if not self._expiry:
-            logger.warning("No expiry")
-            return
-
-        logger.info(
-            f"{'📊 ANALYSIS' if is_analysis else '📦 SNAP'} "
-            f"#{self._cycle} | {datetime.now(IST).strftime('%H:%M:%S IST')}"
-            + (f" | 📌 TRADE ACTIVE" if self.exit_tr.has_trade() else "")
-        )
-
-        # 1. Option chain snapshot
-        snap = await self.upstox.fetch_snapshot(self._expiry)
-        if not snap:
-            return
-
-        await self.cache.add(snap)
-
-        # 2. Standalone alerts
-        await self.checker.check_all(snap)
-
-        # 3. Candle data (2 API calls)
-        df_1m, df_3m, df_30m = await self.upstox.get_candles()
-
-        # 4. Price action
-        recent = await self.cache.get_recent(20)
-        pa     = PriceActionCalculator.calculate(recent, df_3m, df_30m)
-        logger.info(
-            f"Price: 3m={pa.price_change_3m:+.2f}% 15m={pa.price_change_15m:+.2f}% | "
-            f"Vol:{pa.vol_spike_ratio:.2f}x | VWAP:₹{pa.trend.vwap:.0f} | "
-            f"VIX:{snap.india_vix:.1f} | MaxPain:{snap.max_pain}"
-        )
-
-        # 5. Exit check — HIGHEST PRIORITY if trade active
-        if self.exit_tr.has_trade():
-            await self.exit_tr.check_exit(snap, pa)
-
-        # 6. Strong OI → direct AI
-        prev_15, _ = await self.cache.get_best_prev()
-        strong_ev  = await self.strong.check(snap, prev_15, pa)
-        if strong_ev and not self.exit_tr.has_trade():
-            await self._strong_oi_ai_call(snap, pa, strong_ev, df_3m, df_30m)
-
-        # 7. Phase detection
-        prev_3 = await self.cache.get_short()
-        phases = await self.phase.detect(snap, prev_3, pa)
-        for ps in phases:
-            logger.info(f"⚡ Phase {ps.phase}: {ps.direction}")
-            await self.alerter.send_raw(ps.message)
-            if ps.phase == 3 and not self.exit_tr.has_trade():
-                await self._phase3_ai_call(snap, pa, ps, df_3m, df_30m)
-
-        # 8. Periodic MTF analysis (every 15-min)
-        if is_analysis and not self.exit_tr.has_trade():
-            await self._full_analysis(snap, pa, df_3m, df_30m)
-
-    async def _strong_oi_ai_call(self, snap: MarketSnapshot, pa: PriceActionInsight,
-                                  strong_ev: Dict, df_3m: pd.DataFrame, df_30m: pd.DataFrame):
-        logger.info("🔥 Strong OI → DeepSeek V3...")
-        oi = await self.mtf.analyze(snap)
-        if not oi["available"]:
-            oi = self._fallback_oi(snap, strong_ev["direction"])
-
-        patterns     = PatternDetector.detect(df_3m)
-        p_sup, p_res = PatternDetector.sr(df_30m)
-        prompt       = PromptBuilder.build(
-            snap, oi, pa, df_3m, df_30m, patterns, p_sup, p_res,
-            trigger="STRONG_OI", strong_oi=strong_ev
-        )
-        ai_sig = await self.ai.analyze(prompt)
-        if ai_sig and ai_sig.get("confidence", 0) >= MIN_CONFIDENCE:
-            await self.alerter.send_signal(ai_sig, snap, oi, pa, trigger="🔥 STRONG_OI")
-            self.exit_tr.set_trade(ai_sig, snap, "STRONG_OI")  # v6.4: track trade
-
-    async def _phase3_ai_call(self, snap: MarketSnapshot, pa: PriceActionInsight,
-                               ps: PhaseSignal, df_3m: pd.DataFrame, df_30m: pd.DataFrame):
-        logger.info("🚀 Phase 3 → DeepSeek V3...")
-        oi = await self.mtf.analyze(snap)
-        if not oi["available"]:
-            oi = self._fallback_oi(snap, ps.direction)
-
-        patterns     = PatternDetector.detect(df_3m)
-        p_sup, p_res = PatternDetector.sr(df_30m)
-        prompt       = PromptBuilder.build(
-            snap, oi, pa, df_3m, df_30m, patterns, p_sup, p_res,
-            trigger="PHASE3"
-        )
-        ai_sig = await self.ai.analyze(prompt)
-        if ai_sig and ai_sig.get("confidence", 0) >= MIN_CONFIDENCE:
-            await self.alerter.send_signal(ai_sig, snap, oi, pa, trigger="🚀 PHASE3")
-            self.exit_tr.set_trade(ai_sig, snap, "PHASE3")  # v6.4: track trade
-
-    async def _full_analysis(self, snap: MarketSnapshot, pa: PriceActionInsight,
-                              df_3m: pd.DataFrame, df_30m: pd.DataFrame):
-        logger.info("📊 15-min MTF analysis...")
-        oi = await self.mtf.analyze(snap)
-        if not oi["available"]:
-            logger.info(oi["reason"])
-            return
-        if not oi["has_strong"]:
-            logger.info("No strong MTF signal — skip AI")
-            return
-
-        patterns     = PatternDetector.detect(df_3m)
-        p_sup, p_res = PatternDetector.sr(df_30m)
-        prompt       = PromptBuilder.build(
-            snap, oi, pa, df_3m, df_30m, patterns, p_sup, p_res,
-            trigger="MTF_15MIN"
-        )
-        logger.info("🤖 DeepSeek V3...")
-        ai_sig = await self.ai.analyze(prompt)
-
-        if not ai_sig:
-            sa = next((s for s in oi["strike_analyses"] if s.is_atm), None)
-            ai_sig = self._fallback_signal(snap, pa, oi, sa)
-
-        conf = ai_sig.get("confidence", 0)
-        logger.info(f"Signal:{ai_sig.get('signal','WAIT')} | Conf:{conf}/10")
-        if conf >= MIN_CONFIDENCE:
-            await self.alerter.send_signal(ai_sig, snap, oi, pa, trigger="📊 MTF_15MIN")
-            self.exit_tr.set_trade(ai_sig, snap, "MTF_15MIN")  # v6.4: track trade
-
-    def _fallback_oi(self, snap: MarketSnapshot, direction: str) -> Dict:
-        return {
-            "available": True, "strike_analyses": [],
-            "sr": SupportResistance(snap.atm_strike, 0, snap.atm_strike, 0, False, False),
-            "overall": direction, "total_bull": 0, "total_bear": 0,
-            "overall_pcr": snap.overall_pcr, "pcr_trend": "N/A",
-            "pcr_ch_pct": 0, "window_mins": 0, "has_strong": True
-        }
-
-    def _fallback_signal(self, snap, pa, oi, sa) -> Dict:
-        fb = ("BUY_CALL" if sa and sa.bull_strength > sa.bear_strength
-              else "BUY_PUT" if sa else "WAIT")
-        fc = min(10, max(sa.bull_strength, sa.bear_strength)) if sa else 3
-        return {
-            "signal": fb, "confidence": fc,
-            "primary_strike": snap.atm_strike,
-            "mtf":           {"tf3":"N/A","tf15":"N/A","confirmed":False},
-            "entry":         {"now":False,"reason":"AI timeout—MTF fallback","wait_for":""},
-            "price_action":  {"momentum":pa.price_momentum,
-                              "triple_confirmed":pa.triple_confirmed,"confirms_signal":False},
-            "candle_pattern":{"pattern":"N/A","type":"","confirms_signal":False,"near_sr":False},
-            "trend_analysis":{"day":pa.trend.day_trend,"intraday":pa.trend.intraday_trend,
-                              "all_agree":pa.trend.all_agree,"vwap_confirms":False,"note":""},
-            "iv_note":       {"ce_iv":0,"pe_iv":0,"note":""},
-            "volume":        {"ok":False,"spike_ratio":pa.vol_spike_ratio,"trap_warning":""},
-            "rr":{},"atm":{},"pcr":{},"levels":{}
-        }
-
-
-# ============================================================
-#  HTTP SERVER — Koyeb
-# ============================================================
-
-bot_instance: Optional[NiftyOptionsBot] = None
-
-async def health(request):
-    if bot_instance:
-        sz  = bot_instance.cache.size()
-        mkt = "OPEN" if bot_instance.is_market_open() else "CLOSED"
-        exp = bot_instance._expiry or "fetching..."
-        txt = (
-            f"NIFTY Bot v6.3 | ALIVE ✅\n"
-            f"{datetime.now(IST).strftime('%d-%b %H:%M IST')} | Market:{mkt}\n"
-            f"Expiry:{exp} | Cache:{sz}/{CACHE_SIZE} (3-min)\n"
-            f"ATM±{ATM_RANGE} | StrongOI>{STRONG_OI_DIRECT_PCT}% | Phase1≥{PHASE1_OI_BUILD_PCT}%"
-        )
-    else:
-        txt = "NIFTY Bot v6.3 | Starting..."
-    return aiohttp.web.Response(
-        text=txt,
-        headers={
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache", "Expires": "0"
-        }
+            chg[mins] = None
+
+    pcr_str = (
+        f"{chg[30]['pcr'] if chg[30] else 'N/A'}→"
+        f"{chg[15]['pcr'] if chg[15] else 'N/A'}→"
+        f"{chg[5]['pcr']  if chg[5]  else 'N/A'}→"
+        f"{current['pcr']}"
     )
 
-async def start_bot(app):
-    global bot_instance
-    bot_instance    = NiftyOptionsBot()
-    app["bot_task"] = asyncio.create_task(bot_instance.run())
+    ce_chg_str = (
+        f"{_fmt_chg(chg[30],'ce_chg')}/"
+        f"{_fmt_chg(chg[15],'ce_chg')}/"
+        f"{_fmt_chg(chg[5], 'ce_chg')} (30/15/5min)"
+    )
+    pe_chg_str = (
+        f"{_fmt_chg(chg[30],'pe_chg')}/"
+        f"{_fmt_chg(chg[15],'pe_chg')}/"
+        f"{_fmt_chg(chg[5], 'pe_chg')} (30/15/5min)"
+    )
 
-async def stop_bot(app):
-    if "bot_task" in app:
-        app["bot_task"].cancel()
+    cw_oi = current["strikes"].get(current["ce_wall"], {}).get("ce_oi", 0)
+    pw_oi = current["strikes"].get(current["pe_wall"], {}).get("pe_oi", 0)
+
+    return (
+        f"[OI | ATM:{current['atm']} | {current.get('expiry', get_nearest_expiry())}]\n"
+        f"PCR:{pcr_str}\n"
+        f"CE_OI_CHG:{ce_chg_str}\n"
+        f"PE_OI_CHG:{pe_chg_str}\n"
+        f"CE_WALL:{current['ce_wall']}({cw_oi//100000:.1f}L) "
+        f"PE_WALL:{current['pe_wall']}({pw_oi//100000:.1f}L)\n"
+        f"CE_VOL:{_vol_label(current['tot_ce_vol'], past5_ce_vol, base_ce_vol, elapsed_min)} "
+        f"PE_VOL:{_vol_label(current['tot_pe_vol'], past5_pe_vol, base_pe_vol, elapsed_min)} "
+        f"(vs 5min-ago, relative to today's avg pace)"
+    )
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 3: DATA COMPRESS
+# ═══════════════════════════════════════════════════════
+
+def get_base(df):
+    if df.empty:
+        return 24000
+    return math.floor(int(df["l"].min()) / 500) * 500
+
+
+def compress_ohlc(df, base, max_candles=None):
+    """O H L C per line — delta encoded"""
+    if df.empty:
+        return "N/A"
+    d = df.tail(max_candles) if max_candles else df
+    lines = []
+    for _, row in d.iterrows():
+        lines.append(
+            f"{int(row['o'])-base} {int(row['h'])-base} "
+            f"{int(row['l'])-base} {int(row['c'])-base}"
+        )
+    return "\n".join(lines)
+
+
+def compress_hl(df, base, max_candles=None):
+    """H L per line — for daily structure"""
+    if df.empty:
+        return "N/A"
+    d = df.tail(max_candles) if max_candles else df
+    lines = []
+    for _, row in d.iterrows():
+        lines.append(f"{int(row['h'])-base} {int(row['l'])-base}")
+    return "\n".join(lines)
+
+
+def drop_incomplete_candle(df, interval_minutes=5, buffer_sec=10):
+    """Remove last candle if still forming"""
+    if df.empty or len(df) < 2:
+        return df
+    try:
+        last_ts = pd.Timestamp(df.iloc[-1]["ts"])
+        if last_ts.tzinfo is None:
+            last_ts = IST.localize(last_ts.to_pydatetime())
+        else:
+            last_ts = last_ts.tz_convert(IST).to_pydatetime()
+
+        complete_at = last_ts + timedelta(
+            minutes=interval_minutes, seconds=buffer_sec
+        )
+        if datetime.now(IST) < complete_at:
+            log.info(f"Dropped incomplete {interval_minutes}M candle: {last_ts.strftime('%H:%M')}")
+            return df.iloc[:-1].copy()
+    except Exception as e:
+        log.error(f"drop_incomplete_candle: {e}")
+    return df
+
+
+def build_first_analysis_string(tf_data):
+    """Build compressed data string for first analysis + hourly reanalysis"""
+    daily  = tf_data.get("daily",  pd.DataFrame())
+    hourly = tf_data.get("hourly", pd.DataFrame())
+    m15    = drop_incomplete_candle(tf_data.get("m15", pd.DataFrame()), 15)
+    m5     = drop_incomplete_candle(tf_data.get("m5",  pd.DataFrame()), 5)
+
+    if daily.empty:
+        return None
+
+    d_base   = get_base(daily)
+    h_base   = get_base(hourly)
+    m15_base = get_base(m15)
+    m5_base  = get_base(m5)
+
+    pdc_row = None
+    try:
+        today   = datetime.now(IST).date()
+        last_ts = pd.to_datetime(daily.iloc[-1]["ts"]).date()
+        pdc_row = daily.iloc[-2] if last_ts == today else daily.iloc[-1]
+    except Exception:
+        pass
+
+    pdh = int(pdc_row["h"]) if pdc_row is not None else 0
+    pdl = int(pdc_row["l"]) if pdc_row is not None else 0
+    pdc = int(pdc_row["c"]) if pdc_row is not None else 0
+    ltp_approx = int(m5.iloc[-1]["c"]) if not m5.empty else 0
+
+    now_str = datetime.now(IST).strftime("%d-%m-%Y %H:%M")
+
+    return f"""=== NIFTY50 ZONE ANALYSIS | {now_str} ===
+
+[CONTEXT - Python Calculated]
+PDH:{pdh} | PDL:{pdl} | PDC:{pdc}
+LTP_approx:{ltp_approx}
+
+[DAILY - 15 candles | BASE:{d_base}]
+(H L per candle | oldest→newest)
+{compress_hl(daily, d_base, 15)}
+
+[1H - 30 candles | BASE:{h_base}]
+(O H L C per candle | oldest→newest)
+{compress_ohlc(hourly, h_base, 30)}
+
+[15M - last 40 candles | BASE:{m15_base}]
+(O H L C | oldest→newest)
+{compress_ohlc(m15, m15_base, 40)}
+
+[5M - last 60 candles | BASE:{m5_base}]
+(O H L C | oldest→newest)
+{compress_ohlc(m5, m5_base, 60)}"""
+
+
+def _price_context_block(context_zones):
+    """
+    FIX 12: Factual S/R range + position% block.
+    Deliberately NO 'lean'/'bias' language here — that was Python
+    pre-judging the trade and could contaminate the AI's independent
+    confirmation-based reasoning. Just the raw facts.
+    """
+    if not context_zones:
+        return ""
+    sup = context_zones.get("support")
+    res = context_zones.get("resistance")
+    if not sup and not res:
+        return ""
+
+    sup_str = f"{sup['id']}({sup['low']}-{sup['high']})" if sup else "None"
+    res_str = f"{res['id']}({res['low']}-{res['high']})" if res else "None"
+
+    extra = ""
+    width = context_zones.get("range_width")
+    pos   = context_zones.get("position_pct")
+    if width is not None and pos is not None:
+        extra = f"\nRange width:{width}pts | Position:{pos}% (0%=at support, 100%=at resistance)"
+
+    return f"\n\n[PRICE CONTEXT]\nNearest Support:{sup_str} | Nearest Resistance:{res_str}{extra}"
+
+
+def _dominance_block(dominance):
+    """FIX 11: factual dominance-candle numbers, no interpretation here."""
+    if not dominance:
+        return ""
+    return (
+        f"\n\n[DOMINANCE CANDLE]\n"
+        f"Range:{dominance['low']}-{dominance['high']} ({dominance['rng']}pts) | "
+        f"Side:{dominance['side']} | 50%:{dominance['mid']} | "
+        f"Reclaimed:{'YES' if dominance['reclaimed'] else 'NO'}"
+    )
+
+
+def _structure_shift_block(shift):
+    """
+    FIX 20: Formats the Python-detected structure-shift fact (see
+    get_structure_shift()) into a prompt block. Explicitly flags that
+    [MORNING CONTEXT] Bias/Structure may be stale relative to this —
+    the AI is told to weigh this real-time signal alongside candles,
+    not treat the old bias as the final word.
+    """
+    if not shift:
+        return ""
+    return (
+        f"\n\n[STRUCTURE SHIFT DETECTED — Python-tracked, real-time]\n"
+        f"{shift['count']} zone flip(s) in the '{shift['direction'].upper()}' "
+        f"direction since {shift['since']} (within the last hour).\n"
+        f"NOTE: The [MORNING CONTEXT] Bias/Structure above is from the last "
+        f"hourly reanalysis and may not reflect this yet — weigh this "
+        f"real-time structure signal together with the current candles, "
+        f"not just the (possibly stale) bias label."
+    )
+
+
+def build_zone_decision_string(tf_data, ltp, touched_zone, all_zones, morning_ctx,
+                                oi_context=None, context_zones=None, dominance=None):
+    """Build compact string for zone touch decision"""
+    m15 = drop_incomplete_candle(tf_data.get("m15", pd.DataFrame()), 15)
+    m5  = drop_incomplete_candle(tf_data.get("m5",  pd.DataFrame()), 5)
+
+    base    = get_base(m5) if not m5.empty else get_base(m15)
+    m15_str = compress_ohlc(m15, base, 20)
+    m5_str  = compress_ohlc(m5,  base, 30)
+
+    other = [
+        f"  {z['id']}:{z['type']} {z['low']}-{z['high']} [{z['strength']}]"
+        for z in all_zones if z.get("id") != touched_zone.get("id")
+    ]
+    other_str = "\n".join(other[:6]) if other else "None"
+
+    now_str = datetime.now(IST).strftime("%H:%M")
+    bias    = morning_ctx.get("bias", "?")
+    struct  = morning_ctx.get("structure", "?")
+
+    oi_block         = f"\n\n{oi_context}" if oi_context else ""
+    price_ctx_block  = _price_context_block(context_zones)
+    dominance_block  = _dominance_block(dominance)
+
+    return f"""=== ZONE DECISION | {now_str} ===
+
+[MORNING CONTEXT]
+Bias:{bias} | Structure:{struct}
+Day:{morning_ctx.get('day_type','?')}
+Summary:{morning_ctx.get('summary','')}
+
+[TOUCHED ZONE]
+ID:{touched_zone.get('id')} | Type:{touched_zone.get('type')}
+Range:{touched_zone.get('low')}-{touched_zone.get('high')}
+Strength:{touched_zone.get('strength')}
+Preferred:{touched_zone.get('preferred_action','?')}
+Why:{touched_zone.get('why','')}
+
+[OTHER ACTIVE ZONES]
+{other_str}
+
+[CURRENT LTP]
+{ltp}{oi_block}{price_ctx_block}{dominance_block}
+
+[15M - last 20 candles | BASE:{base}]
+(O H L C | oldest→newest)
+{m15_str}
+
+[5M - last 30 candles | BASE:{base}]
+(O H L C | oldest→newest)
+{m5_str}"""
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 4: ZONE MANAGER (Redis)
+# ═══════════════════════════════════════════════════════
+
+_memory = {}
+
+def _redis():
+    try:
+        import redis
+        r = redis.from_url(REDIS_URL, decode_responses=True)
+        r.ping()
+        return r
+    except Exception:
+        return None
+
+_r = _redis()
+log.info("✅ Redis connected" if _r else "⚠️ RAM mode")
+
+
+def _set(key, value, ttl=86400):
+    v = json.dumps(value)
+    if _r:
+        _r.setex(key, ttl, v)
+    else:
+        _memory[key] = v
+
+
+def _get(key):
+    try:
+        raw = _r.get(key) if _r else _memory.get(key)
+        return json.loads(raw) if raw else None
+    except Exception:
+        return None
+
+
+def _delete(key):
+    if _r:
+        _r.delete(key)
+    else:
+        _memory.pop(key, None)
+
+
+def save_zones(zones):
+    """
+    FIX 19: also stamps today's IST date alongside the zones, so a
+    restart can tell whether these zones belong to today or are stale
+    from before a crash boundary. Without this stamp there was no way
+    to distinguish "today's zones, just saved" from "yesterday's zones
+    that never got flushed" on restart.
+    """
+    _set("zones", zones[:MAX_ZONES])
+    _set("zones_date", datetime.now(IST).strftime("%Y-%m-%d"))
+    log.info(f"✅ {len(zones)} zones saved")
+
+
+def get_zones():
+    return _get("zones") or []
+
+
+def save_morning_context(ctx):
+    """FIX 19: date-stamped alongside — see save_zones() note."""
+    _set("morning_context", ctx)
+    _set("morning_context_date", datetime.now(IST).strftime("%Y-%m-%d"))
+
+
+def get_morning_context():
+    return _get("morning_context")
+
+
+def is_today_data_valid():
+    """
+    FIX 19: Restart-recovery check. Returns True only if BOTH zones and
+    morning_context exist in Redis AND both were stamped with today's
+    IST date. Used by main() on startup to decide: recover existing
+    data (restart mid-day) vs run a fresh morning_job() (first-ever
+    start, or data missing/stale from a previous day that somehow
+    survived without being flushed).
+    """
+    today       = datetime.now(IST).strftime("%Y-%m-%d")
+    zones       = get_zones()
+    ctx         = get_morning_context()
+    zones_date  = _get("zones_date")
+    ctx_date    = _get("morning_context_date")
+    return bool(zones and ctx and zones_date == today and ctx_date == today)
+
+
+def save_recovery_log(entry):
+    """
+    FIX 19: Tracks restart-recovery events for the day so they're
+    auditable later (not just a Telegram message that scrolls away) —
+    surfaced in the EOD summary's "Restarts Today" section.
+    """
+    logs = _get("recovery_log") or []
+    logs.append(entry)
+    _set("recovery_log", logs)
+
+
+def get_recovery_log():
+    return _get("recovery_log") or []
+
+
+def save_flip_event(zone_id, direction):
+    """
+    FIX 20: Records the moment a zone actually flips (RESISTANCE→
+    FLIP_SUPPORT = 'up' break, SUPPORT→FLIP_RESISTANCE = 'down' break).
+    This is Python-side and happens the instant maybe_flip_zone() fires
+    in zone_monitor_job() — it does NOT wait for the next hourly
+    reanalysis. Purpose: detect a same-direction structure shift across
+    multiple zones within the hour, well before hourly_job() eventually
+    updates morning_context['bias'] to match reality.
+    """
+    events = _get("flip_log") or []
+    events.append({
+        "time":      datetime.now(IST).strftime("%H:%M"),
+        "zone_id":   zone_id,
+        "direction": direction
+    })
+    _set("flip_log", events[-20:])  # last 20 is plenty for a single day
+
+
+def get_structure_shift(window_minutes=60, min_flips=2):
+    """
+    FIX 20: Reads recent flip events (see save_flip_event). If
+    `min_flips` or more flips in the SAME direction happened within the
+    last `window_minutes`, returns a factual dict — otherwise None.
+    Deliberately no "bias"/"lean" language here, same principle as
+    get_context_zones()/_dominance_block() — Python reports facts, the
+    AI decides what to do with them.
+    """
+    events = _get("flip_log") or []
+    if not events:
+        return None
+
+    now = datetime.now(IST)
+    recent = []
+    for e in events:
         try:
-            await app["bot_task"]
-        except asyncio.CancelledError:
-            pass
-    if bot_instance:
-        await bot_instance.upstox.close()
-        await bot_instance.alerter.close()
+            t = datetime.strptime(e["time"], "%H:%M").replace(
+                year=now.year, month=now.month, day=now.day
+            )
+            t = IST.localize(t)
+            if 0 <= (now - t).total_seconds() / 60 <= window_minutes:
+                recent.append(e)
+        except Exception:
+            continue
+
+    if len(recent) < min_flips:
+        return None
+
+    down_count = sum(1 for e in recent if e["direction"] == "down")
+    up_count   = sum(1 for e in recent if e["direction"] == "up")
+
+    if down_count >= min_flips and down_count > up_count:
+        matches = [e for e in recent if e["direction"] == "down"]
+        return {"direction": "down", "count": len(matches), "since": matches[0]["time"]}
+    if up_count >= min_flips and up_count > down_count:
+        matches = [e for e in recent if e["direction"] == "up"]
+        return {"direction": "up", "count": len(matches), "since": matches[0]["time"]}
+
+    return None
 
 
-# ============================================================
-#  ENTRY POINT
-# ============================================================
+def flush_day():
+    for k in ["zones", "zones_date", "morning_context", "morning_context_date",
+              "signal_history", "ai_raw_log", "recovery_log", "flip_log"]:
+        _delete(k)
+    log.info("🧹 Day data flushed")
 
-if __name__ == "__main__":
-    from aiohttp import web
 
-    app = web.Application()
-    app.router.add_get("/",       health)
-    app.router.add_get("/health", health)
-    app.on_startup.append(start_bot)
-    app.on_cleanup.append(stop_bot)
+def get_signal_history():
+    return _get("signal_history") or []
+
+
+def save_signal_log(entry):
+    h = get_signal_history()
+    h.append(entry)
+    _set("signal_history", h)
+
+
+def save_ai_raw_log(entry):
+    logs = _get("ai_raw_log") or []
+    logs.append(entry)
+    _set("ai_raw_log", logs[-MAX_AI_RAW_LOG:])
+
+
+def zone_buffer(zone):
+    """
+    FIX 9: Dynamic touch buffer — replaces flat ZONE_NEAR_PTS=25.
+    15% of zone width, floor 10pts. For this bot's typical 20-30pt
+    zones this mostly floors to 10 (tighter than the old flat 25) —
+    wider zones (60pt+) get a genuinely larger, proportional buffer.
+    """
+    width = zone.get("high", 0) - zone.get("low", 0)
+    return max(10, width * 0.15)
+
+
+def get_touched_zone(ltp, zones):
+    """
+    Return touched zone. Priority:
+    1. Non-NO_TRADE/SIDEWAYS zones first
+    2. NO_TRADE/SIDEWAYS only if nothing else touched
+    """
+    no_trade_types = ["NO_TRADE", "SIDEWAYS"]
+
+    for z in zones:
+        if z.get("type") in no_trade_types:
+            continue
+        low, high = z.get("low", 0), z.get("high", 0)
+        buf = zone_buffer(z)
+        if (ltp >= low - buf) and (ltp <= high + buf):
+            return z
+
+    for z in zones:
+        if z.get("type") not in no_trade_types:
+            continue
+        low, high = z.get("low", 0), z.get("high", 0)
+        buf = zone_buffer(z)
+        if (ltp >= low - buf) and (ltp <= high + buf):
+            return z
+
+    return None
+
+
+def get_context_zones(ltp, zones):
+    """
+    FIX 12: Nearest support/resistance around current LTP, plus range
+    width and position% within that range. Pure facts — no bias label.
+    """
+    no_trade_types = ["NO_TRADE", "SIDEWAYS"]
+    candidates = [z for z in zones if z.get("type") not in no_trade_types]
+
+    above = [z for z in candidates if z.get("low", 0) > ltp]
+    below = [z for z in candidates if z.get("high", 0) < ltp]
+
+    nearest_resistance = min(above, key=lambda z: z["low"] - ltp) if above else None
+    nearest_support    = max(below, key=lambda z: ltp - z["high"]) if below else None
+
+    range_width  = None
+    position_pct = None
+    if nearest_resistance and nearest_support:
+        range_low  = nearest_support["high"]
+        range_high = nearest_resistance["low"]
+        range_width = range_high - range_low
+        if range_width > 0:
+            position_pct = round((ltp - range_low) / range_width * 100, 1)
+
+    return {
+        "support":      nearest_support,
+        "resistance":   nearest_resistance,
+        "range_width":  range_width,
+        "position_pct": position_pct
+    }
+
+
+def detect_dominance_candle(df, ltp, lookback=DOMINANCE_LOOKBACK):
+    """
+    FIX 11: Python-side dominance-candle detection (replaces asking the
+    AI to eyeball OHLC arrays for this every call). Finds the
+    biggest-range candle in the last `lookback` 5M candles, determines
+    which side (BUYER/SELLER) dominated it, and whether current price
+    has reclaimed (SELLER candle) or lost (BUYER candle) its 50% level.
+    Returns None if no candle clears DOMINANCE_MIN_RANGE — most ticks
+    won't have one, and the AI prompt module is only injected when this
+    returns something (token savings + the module wasn't relevant most
+    of the time anyway).
+    """
+    if df.empty or len(df) < 3:
+        return None
+
+    d = df.tail(lookback).copy()
+    if d.empty:
+        return None
+
+    d["rng"] = d["h"] - d["l"]
+    idx = d["rng"].idxmax()
+    row = d.loc[idx]
+    rng = int(row["rng"])
+    if rng < DOMINANCE_MIN_RANGE:
+        return None
+
+    o, c, h, l = int(row["o"]), int(row["c"]), int(row["h"]), int(row["l"])
+    mid = round((h + l) / 2)
+    side = "SELLER" if c < o else "BUYER"
+
+    # SELLER dominance candle: reclaimed if price closed back above 50%
+    # BUYER dominance candle: "reclaimed" here means buyer is losing —
+    # price closed back below 50%
+    reclaimed = (ltp > mid) if side == "SELLER" else (ltp < mid)
+
+    return {
+        "low": l, "high": h, "mid": mid,
+        "side": side, "rng": rng, "reclaimed": reclaimed
+    }
+
+
+def _next_tick_boundary(dt, ticks_ahead=1):
+    """
+    FIX 14: Snap to the actual zone_monitor 5-min job grid (:00,:05,:10...
+    +10sec) instead of raw wall-clock + N minutes. Wall-clock cooldowns
+    drifted a few seconds off the grid and silently ate the very next
+    real tick (confirmed in logs: "7s left" / "12s left" skipping a
+    genuine confirmation candle). ticks_ahead counts in 5-min job ticks.
+    """
+    base = dt.replace(second=0, microsecond=0)
+    rem  = base.minute % 5
+    nxt  = base + timedelta(minutes=(5 - rem) if rem else 5)
+    nxt  = nxt + timedelta(minutes=5 * (ticks_ahead - 1), seconds=10)
+    return nxt
+
+
+def zone_cooldown_ok(zone_id):
+    """Only block if cooldown is still active (tick-grid aligned — see mark_zone_cooldown)."""
+    key = f"cooldown_{zone_id}"
+    cd  = _get(key)
+    if cd:
+        try:
+            until = datetime.fromisoformat(cd["until"])
+            if until.tzinfo is None:
+                until = IST.localize(until)
+            now = datetime.now(IST)
+            if now < until:
+                rem = int((until - now).total_seconds())
+                log.info(f"Zone {zone_id} cooldown: {rem}s left")
+                return False
+        except Exception as e:
+            log.warning(f"Cooldown parse error {zone_id}: {e}")
+    return True
+
+
+def mark_zone_cooldown(zone_id, signal_type):
+    """
+    BUY_CE/BUY_PE: ~30min cooldown (6 ticks), tick-grid aligned so drift
+    can't eat a real candle (FIX 14).
+    WAIT: NO cooldown anymore (FIX 14b) — the very next 5-min tick can
+    re-check the same zone immediately. Previously a flat 5min WAIT
+    cooldown was blocking the confirmation candle that often arrives
+    right after the first WAIT, which was the main cause of signals
+    landing 15-20min after the real move's origin instead of ~5-10min.
+    """
+    if signal_type in ["BUY_CE", "BUY_PE"]:
+        now   = datetime.now(IST)
+        until = _next_tick_boundary(now, ticks_ahead=6)
+        _set(f"cooldown_{zone_id}", {"until": until.isoformat()},
+             ttl=int((until - now).total_seconds()) + 120)
+        log.info(f"Zone {zone_id} cooldown: until {until.strftime('%H:%M:%S')} ({signal_type})")
+    else:
+        _delete(f"cooldown_{zone_id}")
+        log.info(f"Zone {zone_id}: no cooldown (WAIT) — next tick can re-check")
+
+
+def merge_zones(existing, new_zones, ltp):
+    """
+    Merge new zones into existing.
+    FLIP_ zones preserved, 50% overlap → replace, too far → drop.
+    """
+    def overlap(a, b):
+        ol = max(0, min(a["high"], b["high"]) - max(a["low"], b["low"]))
+        span_a = max(a["high"] - a["low"], 1)
+        return ol / span_a
+
+    flipped  = [z for z in existing if z.get("type","").startswith("FLIP_")]
+    non_flip = [z for z in existing if not z.get("type","").startswith("FLIP_")]
+
+    result = list(non_flip)
+    for nz in new_zones:
+        if abs((nz["low"] + nz["high"]) / 2 - ltp) > 500:
+            continue
+
+        skip = False
+        for fz in flipped:
+            if overlap(fz, nz) >= 0.5:
+                skip = True
+                break
+        if skip:
+            continue
+
+        replaced = False
+        for i, ez in enumerate(result):
+            if overlap(ez, nz) >= 0.5:
+                result[i] = nz
+                replaced = True
+                break
+        if not replaced:
+            result.append(nz)
+
+    result.extend(flipped)
+    result.sort(key=lambda z: abs((z["low"] + z["high"]) / 2 - ltp))
+    return result[:MAX_ZONES]
+
+
+def track_open_signals(ltp):
+    """Check if ref_sl or ref_target hit for open signals"""
+    history = get_signal_history()
+    updated = False
+    for sig in history:
+        if sig.get("result") != "OPEN":
+            continue
+
+        ref_sl  = sig.get("ref_sl", 0)
+        ref_tgt = sig.get("ref_target", 0)
+        stype   = sig.get("signal", "")
+
+        if stype == "BUY_CE":
+            if ref_sl and ltp <= ref_sl:
+                sig["result"] = "REF_SL_HIT"
+                updated = True
+            elif ref_tgt and ltp >= ref_tgt:
+                sig["result"] = "REF_TARGET_HIT"
+                updated = True
+        elif stype == "BUY_PE":
+            if ref_sl and ltp >= ref_sl:
+                sig["result"] = "REF_SL_HIT"
+                updated = True
+            elif ref_tgt and ltp <= ref_tgt:
+                sig["result"] = "REF_TARGET_HIT"
+                updated = True
+
+    if updated:
+        _set("signal_history", history)
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 4.5: CANDLE TRIGGER ENGINE
+# ═══════════════════════════════════════════════════════
+
+def _to_ist_datetime(ts):
+    """Convert any timestamp to IST-aware datetime"""
+    ts = pd.Timestamp(ts)
+    if ts.tzinfo is None:
+        return IST.localize(ts.to_pydatetime())
+    return ts.tz_convert(IST).to_pydatetime()
+
+
+def get_last_completed_m5_candle(tf_data, buffer_seconds=10):
+    """
+    Return last COMPLETED 5min candle.
+    If latest candle still forming → use previous one.
+    """
+    m5 = tf_data.get("m5", pd.DataFrame())
+    if m5.empty:
+        return None
+
+    now         = datetime.now(IST)
+    last        = m5.iloc[-1]
+    last_ts     = _to_ist_datetime(last["ts"])
+    complete_at = last_ts + timedelta(minutes=5, seconds=buffer_seconds)
+
+    if now >= complete_at:
+        return last
+
+    if len(m5) >= 2:
+        prev    = m5.iloc[-2]
+        prev_ts = _to_ist_datetime(prev["ts"])
+        log.info(
+            f"5M candle {last_ts.strftime('%H:%M')} still forming "
+            f"→ using {prev_ts.strftime('%H:%M')}"
+        )
+        return prev
+
+    return None
+
+
+def detect_candle_event(tf_data, zone, ltp=0):
+    """
+    Detect what type of candle event is happening at this zone.
+    Returns: (event_name, event_detail)
+
+    Events:
+    BREAKOUT_CANDLE        → Close above resistance + buffer
+    BREAKDOWN_CANDLE       → Close below support + buffer
+    BULLISH_SWEEP_RECLAIM  → Wick below support, close back above
+    BEARISH_SWEEP_REJECT   → Wick above resistance, close back below
+    SUPPORT_REJECTION      → Bullish candle at support zone
+    RESISTANCE_REJECTION   → Bearish candle at resistance zone
+    COMPRESSION_BREAKOUT   → Tight 4-candle range then breakout
+    RETEST_HOLD            → Flip zone being retested + holding
+    NO_EVENT               → No clear setup — skip AI
+    """
+    try:
+        m5 = drop_incomplete_candle(
+            tf_data.get("m5", pd.DataFrame()), 5
+        )
+        if m5.empty or len(m5) < 5:
+            return "NO_EVENT", "insufficient 5M data"
+
+        candle = get_last_completed_m5_candle({"m5": m5})
+        if candle is None:
+            return "NO_EVENT", "no completed candle"
+
+        o = int(candle["o"])
+        h = int(candle["h"])
+        l = int(candle["l"])
+        c = int(candle["c"])
+
+        zone_low  = zone.get("low",  0)
+        zone_high = zone.get("high", 0)
+        zone_type = zone.get("type", "")
+
+        if zone_type == "FLIP":
+            zone_type = "FLIP_SUPPORT" if ltp >= zone_low else "FLIP_RESISTANCE"
+
+        body        = c - o
+        candle_rng  = h - l
+        upper_wick  = h - max(o, c)
+        lower_wick  = min(o, c) - l
+
+        # ── 1. BREAKOUT ───────────────────────────────────
+        if c > zone_high + BREAKOUT_BUFFER:
+            if zone_type in ["RESISTANCE", "FLIP_RESISTANCE", "LIQUIDITY"]:
+                return (
+                    "BREAKOUT_CANDLE",
+                    f"close {c} > zone_high {zone_high}+{BREAKOUT_BUFFER}"
+                )
+
+        # ── 2. BREAKDOWN ──────────────────────────────────
+        if c < zone_low - BREAKOUT_BUFFER:
+            if zone_type in ["SUPPORT", "FLIP_SUPPORT", "LIQUIDITY"]:
+                return (
+                    "BREAKDOWN_CANDLE",
+                    f"close {c} < zone_low {zone_low}-{BREAKOUT_BUFFER}"
+                )
+
+        # ── 3. BULLISH SWEEP RECLAIM ──────────────────────
+        # FIX 13: zone_type gated — was firing on SUPPORT zones too,
+        # mislabeling a normal support-bounce as a resistance-sweep event.
+        if l < zone_low - 5 and c > zone_low:
+            if zone_type in ["SUPPORT", "FLIP_SUPPORT", "LIQUIDITY"]:
+                return (
+                    "BULLISH_SWEEP_RECLAIM",
+                    f"wick swept to {l} below {zone_low}, reclaimed to {c}"
+                )
+
+        # ── 4. BEARISH SWEEP REJECT ───────────────────────
+        # FIX 13: zone_type gated — mirror of above.
+        if h > zone_high + 5 and c < zone_high:
+            if zone_type in ["RESISTANCE", "FLIP_RESISTANCE", "LIQUIDITY"]:
+                return (
+                    "BEARISH_SWEEP_REJECT",
+                    f"wick swept to {h} above {zone_high}, rejected to {c}"
+                )
+
+        # ── 5. COMPRESSION BREAKOUT / BREAKDOWN ───────────
+        if len(m5) >= SIDEWAYS_CANDLE_CNT + 1:
+            prev = m5.iloc[-(SIDEWAYS_CANDLE_CNT + 1):-1]
+            h4   = int(prev["h"].max())
+            l4   = int(prev["l"].min())
+            rng4 = h4 - l4
+            if rng4 <= SIDEWAYS_MAX_RANGE:
+                if c > h4 + BREAKOUT_BUFFER:
+                    return (
+                        "COMPRESSION_BREAKOUT",
+                        f"4-candle range {rng4}pts → breakout close {c} above {h4}"
+                    )
+                if c < l4 - BREAKOUT_BUFFER:
+                    return (
+                        "COMPRESSION_BREAKDOWN",
+                        f"4-candle range {rng4}pts → breakdown close {c} below {l4}"
+                    )
+
+        # ── 6. SUPPORT REJECTION ──────────────────────────
+        # FIX 10: wick ratio raised 0.25 → 0.30 (REJECTION_WICK_RATIO).
+        # body>=-3 kept as-is on purpose — a hammer (small red body,
+        # long lower wick) is a real bullish reversal signal; forcing
+        # body>=0 would reject genuine hammers, not just noise.
+        if zone_type in ["SUPPORT", "FLIP_SUPPORT", "LIQUIDITY"]:
+            bullish_body = body > 0
+            doji_body    = abs(body) <= 3
+            good_wick    = lower_wick > candle_rng * REJECTION_WICK_RATIO if candle_rng > 0 else False
+            close_holds  = c > zone_low + 5
+            not_bearish  = body >= -3
+
+            if close_holds and not_bearish and (bullish_body or (doji_body and good_wick)):
+                return (
+                    "SUPPORT_REJECTION",
+                    f"bullish at support: body={body} lower_wick={lower_wick} close={c}"
+                )
+
+        # ── 7. RESISTANCE REJECTION ───────────────────────
+        if zone_type in ["RESISTANCE", "FLIP_RESISTANCE"]:
+            bearish_body = body < 0
+            doji_body    = abs(body) <= 3
+            good_wick    = upper_wick > candle_rng * REJECTION_WICK_RATIO if candle_rng > 0 else False
+            close_below  = c < zone_high - 5
+            not_bullish  = body <= 3
+
+            if close_below and not_bullish and (bearish_body or (doji_body and good_wick)):
+                return (
+                    "RESISTANCE_REJECTION",
+                    f"bearish at resistance: body={body} upper_wick={upper_wick} close={c}"
+                )
+
+        # ── 8. RETEST HOLD (flip zone) ────────────────────
+        if zone_type == "FLIP_SUPPORT" and c > zone_low and body > 0:
+            return (
+                "RETEST_HOLD",
+                f"flip support retest: bullish close {c} above {zone_low}"
+            )
+        if zone_type == "FLIP_RESISTANCE" and c < zone_high and body < 0:
+            return (
+                "RETEST_HOLD",
+                f"flip resistance retest: bearish close {c} below {zone_high}"
+            )
+
+        return "NO_EVENT", f"zone touched but no clear candle event (body={body})"
+
+    except Exception as e:
+        log.error(f"detect_candle_event error: {e}")
+        return "NO_EVENT", f"error: {e}"
+
+
+def maybe_flip_zone(zone, event):
+    """
+    After breakout/breakdown, flip zone type dynamically.
+    RESISTANCE → FLIP_SUPPORT after BREAKOUT_CANDLE
+    SUPPORT    → FLIP_RESISTANCE after BREAKDOWN_CANDLE
+    """
+    z = dict(zone)
+    if event == "BREAKOUT_CANDLE" and z.get("type") == "RESISTANCE":
+        z["type"]             = "FLIP_SUPPORT"
+        z["preferred_action"] = "BUY_CE"
+        z["why"]              = f"[FLIPPED→SUPPORT] {z.get('why','')}"
+        log.info(f"Zone {z.get('id')} flipped: RESISTANCE → FLIP_SUPPORT")
+
+    elif event == "BREAKDOWN_CANDLE" and z.get("type") == "SUPPORT":
+        z["type"]             = "FLIP_RESISTANCE"
+        z["preferred_action"] = "BUY_PE"
+        z["why"]              = f"[FLIPPED→RESISTANCE] {z.get('why','')}"
+        log.info(f"Zone {z.get('id')} flipped: SUPPORT → FLIP_RESISTANCE")
+
+    return z
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 5: AI CALLS
+# ═══════════════════════════════════════════════════════
+
+PROMPT_MODULES = {
+    "SUPPORT_REJECTION": (
+        "SITUATION: SUPPORT_REJECTION — Price at support, bullish candle visible. "
+        "Check: genuine bounce or weak close before further drop? "
+        "BUY_CE if strong bullish rejection confirmed. WAIT if weak."
+    ),
+    "RESISTANCE_REJECTION": (
+        "SITUATION: RESISTANCE_REJECTION — Price at resistance, bearish candle visible. "
+        "Check: genuine rejection or fakeout before breakout? "
+        "BUY_PE if strong bearish rejection. WAIT if weak."
+    ),
+    "BREAKOUT_CANDLE": (
+        "SITUATION: BREAKOUT_CANDLE — Price closed ABOVE resistance with momentum. "
+        "This is a potential breakout continuation. "
+        "BUY_CE if breakout is strong and body is big. "
+        "WAIT if candle is small/suspicious or if immediate resistance is overhead. "
+        "Do NOT return BUY_PE on a breakout candle unless clear trap signal."
+    ),
+    "BREAKDOWN_CANDLE": (
+        "SITUATION: BREAKDOWN_CANDLE — Price closed BELOW support with momentum. "
+        "Potential breakdown continuation. "
+        "BUY_PE if breakdown is strong. WAIT if weak/possible trap. "
+        "Do NOT return BUY_CE on a breakdown candle."
+    ),
+    "BULLISH_SWEEP_RECLAIM": (
+        "SITUATION: BULLISH_SWEEP_RECLAIM / CHoCH — Price swept BELOW support then "
+        "closed back above zone. Classic liquidity sweep + reclaim. "
+        "BUY_CE if last 5M close is strong above zone AND higher low forming. "
+        "WAIT if close is weak or no structural break yet."
+    ),
+    "BEARISH_SWEEP_REJECT": (
+        "SITUATION: BEARISH_SWEEP_REJECT / CHoCH — Price swept ABOVE resistance then "
+        "closed back below zone. Classic trap rejection. "
+        "BUY_PE if close is strong below zone AND lower high forming. "
+        "WAIT if close is weak."
+    ),
+    "COMPRESSION_BREAKOUT": (
+        "SITUATION: COMPRESSION_BREAKOUT — Last 4 candles tight range (<30pts), "
+        "now breaking out. "
+        "BUY_CE if breaking upside and aligned with bias. "
+        "BUY_PE if breaking downside and aligned with bias. "
+        "WAIT if direction unclear or volume/body weak."
+    ),
+    "COMPRESSION_BREAKDOWN": (
+        "SITUATION: COMPRESSION_BREAKDOWN — Last 4 candles tight range (<30pts), "
+        "now breaking down. "
+        "BUY_PE if breakdown is clean and aligned with bias. "
+        "WAIT if uncertain."
+    ),
+    "RETEST_HOLD": (
+        "SITUATION: RETEST_HOLD — Previously broken level (flip zone) being retested. "
+        "Price returned to broken zone and is holding. "
+        "BUY_CE if flip support holding (bullish close above zone). "
+        "BUY_PE if flip resistance holding (bearish close below zone). "
+        "This is a high-quality setup if confirmed."
+    ),
+}
+
+
+OI_INTERPRETATION_MODULE = """
+OI CONTEXT MODULE (use when [OI CONTEXT] block is present):
+
+DATA MEANING:
+- PCR trend: 30min→15min→5min→now (rising PCR = more PE writing = bearish bias)
+- CE_OI_CHG: CE open interest change % (positive = fresh short writing = bearish)
+- PE_OI_CHG: PE open interest change % (positive = fresh put writing = bearish hedge)
+- CE_WALL: Strike with highest CE OI (resistance — sellers protecting this level)
+- PE_WALL: Strike with highest PE OI (support — sellers protecting this level)
+- CE_VOL/PE_VOL: Volume vs morning baseline (HIGH = active directional buying)
+
+SIGNAL RULES:
+- CE_OI rising + PE_OI falling + PCR falling = Bullish bias → lean BUY_CE
+- PE_OI rising + CE_OI falling + PCR rising = Bearish bias → lean BUY_PE
+- CE_VOL HIGH = Call buyers active = directional bullish bet
+- PE_VOL HIGH = Put buyers active = directional bearish bet OR hedge
+- CE_WALL breaking (OI suddenly drops) = Resistance gone → price can move up
+- PE_WALL breaking (OI suddenly drops) = Support gone → price can move down
+- OI and price action BOTH confirm same direction = HIGH confidence
+- OI and price action CONFLICT = reduce confidence → lean toward WAIT
+- If OI shows N/A (no history yet) = ignore OI, use only price action
+- FIX 17: PCR is given as 30min→15min→now (oldest→newest). Weight the
+  MOST RECENT leg (15min→now) most heavily. If the most recent leg reverses
+  the earlier trend (e.g. was rising but the last step fell), treat this
+  as an early-reversal warning, not a continuation of the old trend —
+  describe it accurately as "reversing" rather than calling it "rising"
+  or "falling" based on the overall span.
+"""
+
+# FIX 11: This module is now INJECTED CONDITIONALLY (only when Python's
+# detect_dominance_candle() actually finds a qualifying candle), and it
+# no longer asks the AI to "identify the biggest-range candle" itself —
+# Python already did that and put exact numbers in [DOMINANCE CANDLE].
+# The AI's job here is interpretation only.
+LIQUIDITY_FIGHT_MODULE = """
+LIQUIDITY FIGHT MODULE (a dominance candle was detected — see the
+[DOMINANCE CANDLE] block in the data: Range/Side/50%/Reclaimed):
+
+- The dominance candle is the biggest-range candle in recent price
+  action — strong BUYER or SELLER control at the time it formed.
+- Side:SELLER + Reclaimed:YES → price closed back above that candle's
+  50% level → seller weakening → lean bullish, especially if the
+  touched zone is support/liquidity.
+- Side:BUYER + Reclaimed:YES → price closed back below that candle's
+  50% level → buyer weakening → lean bearish.
+- Reclaimed:NO → the dominant side is still in control → no extra edge
+  from this candle; fall back to standard zone rules.
+- "Reaction" = small bounce/fall at a level. "Action" = clean break with
+  follow-through toward the next liquidity target (use [OTHER ACTIVE
+  ZONES] / [PRICE CONTEXT] to judge the next target). Judge from wick
+  size, close strength, and follow-through which is more likely.
+- A weak/indecisive close right at the level is often an invitation for
+  the opposite side to take over — treat this as WAIT/early warning,
+  not a confirmed signal, unless the next candle confirms.
+"""
+
+# FIX 22: Only injected for reversal-type events (rejection/reclaim/
+# retest at a zone) AND only when OI context is available. This is the
+# user's own long-standing OI philosophy (PCR>1.5=support wall,
+# PCR<0.7=resistance wall) applied specifically to confirm-or-doubt a
+# reversal candle — separate from the general OI_INTERPRETATION_MODULE,
+# which is about OI/PCR trend direction generally, not zone-confluence.
+PCR_REVERSAL_EVENTS = {
+    "SUPPORT_REJECTION", "RESISTANCE_REJECTION",
+    "BULLISH_SWEEP_RECLAIM", "BEARISH_SWEEP_REJECT", "RETEST_HOLD"
+}
+
+PCR_CONFLUENCE_MODULE = """
+PCR-REVERSAL CONFLUENCE MODULE (this is a reversal-type setup — check
+this alongside OI_INTERPRETATION_MODULE above):
+
+- PCR > 1.5 at a SUPPORT zone = strong put-writing wall = genuine
+  support confluence.
+- PCR < 0.7 at a RESISTANCE zone = strong call-writing wall = genuine
+  resistance confluence.
+- At SUPPORT: current PCR > 1.5 AND the most recent PCR leg is falling
+  = bullish reversal confluence with the candle event → this can raise
+  confidence toward HIGH if candles also confirm.
+- At SUPPORT: current PCR < 1.0, OR PCR rising while price bounces =
+  the OI does NOT support this bounce (no real put wall here) → treat
+  as a weaker/possible-trap setup, lean WAIT or lower confidence even
+  if the candle looks clean.
+- At RESISTANCE: current PCR < 0.7 AND the most recent PCR leg is
+  rising = bearish reversal confluence → can raise confidence toward
+  HIGH if candles also confirm.
+- At RESISTANCE: current PCR > 1.0, OR PCR falling while price
+  rejects = OI does NOT support this rejection → lean WAIT or lower
+  confidence.
+- If OI context is unavailable (N/A) this module does not apply —
+  judge from candles alone.
+"""
+
+FIRST_ANALYSIS_SYSTEM = """You are an expert NIFTY50 price-action zone analyst.
+The user manually confirms every trade. This is NOT auto-trading.
+
+DATA FORMAT: Each line = one candle (O H L C or H L).
+Values are delta-encoded (add BASE to get real price).
+Candles: oldest → newest.
+
+TASK: Analyze given multi-timeframe data and create practical intraday trading zones.
+
+Create:
+- Support zones
+- Resistance zones
+- Flip zones (old S now R, or vice versa)
+- Liquidity zones (equal highs/lows, sweep targets)
+- No-trade / sideways zone if applicable
+
+RULES:
+- LTP nearby zones are HIGHEST priority (actionable today)
+- Far HTF levels → context only, not main zones
+- Use 5M/15M for actionable zone boundaries
+- Daily/1H for bias and context only
+- Zones = price RANGES (low to high), not single lines
+- Max 5–7 useful zones total. Quality over quantity — only the most relevant zones.
+- If unclear structure → create WAIT/NO_TRADE zone
+- Do NOT force bullish or bearish bias
+
+SWEEP/RECLAIM RULE:
+If recent candles show price swept below a support then reclaimed it →
+mark that area as FLIP or LIQUIDITY zone with preferred_action BUY_CE.
+Mirror for bearish: swept above resistance then rejected → BUY_PE zone.
+
+LIQUIDITY FIGHT MODULE (apply this thinking when identifying zones):
+- Liquidity is relative to current price. When price is near an area, even
+  minor local levels matter. When price has moved far away from an area,
+  only the major base (origin of a clean, strong move) matters — find the
+  ORIGIN point of the cleanest/strongest move as the major liquidity base.
+- A "clean move" = consecutive same-direction candles with small wicks and
+  minimal overlap/pullback. The starting point of such a move is a strong
+  liquidity base — mark it as a zone with tag "MAJOR_LIQUIDITY" and
+  note in "why" that it's a clean-move origin.
+- Identify the single biggest-range candle (dominance candle) visible in
+  the data. Calculate its mid-point (50% of its high-low range). This
+  mid-point is the level where the losing side (buyer or seller) typically
+  gives up. If you find such a candle relevant to current price action,
+  create a zone around that mid-point with tag "DOMINANCE_50" and explain
+  which side (BUYER/SELLER) dominance it represents and at what price the
+  opposite side would "fail" (i.e. lose) if breached.
+- For every zone you create, add a "tags" array. Use tags from:
+  ["MAJOR_LIQUIDITY", "LOCAL_LIQUIDITY", "DOMINANCE_50", "CLEAN_ORIGIN",
+  "FLIP", "SWEEP_TARGET"] — as many as apply, or empty array if none apply.
+
+RESPOND ONLY in valid JSON. No text outside JSON."""
+
+
+ZONE_DECISION_SYSTEM = """You are an expert NIFTY50 intraday directional signal analyst.
+The user manually confirms every trade. This is NOT auto-trading.
+
+You receive:
+- Morning bias/structure context
+- Touched zone details
+- All active zones
+- Current LTP
+- Price context (nearest support/resistance, range position) when available
+- A detected dominance candle (if any) when available
+- Last completed 15M and 5M candles (delta-encoded)
+
+TASK: Decide ONE output for price touching/entering a saved zone:
+  BUY_CE / BUY_PE / WAIT
+
+RULES:
+- Focus on the TOUCHED ZONE first
+- Check: respecting / rejecting / breaking / trapping around zone
+- Use last completed 5M and 15M candles for confirmation
+- Do NOT chase big candles already moved
+- Weak candle confirmation → WAIT
+- Inside sideways/no-trade zone → WAIT
+- Setup forming but not confirmed → WAIT + mention "setup forming"
+- Need minimum 2 REAL confirmations for BUY_CE or BUY_PE
+- confidence LOW → WAIT
+- Direction unclear → WAIT. Never force signal.
+
+BIAS FRESHNESS (read this carefully):
+- The [MORNING CONTEXT] Bias/Structure fields are from the LAST HOURLY
+  reanalysis (runs at :02 past each hour) — they can be up to ~58
+  minutes stale, NOT real-time.
+- If the current 5M/15M candles and the touched zone's detected event
+  clearly CONTRADICT this bias (e.g. bias says LONG but candles show a
+  clean breakdown with 2+ real confirmations), trust the current
+  candles over the stale bias label. Do not let an outdated bias alone
+  push you to WAIT when the immediate price action is clear.
+- If a [STRUCTURE SHIFT DETECTED] block is present below, treat it as
+  a stronger real-time signal than the morning bias — it means Python
+  has already detected multiple zones breaking in the same new
+  direction since the bias was last computed.
+
+CHoCH RULE:
+Bullish: price swept below support → reclaimed above → minor lower-high broken
+→ BUY_CE if last completed 5M close confirms reclaim.
+Bearish: price swept above resistance → rejected back below → minor higher-low broken
+→ BUY_PE if last completed 5M close confirms rejection.
+
+REFERENCE LEVELS (for the "reference" field — analytics only, not advice):
+- ref_sl should be placed just beyond the relevant structural invalidation
+  point: for BUY_CE, just below the dominance candle's failure level / the
+  touched zone's low. For BUY_PE, just above the dominance candle's failure
+  level / the touched zone's high.
+- ref_target should be the next realistic liquidity zone in the trade's
+  direction (use the "OTHER ACTIVE ZONES" list to pick the nearest relevant
+  one), not an arbitrary point distance.
+- Briefly justify ref_sl/ref_target in terms of structure in your "reason"
+  or "risk_note" if relevant.
+- CRITICAL: ref_sl is the ONE invalidation number for this trade. If you
+  mention an invalidation/cancel level anywhere in "reason", "risk_note",
+  or "message", it MUST be the exact same number as ref_sl — never a
+  second, different invalidation level. Before finalizing, check that any
+  signal you send is not ALREADY invalidated: if current LTP has already
+  crossed back past ref_sl (or past the touched zone's own boundary) by
+  the time you're writing this response, return WAIT instead of forcing
+  a signal that contradicts your own risk_note.
+- CRITICAL: All prices written in "reason", "risk_note", and "message"
+  must be real index prices (the same scale as the [CURRENT LTP] value
+  given to you), never the raw delta-encoded numbers from the candle
+  data blocks above. Convert before writing.
+
+RESPOND ONLY in valid JSON. No text outside JSON."""
+
+
+def call_claude(system_prompt, user_prompt, model=DECISION_MODEL, max_tokens=ZONE_DECISION_MAX_TOKENS):
+    """
+    FIX 8: renamed from call_haiku — now parameterized by model + max_tokens
+    so both Sonnet (first analysis) and Haiku (zone decision) share one
+    code path. Defaults stay Haiku/1000 for any caller that doesn't override.
+    """
+    url  = "https://api.anthropic.com/v1/messages"
+    hdrs = {
+        "x-api-key":         ANTHROPIC_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type":      "application/json"
+    }
+    body = {
+        "model":      model,
+        "max_tokens": max_tokens,
+        "system":     system_prompt,
+        "messages":   [{"role": "user", "content": user_prompt}]
+    }
+    try:
+        r = requests.post(url, headers=hdrs, json=body, timeout=45)
+        if r.status_code == 200:
+            return r.json()["content"][0]["text"]
+        log.error(f"Claude API error {r.status_code} ({model}): {r.text[:200]}")
+    except Exception as e:
+        log.error(f"Claude call failed ({model}): {e}")
+    return None
+
+
+def parse_json(raw):
+    if not raw:
+        return None
+    try:
+        clean = raw.strip().replace("```json","").replace("```","").strip()
+        s = clean.find("{")
+        e = clean.rfind("}") + 1
+        return json.loads(clean[s:e]) if s != -1 else None
+    except Exception as ex:
+        log.error(f"JSON parse error: {ex}")
+        return None
+
+
+def run_first_analysis(tf_data, mode="FIRST"):
+    """Run first analysis or hourly reanalysis — uses ANALYSIS_MODEL (Sonnet)"""
+    log.info(f"🌅 Running {mode} analysis...")
+
+    data_str = build_first_analysis_string(tf_data)
+    if not data_str:
+        log.error("Data build failed")
+        return None
+
+    if mode == "FIRST":
+        liquidity_focus = (
+            "\n[FOCUS FOR THIS RUN: MAJOR LIQUIDITY]\n"
+            "This is the first analysis of the day. Use the Daily/1H data "
+            "to identify MAJOR liquidity bases — the origin points of the "
+            "cleanest, strongest historical moves. These are zones that "
+            "matter even when price is far away from them. Tag them "
+            "MAJOR_LIQUIDITY."
+        )
+    else:
+        liquidity_focus = (
+            "\n[FOCUS FOR THIS RUN: LOCAL LIQUIDITY]\n"
+            "This is an hourly reanalysis. In addition to validating "
+            "major zones, use the recent 15M/5M candles to identify LOCAL "
+            "liquidity — recent reaction areas, equal highs/lows, and "
+            "dominance candles near current price. Tag them LOCAL_LIQUIDITY "
+            "or DOMINANCE_50 as relevant."
+        )
+
+    user_prompt = data_str + liquidity_focus + """
+
+RETURN ONLY this JSON:
+{
+  "bias": "LONG/SHORT/NEUTRAL",
+  "structure": "HH_HL/LH_LL/SIDEWAYS/UNCLEAR",
+  "day_type": "TRENDING/RANGING/VOLATILE/UNCLEAR",
+  "summary": "short market explanation (1-2 lines)",
+  "zones": [
+    {
+      "id": "S1",
+      "type": "SUPPORT/RESISTANCE/FLIP/LIQUIDITY/NO_TRADE",
+      "low": 0,
+      "high": 0,
+      "strength": "STRONG/MED/WEAK",
+      "tags": [],
+      "preferred_action": "BUY_CE/BUY_PE/WAIT",
+      "why": "short reason"
+    }
+  ],
+  "no_trade_zone": {
+    "low": 0,
+    "high": 0,
+    "why": "short reason"
+  }
+}"""
+
+    raw    = call_claude(
+        FIRST_ANALYSIS_SYSTEM, user_prompt,
+        model=ANALYSIS_MODEL, max_tokens=FIRST_ANALYSIS_MAX_TOKENS
+    )
+    result = parse_json(raw)
+
+    save_ai_raw_log({
+        "time":   datetime.now(IST).strftime("%H:%M"),
+        "mode":   mode,
+        "model":  ANALYSIS_MODEL,
+        "raw":    raw[:500] if raw else None,
+        "parsed": bool(result)
+    })
+
+    if result:
+        log.info(f"✅ {mode} done: {result.get('bias')} | {result.get('day_type')}")
+    return result
+
+
+def run_zone_decision(tf_data, ltp, touched_zone, all_zones, morning_ctx,
+                       event="", event_reason="", oi_context=None):
+    """Run zone touch AI decision — uses DECISION_MODEL (Haiku) + event-based prompt routing"""
+    log.info(f"🎯 Zone decision: {touched_zone.get('id')} @ LTP:{ltp} | Event:{event}")
+
+    # FIX 11/12: compute Python-side facts once, inject conditionally
+    m5_for_dom    = drop_incomplete_candle(tf_data.get("m5", pd.DataFrame()), 5)
+    dominance     = detect_dominance_candle(m5_for_dom, ltp)
+    context_zones = get_context_zones(ltp, all_zones)
+    # FIX 20: real-time structure-shift fact, independent of hourly bias
+    structure_shift = get_structure_shift()
+
+    data_str = build_zone_decision_string(
+        tf_data, ltp, touched_zone, all_zones, morning_ctx,
+        oi_context=oi_context, context_zones=context_zones, dominance=dominance
+    )
+
+    event_block = ""
+    if event and event != "NO_EVENT":
+        event_block = f"\n\n[DETECTED CANDLE EVENT]\nEvent: {event}\nDetail: {event_reason}"
+
+    shift_block = _structure_shift_block(structure_shift)
+
+    situation_module = PROMPT_MODULES.get(event, "")
+    system_prompt    = ZONE_DECISION_SYSTEM
+    if situation_module:
+        system_prompt += f"\n\n{situation_module}"
+    if dominance:
+        system_prompt += f"\n\n{LIQUIDITY_FIGHT_MODULE}"
+    if oi_context:
+        system_prompt += OI_INTERPRETATION_MODULE
+        # FIX 22: PCR-reversal confluence — only for reversal-type events
+        if event in PCR_REVERSAL_EVENTS:
+            system_prompt += f"\n\n{PCR_CONFLUENCE_MODULE}"
+
+    user_prompt = data_str + event_block + shift_block + """
+
+RETURN ONLY this JSON:
+{
+  "signal": "BUY_CE/BUY_PE/WAIT",
+  "confidence": "HIGH/MED/LOW",
+  "zone_id": "id of touched zone",
+  "zone_type": "SUPPORT/RESISTANCE/FLIP/LIQUIDITY/NO_TRADE",
+  "zone_reaction": "BOUNCE/REJECTION/BREAKOUT/BREAKDOWN/TRAP/NO_REACTION",
+  "confirmations": [],
+  "confirmation_count": 0,
+  "reason": "short reason (2 lines max)",
+  "risk_note": "what user should manually check",
+  "message": "short Hinglish summary for Telegram",
+  "reference": {
+    "ref_sl": 0,
+    "ref_target": 0,
+    "valid_for_minutes": 45,
+    "note": "analytics only, not trade advice"
+  }
+}"""
+
+    raw    = call_claude(
+        system_prompt, user_prompt,
+        model=DECISION_MODEL, max_tokens=ZONE_DECISION_MAX_TOKENS
+    )
+    result = parse_json(raw)
+
+    save_ai_raw_log({
+        "time":    datetime.now(IST).strftime("%H:%M"),
+        "mode":    "ZONE_DECISION",
+        "model":   DECISION_MODEL,
+        "event":   event,
+        "zone_id": touched_zone.get("id"),
+        "ltp":     ltp,
+        "dominance_found": bool(dominance),
+        "structure_shift": structure_shift,
+        "raw":     raw[:500] if raw else None,
+        "parsed":  bool(result)
+    })
+
+    # FIX 23: reason/risk_note/confirmations straight into Koyeb logs —
+    # previously only visible by digging into Redis ai_raw_log. This is
+    # what answers "why did the AI WAIT here" without extra steps.
+    if result:
+        log.info(
+            f"🧠 {result.get('signal','?')} | conf:{result.get('confidence','?')} "
+            f"| reason: {result.get('reason','')}"
+        )
+        if result.get("risk_note"):
+            log.info(f"🧠 risk_note: {result.get('risk_note')}")
+        if result.get("confirmations"):
+            log.info(f"🧠 confirmations: {result.get('confirmations')}")
+
+    return result
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 6: SIGNAL ANALYTICS + EOD
+# ═══════════════════════════════════════════════════════
+
+def validate_decision(result, ltp, touched_zone=None, event=""):
+    """
+    Basic validation — check confirmations.
+    FIX 16 (corrected): hard Python-side guards against sending a signal
+    that's already self-invalidated by the time it fires.
+
+    Two separate checks, deliberately scoped differently:
+
+    1. ref_sl backstop (universal, any event) — if the AI's own ref_sl
+       has already been crossed by current LTP, the trade is already
+       invalidated by the AI's own stated level. Works for every event
+       type since ref_sl is signal-specific, not zone-direction-specific.
+
+    2. zone-boundary backstop (ONLY for break-continuation events:
+       BREAKOUT_CANDLE / BREAKDOWN_CANDLE / COMPRESSION_BREAKOUT /
+       COMPRESSION_BREAKDOWN) — for these, the trade thesis specifically
+       requires LTP to stay on the broken side of the zone. This must
+       NOT be applied to REJECTION/SWEEP/RETEST events, where LTP sitting
+       *inside* the zone is the normal, expected setup (that's literally
+       why the zone got touched and the AI call fired) — applying a
+       zone-boundary check there would incorrectly reject most valid
+       bounce-trade signals. This was a real bug in the first version of
+       this fix, caught on recheck before it ever shipped.
+    """
+    if not result:
+        return False
+
+    sig   = result.get("signal", "WAIT")
+    conf  = result.get("confidence", "LOW")
+    confs = result.get("confirmations", [])
+    count = result.get("confirmation_count", len(confs))
+
+    if sig == "WAIT":
+        return True
+
+    ref    = result.get("reference", {})
+    ref_sl = ref.get("ref_sl", 0)
+
+    # 1. Universal ref_sl backstop
+    if ref_sl:
+        if sig == "BUY_CE" and ltp <= ref_sl:
+            log.info(f"Rejected: BUY_CE but LTP {ltp} already at/below its own ref_sl {ref_sl}")
+            return False
+        if sig == "BUY_PE" and ltp >= ref_sl:
+            log.info(f"Rejected: BUY_PE but LTP {ltp} already at/above its own ref_sl {ref_sl}")
+            return False
+
+    # 2. Zone-boundary backstop — break-continuation events ONLY
+    BREAK_CONTINUATION_EVENTS = {
+        "BREAKOUT_CANDLE", "COMPRESSION_BREAKOUT",
+        "BREAKDOWN_CANDLE", "COMPRESSION_BREAKDOWN"
+    }
+    if touched_zone and event in BREAK_CONTINUATION_EVENTS:
+        zone_low  = touched_zone.get("low", 0)
+        zone_high = touched_zone.get("high", 0)
+        if sig == "BUY_PE" and ltp > zone_low:
+            log.info(f"Rejected: BUY_PE but LTP {ltp} already back above broken zone low {zone_low}")
+            return False
+        if sig == "BUY_CE" and ltp < zone_high:
+            log.info(f"Rejected: BUY_CE but LTP {ltp} already back below broken zone high {zone_high}")
+            return False
+
+    if conf == "LOW":
+        log.info("Rejected: LOW confidence")
+        return False
+
+    fake = {"none","na","n/a","null","","factor1","factor2","reason1","reason2"}
+    real = [c for c in confs if str(c).strip().lower() not in fake and len(str(c)) > 5]
+
+    if len(real) < MIN_CONFIRMATIONS:
+        log.info(f"Rejected: only {len(real)}/{MIN_CONFIRMATIONS} real confirmations")
+        return False
+
+    return True
+
+
+def run_eod_summary():
+    """
+    3:30 PM — send day summary to Telegram.
+    FIX 5: This MUST run (and read signal_history) BEFORE closing_job()
+    renames "OPEN" → "EOD_OPEN", otherwise still_open always reads 0
+    even when trades were genuinely open at close.
+    FIX 19: Now also shows a "Restarts Today" section from recovery_log,
+    so a mid-day restart-and-recover event is visible right in the same
+    summary, next to the signals that were logged before/after it — this
+    is what makes a restart-test (e.g. restart at 3pm, check 3:30 summary)
+    actually verifiable instead of just "trusting" nothing broke.
+    """
+    history = get_signal_history()
+    today   = datetime.now(IST).strftime("%d %b %Y")
+
+    buy_ce   = [s for s in history if s.get("signal") == "BUY_CE"]
+    buy_pe   = [s for s in history if s.get("signal") == "BUY_PE"]
+    waits    = [s for s in history if s.get("signal") == "WAIT"]
+    rejected = [s for s in history if s.get("signal") == "REJECTED"]
+
+    ref_hit    = sum(1 for s in history if s.get("result") == "REF_TARGET_HIT")
+    ref_sl     = sum(1 for s in history if s.get("result") == "REF_SL_HIT")
+    expired    = sum(1 for s in history if s.get("result") == "EXPIRED")
+    still_open = sum(1 for s in history if s.get("result") == "OPEN")
+
+    detail = ""
+    for s in history:
+        if s.get("signal") not in ["BUY_CE", "BUY_PE"]:
+            continue
+        r  = s.get("result","?")
+        em = ("✅" if r=="REF_TARGET_HIT" else
+              "❌" if r=="REF_SL_HIT" else
+              "⏰" if r=="EXPIRED" else
+              "⏳" if r=="OPEN" else "⚪")
+        detail += f"\n{em} {s['time']} {esc(s['signal'])} @ {esc(s.get('zone_id','?'))} → {esc(r)}"
+
+    # FIX 19: restart-recovery events today
+    recoveries = get_recovery_log()
+    recovery_block = ""
+    if recoveries:
+        recovery_block = "\n\n<b>🔁 Restarts Today:</b>"
+        for rec in recoveries:
+            recovery_block += (
+                f"\n♻️ {rec.get('time','?')} — recovered "
+                f"{rec.get('zones_recovered',0)} zones, "
+                f"{rec.get('signals_recovered',0)} signals were logged so far"
+            )
+
+    msg = f"""📈 <b>DAY SUMMARY | {today}</b>
+
+Signals scanned : {len(history)}
+🟢 BUY CE: {len(buy_ce)}
+🔴 BUY PE: {len(buy_pe)}
+⚪ WAIT (silent)    : {len(waits)}
+🚫 Rejected (silent): {len(rejected)}
+
+<b>Ref Analytics (trades only):</b>
+✅ Ref Target: {ref_hit}
+❌ Ref SL    : {ref_sl}
+⏰ Expired   : {expired}
+⏳ Open      : {still_open}
+{detail}{recovery_block}"""
+
+    tg_send(msg)
+    log.info("✅ EOD summary sent")
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 7: TELEGRAM
+# ═══════════════════════════════════════════════════════
+
+def tg_send(text):
+    """
+    FIX 4: capture + check response status code (was previously fire-
+    and-forget — non-200 responses, e.g. HTML parse errors from
+    unescaped AI text, went completely undetected). Callers should esc()
+    any AI-generated free text before it reaches here.
+    """
+    if not TG_BOT_TOKEN or not TG_CHAT_ID:
+        log.warning("Telegram not configured")
+        return
+    try:
+        r = requests.post(
+            f"https://api.telegram.org/bot{TG_BOT_TOKEN}/sendMessage",
+            json={"chat_id": TG_CHAT_ID, "text": text, "parse_mode": "HTML"},
+            timeout=10
+        )
+        if r.status_code != 200:
+            log.error(f"Telegram send failed {r.status_code}: {r.text[:300]}")
+    except Exception as e:
+        log.error(f"Telegram error: {e}")
+
+
+def send_zone_brief(ctx, zones):
+    """Morning/hourly zone brief"""
+    today  = datetime.now(IST).strftime("%d %b %Y %H:%M")
+    bias   = esc(ctx.get("bias","?"))
+    struct = esc(ctx.get("structure","?"))
+    dtype  = esc(ctx.get("day_type","?"))
+    summ   = esc(ctx.get("summary",""))
+
+    zone_lines = ""
+    for z in zones[:8]:
+        em = ("🟢" if z.get("preferred_action")=="BUY_CE" else
+              "🔴" if z.get("preferred_action")=="BUY_PE" else "⚪")
+        zone_lines += (
+            f"\n{em} {esc(z['id'])}: {z['low']}–{z['high']} "
+            f"[{esc(z['strength'])}] → {esc(z.get('preferred_action','?'))}"
+            f"\n   {esc(z.get('why',''))}"
+        )
+
+    nt  = ctx.get("no_trade_zone",{})
+    nt_str = (f"\n❌ No Trade: {nt.get('low')}–{nt.get('high')}"
+              if nt and nt.get("low") else "")
+
+    msg = f"""📊 <b>NIFTY ZONES | {today}</b>
+
+Bias      : {bias}
+Structure : {struct}
+Day Type  : {dtype}
+
+{summ}
+
+<b>Active Zones:</b>{zone_lines}{nt_str}
+
+Manual chart confirm karach trade ghe!"""
+
+    tg_send(msg)
+    log.info("✅ Zone brief sent")
+
+
+def send_recovery_alert(zones, ctx, history):
+    """
+    FIX 19: Sent when the bot restarts mid-day and recovers today's
+    zones/context from Redis instead of running a fresh morning_job().
+    Keeps the user in the loop that a restart happened AND that it did
+    NOT silently wipe/replace the day's zones.
+    """
+    now_str = datetime.now(IST).strftime("%H:%M:%S")
+    bias    = esc(ctx.get("bias","?")) if ctx else "?"
+    struct  = esc(ctx.get("structure","?")) if ctx else "?"
+
+    msg = f"""♻️ <b>Bot Restarted — Recovered from Redis</b>
+
+Time      : {now_str} IST
+Zones     : {len(zones)} recovered
+Signals   : {len(history)} already logged today
+Bias      : {bias} | Structure: {struct}
+
+Fresh analysis SKIPPED — using today's existing zones/context.
+(Check 3:30 PM EOD summary — it will list this restart, and all
+signals logged before this restart should still be counted there.)"""
+
+    tg_send(msg)
+    log.info("✅ Recovery alert sent")
+
+
+def send_signal(result, ltp, touched_zone):
+    """Send zone decision to Telegram"""
+    sig    = result.get("signal","WAIT")
+    conf   = esc(result.get("confidence","?"))
+    react  = esc(result.get("zone_reaction","?"))
+    reason = esc(result.get("reason",""))
+    risk   = esc(result.get("risk_note",""))
+    msg_h  = esc(result.get("message",""))
+    confs  = result.get("confirmations",[])
+
+    ref     = result.get("reference",{})
+    ref_sl  = ref.get("ref_sl",0)
+    ref_tgt = ref.get("ref_target",0)
+
+    emoji = ("🟢" if sig=="BUY_CE" else
+             "🔴" if sig=="BUY_PE" else "⚪")
+
+    conf_lines = "\n".join([f"  ✔ {esc(c)}" for c in confs[:5] if c])
+    conf_str   = f"\n{conf_lines}" if conf_lines else ""
+
+    ref_str = ""
+    if sig != "WAIT" and (ref_sl or ref_tgt):
+        ref_str = f"\n\n📊 <i>Ref Analytics (not advice):</i>\nRef SL:{ref_sl} | Ref T:{ref_tgt}"
+
+    now_str = datetime.now(IST).strftime("%H:%M")
+
+    msg = f"""{emoji} <b>{esc(sig)} | {now_str}</b>
+
+LTP       : {ltp}
+Zone      : {esc(touched_zone.get('id'))} ({touched_zone.get('low')}–{touched_zone.get('high')})
+Reaction  : {react}
+Confidence: {conf}
+
+Confirmations:{conf_str}
+
+Reason    : {reason}
+Risk Note : {risk}
+
+{msg_h}{ref_str}
+
+<i>Manual chart check karunch trade ghe!</i>"""
+
+    tg_send(msg)
+    log.info(f"✅ Signal sent: {sig}")
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 8: ORCHESTRATOR
+# ═══════════════════════════════════════════════════════
+
+def is_market_open():
+    now = datetime.now(IST)
+    if now.weekday() >= 5:
+        return False
+    from datetime import time as dtime
+    return dtime(9, 15) <= now.time() <= dtime(15, 30)
+
+
+def morning_job():
+    """9:20 IST — First Analysis"""
+    log.info("=" * 50)
+    log.info("🌅 FIRST ANALYSIS JOB")
+    log.info("=" * 50)
+    try:
+        tf_data = fetch_all_data()
+        result  = run_first_analysis(tf_data, mode="FIRST")
+
+        if not result:
+            tg_send("⚠️ First analysis failed — check logs")
+            return
+
+        zones = result.get("zones", [])
+        save_morning_context(result)
+        save_zones(zones)
+
+        ltp_now = get_ltp()
+        if ltp_now:
+            baseline = fetch_oi_chain(ltp_now)
+            if baseline:
+                baseline["saved_at"] = datetime.now(IST).isoformat()  # FIX 15
+                _set("oi_baseline", baseline, ttl=86400)
+                save_oi_snapshot(baseline)
+                log.info(f"✅ OI baseline saved | PCR:{baseline.get('pcr')} ATM:{baseline.get('atm')} Expiry:{baseline.get('expiry')}")
+            else:
+                log.warning("OI baseline fetch failed — OI context will show N/A today")
+
+        send_zone_brief(result, zones)
+
+    except Exception as e:
+        log.error(f"Morning job error: {e}")
+        tg_send(f"⚠️ Morning job error: {esc(str(e)[:100])}")
+
+
+def hourly_job():
+    """Every hour at :02 — Reanalysis + zone merge"""
+    if not is_market_open():
+        return
+    log.info("🔄 HOURLY REANALYSIS")
+    try:
+        ltp = get_ltp()
+        if not ltp:
+            return
+
+        tf_data = fetch_all_data()
+        result  = run_first_analysis(tf_data, mode="HOURLY")
+        if not result:
+            return
+
+        existing  = get_zones()
+        new_zones = result.get("zones", [])
+        merged    = merge_zones(existing, new_zones, ltp)
+
+        ctx = get_morning_context() or {}
+        ctx.update({
+            "bias":      result.get("bias", ctx.get("bias")),
+            "structure": result.get("structure", ctx.get("structure")),
+            "day_type":  result.get("day_type", ctx.get("day_type")),
+            "summary":   result.get("summary", ctx.get("summary"))
+        })
+
+        save_morning_context(ctx)
+        save_zones(merged)
+
+        now_str = datetime.now(IST).strftime("%H:%M")
+        tg_send(
+            f"🔄 <b>Zone Update | {now_str}</b>\n"
+            f"Bias:{esc(result.get('bias'))} | Structure:{esc(result.get('structure'))} | {len(merged)} zones active"
+        )
+        log.info(f"✅ Hourly zone update sent | {len(merged)} zones")
+
+    except Exception as e:
+        log.error(f"Hourly job error: {e}")
+
+
+def zone_monitor_job():
+    """
+    Every 5:10 IST — Zone monitor with candle trigger engine.
+    FIX 6 applied: OI chain fetched + snapshot saved ONCE per tick right
+    after LTP, unconditionally (no longer gated behind "zone touched AND
+    not NO_TRADE"). The fetched `current_oi` is then reused (not
+    re-fetched) later if/when we actually need the formatted OI context
+    for an AI call.
+    """
+    if not is_market_open():
+        return
+
+    now    = datetime.now(IST)
+    hour   = now.hour
+    minute = now.minute
+
+    if hour == 9 and minute < 25:
+        return
+    if hour == 15 and minute > LAST_AI_CALL_MINUTE:
+        log.info(f"After 15:{LAST_AI_CALL_MINUTE:02d} — no more AI calls")
+        return
+
+    try:
+        ltp = get_ltp()
+        if not ltp:
+            return
+        track_open_signals(ltp)
+
+        # FIX 6: unconditional OI snapshot — every tick, regardless of
+        # whether a zone is touched. This is what makes the 5/15/30min
+        # OI history lookback actually have data to find.
+        current_oi = None
+        try:
+            current_oi = fetch_oi_chain(ltp)
+            if current_oi:
+                save_oi_snapshot(current_oi)
+        except Exception as oi_err:
+            log.warning(f"OI fetch failed: {oi_err} — continuing without OI")
+
+        morning_ctx = get_morning_context()
+        if not morning_ctx:
+            log.warning("No morning context — running first analysis")
+            morning_job()
+            morning_ctx = get_morning_context()
+            if not morning_ctx:
+                return
+
+        log.info(f"📍 LTP: {ltp}")
+
+        zones = get_zones()
+        if not zones:
+            log.info("No zones saved")
+            return
+
+        touched = get_touched_zone(ltp, zones)
+        if not touched:
+            log.info("No zone touched")
+            return
+
+        zone_id   = touched.get("id", "?")
+        zone_type = touched.get("type", "")
+        log.info(f"🎯 Zone: {zone_id} ({touched.get('low')}-{touched.get('high')}) [{zone_type}]")
+
+        if zone_type in ["NO_TRADE", "SIDEWAYS"]:
+            log.info(f"⏭️ Skipping {zone_type} zone — no AI call")
+            return
+
+        tf_data = fetch_zone_decision_data()
+
+        event, event_reason = detect_candle_event(tf_data, touched, ltp)
+        log.info(f"📊 Candle event: {event} | {event_reason}")
+
+        if event == "NO_EVENT":
+            log.info("⏭️ No candle event — skipping AI call")
+            return
+
+        updated_zone = maybe_flip_zone(touched, event)
+        if updated_zone["type"] != touched["type"]:
+            updated_zones = [
+                updated_zone if z.get("id") == zone_id else z
+                for z in zones
+            ]
+            save_zones(updated_zones)
+            zones = updated_zones
+            # FIX 20: track flip direction for real-time structure-shift
+            # detection — RESISTANCE→FLIP_SUPPORT is an upward break,
+            # SUPPORT→FLIP_RESISTANCE is a downward break.
+            flip_direction = "up" if updated_zone["type"] == "FLIP_SUPPORT" else "down"
+            save_flip_event(zone_id, flip_direction)
+            log.info(
+                f"🔄 Zone flipped: {zone_id} "
+                f"{touched['type']} → {updated_zone['type']} @ LTP:{ltp}"
+            )
+
+        if not zone_cooldown_ok(zone_id):
+            return
+
+        oi_context = format_oi_context(current_oi) if current_oi else None
+        if oi_context:
+            log.info("✅ OI context ready")
+        else:
+            log.info("OI context unavailable — proceeding without OI")
+
+        result = run_zone_decision(
+            tf_data, ltp, updated_zone, zones,
+            morning_ctx, event, event_reason, oi_context
+        )
+
+        if not result:
+            return
+
+        if not validate_decision(result, ltp, updated_zone, event):
+            log.info(f"⏭️ Signal rejected (low conf / weak confirmations): {zone_id} | {event}")
+            save_signal_log({
+                "time":       now.strftime("%H:%M"),
+                "zone_id":    zone_id,
+                "event":      event,
+                "signal":     "REJECTED",
+                "confidence": result.get("confidence"),
+                "ref_sl":     0,
+                "ref_target": 0,
+                "result":     "REJECTED"
+            })
+            mark_zone_cooldown(zone_id, "WAIT")
+            return
+
+        sig = result.get("signal", "WAIT")
+        mark_zone_cooldown(zone_id, sig)
+
+        ref = result.get("reference", {})
+        save_signal_log({
+            "time":       now.strftime("%H:%M"),
+            "zone_id":    zone_id,
+            "event":      event,
+            "signal":     sig,
+            "confidence": result.get("confidence"),
+            "ref_sl":     ref.get("ref_sl", 0),
+            "ref_target": ref.get("ref_target", 0),
+            "result":     "OPEN" if sig != "WAIT" else "WAIT_SENT"
+        })
+
+        if sig in ["BUY_CE", "BUY_PE"]:
+            send_signal(result, ltp, updated_zone)
+        else:
+            log.info("⏭️ WAIT — logged silently, no Telegram alert")
+
+    except Exception as e:
+        log.error(f"Zone monitor error: {e}")
+
+
+def closing_job():
+    """
+    3:30 PM — EOD summary, then mark open signals expired, then flush.
+    FIX 5: run_eod_summary() now runs BEFORE the OPEN→EOD_OPEN rename.
+    Previously the rename happened first, so run_eod_summary()'s
+    still_open count (which looks for result=="OPEN") always read 0,
+    even on days with genuinely open trades at market close.
+    """
+    log.info("🔔 CLOSING JOB")
+
+    run_eod_summary()
+
+    history = get_signal_history()
+    changed = False
+    for s in history:
+        if s.get("result") == "OPEN":
+            s["result"] = "EOD_OPEN"
+            changed = True
+    if changed:
+        _set("signal_history", history)
+
+    flush_day()
+
+
+# ═══════════════════════════════════════════════════════
+# SECTION 9: FLASK + SCHEDULER + MAIN
+# ═══════════════════════════════════════════════════════
+
+def main():
+    log.info("╔══════════════════════════════════════════╗")
+    log.info("║  NIFTY50 ZONE ASSISTANT BOT Starting...  ║")
+    log.info("╚══════════════════════════════════════════╝")
+
+    if not UPSTOX_TOKEN:
+        log.error("❌ UPSTOX_ANALYTICS_TOKEN missing!")
+        return
+    if not ANTHROPIC_KEY:
+        log.error("❌ ANTHROPIC_API_KEY missing!")
+        return
+    if not TG_BOT_TOKEN:
+        log.error("❌ TELEGRAM_BOT_TOKEN missing!")
+        return
+
+    now = datetime.now(IST)
+    tg_send(
+        f"🚀 <b>Zone Assistant Bot Started!</b>\n"
+        f"Time: {now.strftime('%H:%M IST')}\n"
+        f"Analysis model: {esc(ANALYSIS_MODEL)} | Decision model: {esc(DECISION_MODEL)}\n"
+    )
+
+    scheduler = BackgroundScheduler(timezone=IST)
+
+    scheduler.add_job(
+        morning_job, "cron",
+        hour=9, minute=20, second=0,
+        id="morning"
+    )
+    scheduler.add_job(
+        hourly_job, "cron",
+        minute=2, second=0,
+        hour="10,11,12,13,14",
+        id="hourly"
+    )
+    scheduler.add_job(
+        zone_monitor_job, "cron",
+        minute="0,5,10,15,20,25,30,35,40,45,50,55",
+        second=10,
+        hour="9,10,11,12,13,14,15",
+        id="zone_monitor"
+    )
+    scheduler.add_job(
+        closing_job, "cron",
+        hour=15, minute=30, second=0,
+        id="closing"
+    )
+
+    scheduler.start()
+    log.info("✅ Scheduler started")
+    log.info("   First analysis    : 9:20 IST")
+    log.info("   Hourly reanalysis : :02 of each hour")
+    log.info("   Zone monitor      : Every 5min :10sec")
+    log.info("   EOD summary       : 15:30 IST")
+
+    # FIX 19: Restart-persistence check.
+    # Previously this block unconditionally called morning_job() any
+    # time the process started during market hours — including a
+    # mid-day restart at, say, 11:00 or 15:00. That blindly overwrote
+    # today's zones/context (built from hours of accumulated hourly_job
+    # merges) with a fresh from-scratch analysis, and reset the OI
+    # volume baseline too. Now: if today's zones+context are already in
+    # Redis (stamped with today's IST date), recover and reuse them —
+    # only run a fresh morning_job() if nothing valid for today exists
+    # yet (true first start, or a day where data never got saved).
+    if is_market_open():
+        if is_today_data_valid():
+            zones   = get_zones()
+            ctx     = get_morning_context()
+            history = get_signal_history()
+            log.info(
+                f"♻️ RESTART RECOVERY: today's zones/context found in Redis "
+                f"({len(zones)} zones, {len(history)} signals logged so far) "
+                f"— skipping fresh morning_job()"
+            )
+            save_recovery_log({
+                "time":              now.strftime("%H:%M:%S"),
+                "zones_recovered":   len(zones),
+                "signals_recovered": len(history)
+            })
+            send_recovery_alert(zones, ctx, history)
+        else:
+            log.info("Market open, no valid today's data in Redis → running first analysis now...")
+            morning_job()
+
+    flask_app = Flask(__name__)
+
+    @flask_app.route("/")
+    def index():
+        return "NIFTY50 Zone Assistant Bot ✅", 200
+
+    @flask_app.route("/health")
+    def health():
+        ctx     = get_morning_context()
+        zones   = get_zones()
+        history = get_signal_history()
+        return {
+            "status":          "ok",
+            "time_ist":        datetime.now(IST).strftime("%d-%m-%Y %H:%M:%S"),
+            "morning_context": "loaded" if ctx else "missing",
+            "bias":            ctx.get("bias","?") if ctx else "?",
+            "zones_active":    len(zones),
+            "signals_today":   len(history),
+            "restarts_today":  len(get_recovery_log()),
+            "analysis_model":  ANALYSIS_MODEL,
+            "decision_model":  DECISION_MODEL,
+            "scheduler":       "running" if scheduler.running else "stopped"
+        }, 200
 
     port = int(os.getenv("PORT", 8000))
+    log.info(f"🌐 Flask on port {port}")
+    flask_app.run(host="0.0.0.0", port=port)
 
-    print(f"""
-╔══════════════════════════════════════════╗
-║   NIFTY 50 OPTIONS BOT v6.3 PRO          ║
-║   Platform: Koyeb | Upstox V2            ║
-╠══════════════════════════════════════════╣
-║  Polling  : Every 3 min (NSE OI refresh) ║
-║  ATM Range: ±{ATM_RANGE} strikes (±₹{ATM_RANGE*STRIKE_INTERVAL})       ║
-║  Lot Size : {LOT_SIZE} | Strike: ₹{STRIKE_INTERVAL}           ║
-╠══════════════════════════════════════════╣
-║  v6.3 KEY CHANGES:                       ║
-║  ✅ 3-min polling                        ║
-║  ✅ Strong OI (>20%+Vol>25%) → AI direct ║
-║  ✅ 15-min OI window (was 30-min)        ║
-║  ✅ 3-min candle resample                ║
-║  ✅ Option chain VWAP (no ₹0 bug)       ║
-║  ✅ Adaptive cache (9:25 compatible)     ║
-║  ✅ Strike-wise compare (ATM shift safe) ║
-║  ✅ Analysis every 15-min (was 30-min)  ║
-╠══════════════════════════════════════════╣
-║  ENV VARS:                               ║
-║  UPSTOX_ACCESS_TOKEN                     ║
-║  TELEGRAM_BOT_TOKEN + CHAT_ID            ║
-║  DEEPSEEK_API_KEY                        ║
-║  PORT (default: 8000)                    ║
-╚══════════════════════════════════════════╝
-Starting on port {port}...
-""")
 
-    web.run_app(app, host="0.0.0.0", port=port)
+if __name__ == "__main__":
+    main()
