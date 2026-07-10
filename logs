@@ -1,0 +1,1035 @@
+2026-07-09 15:35:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-09 15:40:10 IST)" (scheduled at 2026-07-09 15:35:10+05:30)
+2026-07-09 15:35:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-09 15:40:10 IST)" executed successfully
+2026-07-09 15:35:56 IST | INFO | 10.250.0.21 - - [09/Jul/2026 10:05:56] "HEAD / HTTP/1.1" 200 -
+2026-07-09 15:40:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-09 15:45:10 IST)" (scheduled at 2026-07-09 15:40:10+05:30)
+2026-07-09 15:40:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-09 15:45:10 IST)" executed successfully
+2026-07-09 15:41:01 IST | INFO | 10.250.0.22 - - [09/Jul/2026 10:11:01] "HEAD / HTTP/1.1" 200 -
+2026-07-09 15:45:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-09 15:50:10 IST)" (scheduled at 2026-07-09 15:45:10+05:30)
+2026-07-09 15:45:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-09 15:50:10 IST)" executed successfully
+2026-07-09 15:46:05 IST | INFO | 10.250.0.21 - - [09/Jul/2026 10:16:05] "HEAD / HTTP/1.1" 200 -
+2026-07-09 15:50:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-09 15:55:10 IST)" (scheduled at 2026-07-09 15:50:10+05:30)
+2026-07-09 15:50:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-09 15:55:10 IST)" executed successfully
+2026-07-09 15:51:11 IST | INFO | 10.250.0.22 - - [09/Jul/2026 10:21:11] "HEAD / HTTP/1.1" 200 -
+2026-07-09 15:55:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:00:10 IST)" (scheduled at 2026-07-09 15:55:10+05:30)
+2026-07-09 15:55:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:00:10 IST)" executed successfully
+2026-07-09 15:56:16 IST | INFO | 10.250.0.20 - - [09/Jul/2026 10:26:16] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:01:20 IST | INFO | 10.250.0.21 - - [09/Jul/2026 10:31:20] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:06:24 IST | INFO | 10.250.0.21 - - [09/Jul/2026 10:36:24] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:11:28 IST | INFO | 10.250.0.21 - - [09/Jul/2026 10:41:28] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:16:32 IST | INFO | 10.250.0.21 - - [09/Jul/2026 10:46:32] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:21:37 IST | INFO | 10.250.0.21 - - [09/Jul/2026 10:51:37] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:26:42 IST | INFO | 10.250.0.20 - - [09/Jul/2026 10:56:42] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:31:46 IST | INFO | 10.250.0.22 - - [09/Jul/2026 11:01:46] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:36:49 IST | INFO | 10.250.0.21 - - [09/Jul/2026 11:06:49] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:41:52 IST | INFO | 10.250.0.20 - - [09/Jul/2026 11:11:52] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:46:59 IST | INFO | 10.250.0.22 - - [09/Jul/2026 11:16:59] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:52:02 IST | INFO | 10.250.0.21 - - [09/Jul/2026 11:22:02] "HEAD / HTTP/1.1" 200 -
+2026-07-09 16:57:06 IST | INFO | 10.250.0.21 - - [09/Jul/2026 11:27:06] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:02:12 IST | INFO | 10.250.0.21 - - [09/Jul/2026 11:32:12] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:07:17 IST | INFO | 10.250.0.20 - - [09/Jul/2026 11:37:17] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:12:21 IST | INFO | 10.250.0.21 - - [09/Jul/2026 11:42:21] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:17:26 IST | INFO | 10.250.0.20 - - [09/Jul/2026 11:47:26] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:22:30 IST | INFO | 10.250.0.20 - - [09/Jul/2026 11:52:30] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:27:36 IST | INFO | 10.250.0.22 - - [09/Jul/2026 11:57:36] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:32:41 IST | INFO | 10.250.0.20 - - [09/Jul/2026 12:02:41] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:37:47 IST | INFO | 10.250.0.21 - - [09/Jul/2026 12:07:47] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:42:51 IST | INFO | 10.250.0.20 - - [09/Jul/2026 12:12:51] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:47:55 IST | INFO | 10.250.0.21 - - [09/Jul/2026 12:17:55] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:53:00 IST | INFO | 10.250.0.22 - - [09/Jul/2026 12:23:00] "HEAD / HTTP/1.1" 200 -
+2026-07-09 17:58:05 IST | INFO | 10.250.0.22 - - [09/Jul/2026 12:28:05] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:03:08 IST | INFO | 10.250.0.20 - - [09/Jul/2026 12:33:08] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:08:12 IST | INFO | 10.250.0.21 - - [09/Jul/2026 12:38:12] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:13:16 IST | INFO | 10.250.0.20 - - [09/Jul/2026 12:43:16] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:18:20 IST | INFO | 10.250.0.21 - - [09/Jul/2026 12:48:20] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:23:27 IST | INFO | 10.250.0.21 - - [09/Jul/2026 12:53:27] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:28:32 IST | INFO | 10.250.0.20 - - [09/Jul/2026 12:58:32] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:33:36 IST | INFO | 10.250.0.21 - - [09/Jul/2026 13:03:36] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:38:40 IST | INFO | 10.250.0.22 - - [09/Jul/2026 13:08:40] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:43:46 IST | INFO | 10.250.0.20 - - [09/Jul/2026 13:13:46] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:48:51 IST | INFO | 10.250.0.21 - - [09/Jul/2026 13:18:51] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:53:56 IST | INFO | 10.250.0.21 - - [09/Jul/2026 13:23:56] "HEAD / HTTP/1.1" 200 -
+2026-07-09 18:59:02 IST | INFO | 10.250.0.20 - - [09/Jul/2026 13:29:02] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:04:07 IST | INFO | 10.250.0.22 - - [09/Jul/2026 13:34:07] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:09:42 IST | INFO | 10.250.0.20 - - [09/Jul/2026 13:39:42] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:14:46 IST | INFO | 10.250.0.22 - - [09/Jul/2026 13:44:46] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:19:51 IST | INFO | 10.250.0.22 - - [09/Jul/2026 13:49:51] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:24:55 IST | INFO | 10.250.0.21 - - [09/Jul/2026 13:54:55] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:30:02 IST | INFO | 10.250.0.22 - - [09/Jul/2026 14:00:02] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:35:06 IST | INFO | 10.250.0.20 - - [09/Jul/2026 14:05:06] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:40:10 IST | INFO | 10.250.0.21 - - [09/Jul/2026 14:10:10] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:45:14 IST | INFO | 10.250.0.20 - - [09/Jul/2026 14:15:14] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:50:18 IST | INFO | 10.250.0.21 - - [09/Jul/2026 14:20:18] "HEAD / HTTP/1.1" 200 -
+2026-07-09 19:55:24 IST | INFO | 10.250.0.22 - - [09/Jul/2026 14:25:24] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:00:29 IST | INFO | 10.250.0.20 - - [09/Jul/2026 14:30:29] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:05:34 IST | INFO | 10.250.0.22 - - [09/Jul/2026 14:35:34] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:10:39 IST | INFO | 10.250.0.22 - - [09/Jul/2026 14:40:39] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:15:44 IST | INFO | 10.250.0.21 - - [09/Jul/2026 14:45:44] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:20:48 IST | INFO | 10.250.0.20 - - [09/Jul/2026 14:50:48] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:25:53 IST | INFO | 10.250.0.22 - - [09/Jul/2026 14:55:53] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:30:57 IST | INFO | 10.250.0.21 - - [09/Jul/2026 15:00:57] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:36:01 IST | INFO | 10.250.0.21 - - [09/Jul/2026 15:06:01] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:41:05 IST | INFO | 10.250.0.21 - - [09/Jul/2026 15:11:05] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:46:12 IST | INFO | 10.250.0.20 - - [09/Jul/2026 15:16:12] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:51:17 IST | INFO | 10.250.0.21 - - [09/Jul/2026 15:21:17] "HEAD / HTTP/1.1" 200 -
+2026-07-09 20:56:21 IST | INFO | 10.250.0.21 - - [09/Jul/2026 15:26:21] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:01:25 IST | INFO | 10.250.0.20 - - [09/Jul/2026 15:31:25] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:06:30 IST | INFO | 10.250.0.21 - - [09/Jul/2026 15:36:30] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:11:33 IST | INFO | 10.250.0.20 - - [09/Jul/2026 15:41:33] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:16:38 IST | INFO | 10.250.0.22 - - [09/Jul/2026 15:46:38] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:21:43 IST | INFO | 10.250.0.20 - - [09/Jul/2026 15:51:43] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:26:48 IST | INFO | 10.250.0.21 - - [09/Jul/2026 15:56:48] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:31:54 IST | INFO | 10.250.0.21 - - [09/Jul/2026 16:01:54] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:36:59 IST | INFO | 10.250.0.21 - - [09/Jul/2026 16:06:59] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:42:06 IST | INFO | 10.250.0.21 - - [09/Jul/2026 16:12:06] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:47:10 IST | INFO | 10.250.0.20 - - [09/Jul/2026 16:17:10] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:52:15 IST | INFO | 10.250.0.20 - - [09/Jul/2026 16:22:15] "HEAD / HTTP/1.1" 200 -
+2026-07-09 21:57:19 IST | INFO | 10.250.0.21 - - [09/Jul/2026 16:27:19] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:02:25 IST | INFO | 10.250.0.22 - - [09/Jul/2026 16:32:25] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:07:29 IST | INFO | 10.250.0.22 - - [09/Jul/2026 16:37:29] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:12:34 IST | INFO | 10.250.0.21 - - [09/Jul/2026 16:42:34] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:17:38 IST | INFO | 10.250.0.21 - - [09/Jul/2026 16:47:38] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:22:43 IST | INFO | 10.250.0.22 - - [09/Jul/2026 16:52:43] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:27:47 IST | INFO | 10.250.0.22 - - [09/Jul/2026 16:57:47] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:32:53 IST | INFO | 10.250.0.20 - - [09/Jul/2026 17:02:53] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:37:59 IST | INFO | 10.250.0.20 - - [09/Jul/2026 17:07:59] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:43:03 IST | INFO | 10.250.0.20 - - [09/Jul/2026 17:13:03] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:48:07 IST | INFO | 10.250.0.20 - - [09/Jul/2026 17:18:07] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:53:11 IST | INFO | 10.250.0.20 - - [09/Jul/2026 17:23:11] "HEAD / HTTP/1.1" 200 -
+2026-07-09 22:58:16 IST | INFO | 10.250.0.22 - - [09/Jul/2026 17:28:16] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:03:22 IST | INFO | 10.250.0.21 - - [09/Jul/2026 17:33:22] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:08:26 IST | INFO | 10.250.0.22 - - [09/Jul/2026 17:38:26] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:13:30 IST | INFO | 10.250.0.22 - - [09/Jul/2026 17:43:30] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:18:36 IST | INFO | 10.250.0.20 - - [09/Jul/2026 17:48:36] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:23:41 IST | INFO | 10.250.0.22 - - [09/Jul/2026 17:53:41] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:28:45 IST | INFO | 10.250.0.22 - - [09/Jul/2026 17:58:45] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:33:51 IST | INFO | 10.250.0.21 - - [09/Jul/2026 18:03:51] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:38:55 IST | INFO | 10.250.0.21 - - [09/Jul/2026 18:08:55] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:44:00 IST | INFO | 10.250.0.22 - - [09/Jul/2026 18:14:00] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:49:05 IST | INFO | 10.250.0.20 - - [09/Jul/2026 18:19:05] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:54:09 IST | INFO | 10.250.0.21 - - [09/Jul/2026 18:24:09] "HEAD / HTTP/1.1" 200 -
+2026-07-09 23:59:14 IST | INFO | 10.250.0.22 - - [09/Jul/2026 18:29:14] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:04:19 IST | INFO | 10.250.0.20 - - [09/Jul/2026 18:34:19] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:09:24 IST | INFO | 10.250.0.21 - - [09/Jul/2026 18:39:24] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:14:28 IST | INFO | 10.250.0.22 - - [09/Jul/2026 18:44:28] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:19:34 IST | INFO | 10.250.0.22 - - [09/Jul/2026 18:49:34] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:24:39 IST | INFO | 10.250.0.22 - - [09/Jul/2026 18:54:39] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:29:44 IST | INFO | 10.250.0.22 - - [09/Jul/2026 18:59:44] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:34:49 IST | INFO | 10.250.0.21 - - [09/Jul/2026 19:04:49] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:39:53 IST | INFO | 10.250.0.20 - - [09/Jul/2026 19:09:53] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:44:59 IST | INFO | 10.250.0.21 - - [09/Jul/2026 19:14:59] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:50:04 IST | INFO | 10.250.0.21 - - [09/Jul/2026 19:20:04] "HEAD / HTTP/1.1" 200 -
+2026-07-10 00:55:09 IST | INFO | 10.250.0.21 - - [09/Jul/2026 19:25:09] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:00:12 IST | INFO | 10.250.0.22 - - [09/Jul/2026 19:30:12] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:05:18 IST | INFO | 10.250.0.20 - - [09/Jul/2026 19:35:18] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:10:23 IST | INFO | 10.250.0.22 - - [09/Jul/2026 19:40:23] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:15:28 IST | INFO | 10.250.0.22 - - [09/Jul/2026 19:45:28] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:20:33 IST | INFO | 10.250.0.21 - - [09/Jul/2026 19:50:33] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:25:36 IST | INFO | 10.250.0.20 - - [09/Jul/2026 19:55:36] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:30:41 IST | INFO | 10.250.0.21 - - [09/Jul/2026 20:00:41] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:35:46 IST | INFO | 10.250.0.22 - - [09/Jul/2026 20:05:46] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:40:51 IST | INFO | 10.250.0.20 - - [09/Jul/2026 20:10:51] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:45:55 IST | INFO | 10.250.0.20 - - [09/Jul/2026 20:15:55] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:51:00 IST | INFO | 10.250.0.20 - - [09/Jul/2026 20:21:00] "HEAD / HTTP/1.1" 200 -
+2026-07-10 01:56:06 IST | INFO | 10.250.0.20 - - [09/Jul/2026 20:26:06] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:01:11 IST | INFO | 10.250.0.22 - - [09/Jul/2026 20:31:11] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:06:15 IST | INFO | 10.250.0.22 - - [09/Jul/2026 20:36:15] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:11:20 IST | INFO | 10.250.0.22 - - [09/Jul/2026 20:41:20] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:16:25 IST | INFO | 10.250.0.21 - - [09/Jul/2026 20:46:25] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:21:30 IST | INFO | 10.250.0.22 - - [09/Jul/2026 20:51:30] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:26:34 IST | INFO | 10.250.0.22 - - [09/Jul/2026 20:56:34] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:31:39 IST | INFO | 10.250.0.21 - - [09/Jul/2026 21:01:39] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:36:44 IST | INFO | 10.250.0.21 - - [09/Jul/2026 21:06:44] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:41:49 IST | INFO | 10.250.0.21 - - [09/Jul/2026 21:11:49] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:46:54 IST | INFO | 10.250.0.20 - - [09/Jul/2026 21:16:54] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:51:58 IST | INFO | 10.250.0.22 - - [09/Jul/2026 21:21:58] "HEAD / HTTP/1.1" 200 -
+2026-07-10 02:57:03 IST | INFO | 10.250.0.22 - - [09/Jul/2026 21:27:03] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:02:07 IST | INFO | 10.250.0.22 - - [09/Jul/2026 21:32:07] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:07:12 IST | INFO | 10.250.0.22 - - [09/Jul/2026 21:37:12] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:12:17 IST | INFO | 10.250.0.22 - - [09/Jul/2026 21:42:17] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:17:22 IST | INFO | 10.250.0.22 - - [09/Jul/2026 21:47:22] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:22:29 IST | INFO | 10.250.0.21 - - [09/Jul/2026 21:52:29] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:27:35 IST | INFO | 10.250.0.20 - - [09/Jul/2026 21:57:35] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:32:40 IST | INFO | 10.250.0.21 - - [09/Jul/2026 22:02:40] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:37:45 IST | INFO | 10.250.0.21 - - [09/Jul/2026 22:07:45] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:42:49 IST | INFO | 10.250.0.21 - - [09/Jul/2026 22:12:49] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:47:56 IST | INFO | 10.250.0.21 - - [09/Jul/2026 22:17:56] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:53:01 IST | INFO | 10.250.0.20 - - [09/Jul/2026 22:23:01] "HEAD / HTTP/1.1" 200 -
+2026-07-10 03:58:05 IST | INFO | 10.250.0.22 - - [09/Jul/2026 22:28:05] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:03:09 IST | INFO | 10.250.0.20 - - [09/Jul/2026 22:33:09] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:08:15 IST | INFO | 10.250.0.21 - - [09/Jul/2026 22:38:15] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:13:20 IST | INFO | 10.250.0.21 - - [09/Jul/2026 22:43:20] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:18:25 IST | INFO | 10.250.0.20 - - [09/Jul/2026 22:48:25] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:23:30 IST | INFO | 10.250.0.21 - - [09/Jul/2026 22:53:30] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:28:35 IST | INFO | 10.250.0.21 - - [09/Jul/2026 22:58:35] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:33:40 IST | INFO | 10.250.0.21 - - [09/Jul/2026 23:03:40] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:38:45 IST | INFO | 10.250.0.21 - - [09/Jul/2026 23:08:45] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:43:49 IST | INFO | 10.250.0.22 - - [09/Jul/2026 23:13:49] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:48:55 IST | INFO | 10.250.0.22 - - [09/Jul/2026 23:18:55] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:54:01 IST | INFO | 10.250.0.22 - - [09/Jul/2026 23:24:01] "HEAD / HTTP/1.1" 200 -
+2026-07-10 04:59:06 IST | INFO | 10.250.0.21 - - [09/Jul/2026 23:29:06] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:04:10 IST | INFO | 10.250.0.22 - - [09/Jul/2026 23:34:10] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:09:13 IST | INFO | 10.250.0.21 - - [09/Jul/2026 23:39:13] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:14:17 IST | INFO | 10.250.0.22 - - [09/Jul/2026 23:44:17] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:19:22 IST | INFO | 10.250.0.20 - - [09/Jul/2026 23:49:22] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:24:27 IST | INFO | 10.250.0.21 - - [09/Jul/2026 23:54:27] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:29:31 IST | INFO | 10.250.0.21 - - [09/Jul/2026 23:59:31] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:34:37 IST | INFO | 10.250.0.21 - - [10/Jul/2026 00:04:37] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:39:41 IST | INFO | 10.250.0.21 - - [10/Jul/2026 00:09:41] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:44:46 IST | INFO | 10.250.0.21 - - [10/Jul/2026 00:14:46] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:49:51 IST | INFO | 10.250.0.21 - - [10/Jul/2026 00:19:51] "HEAD / HTTP/1.1" 200 -
+2026-07-10 05:54:56 IST | INFO | 10.250.0.21 - - [10/Jul/2026 00:24:56] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:00:00 IST | INFO | 10.250.0.22 - - [10/Jul/2026 00:30:00] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:05:06 IST | INFO | 10.250.0.21 - - [10/Jul/2026 00:35:06] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:10:10 IST | INFO | 10.250.0.20 - - [10/Jul/2026 00:40:10] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:15:15 IST | INFO | 10.250.0.20 - - [10/Jul/2026 00:45:15] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:20:20 IST | INFO | 10.250.0.21 - - [10/Jul/2026 00:50:20] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:25:24 IST | INFO | 10.250.0.21 - - [10/Jul/2026 00:55:24] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:30:29 IST | INFO | 10.250.0.22 - - [10/Jul/2026 01:00:29] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:35:34 IST | INFO | 10.250.0.22 - - [10/Jul/2026 01:05:34] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:40:39 IST | INFO | 10.250.0.20 - - [10/Jul/2026 01:10:39] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:45:44 IST | INFO | 10.250.0.22 - - [10/Jul/2026 01:15:44] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:50:50 IST | INFO | 10.250.0.22 - - [10/Jul/2026 01:20:50] "HEAD / HTTP/1.1" 200 -
+2026-07-10 06:55:55 IST | INFO | 10.250.0.21 - - [10/Jul/2026 01:25:55] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:00:59 IST | INFO | 10.250.0.21 - - [10/Jul/2026 01:30:59] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:06:04 IST | INFO | 10.250.0.22 - - [10/Jul/2026 01:36:04] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:11:08 IST | INFO | 10.250.0.21 - - [10/Jul/2026 01:41:08] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:16:13 IST | INFO | 10.250.0.22 - - [10/Jul/2026 01:46:13] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:21:18 IST | INFO | 10.250.0.21 - - [10/Jul/2026 01:51:18] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:26:22 IST | INFO | 10.250.0.21 - - [10/Jul/2026 01:56:22] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:31:27 IST | INFO | 10.250.0.22 - - [10/Jul/2026 02:01:27] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:36:31 IST | INFO | 10.250.0.21 - - [10/Jul/2026 02:06:31] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:41:35 IST | INFO | 10.250.0.21 - - [10/Jul/2026 02:11:35] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:46:40 IST | INFO | 10.250.0.20 - - [10/Jul/2026 02:16:40] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:51:45 IST | INFO | 10.250.0.20 - - [10/Jul/2026 02:21:45] "HEAD / HTTP/1.1" 200 -
+2026-07-10 07:56:50 IST | INFO | 10.250.0.20 - - [10/Jul/2026 02:26:50] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:01:55 IST | INFO | 10.250.0.21 - - [10/Jul/2026 02:31:55] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:07:00 IST | INFO | 10.250.0.20 - - [10/Jul/2026 02:37:00] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:12:04 IST | INFO | 10.250.0.21 - - [10/Jul/2026 02:42:04] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:17:08 IST | INFO | 10.250.0.21 - - [10/Jul/2026 02:47:08] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:22:13 IST | INFO | 10.250.0.22 - - [10/Jul/2026 02:52:13] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:27:18 IST | INFO | 10.250.0.20 - - [10/Jul/2026 02:57:18] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:32:22 IST | INFO | 10.250.0.22 - - [10/Jul/2026 03:02:22] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:37:27 IST | INFO | 10.250.0.22 - - [10/Jul/2026 03:07:27] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:42:32 IST | INFO | 10.250.0.21 - - [10/Jul/2026 03:12:32] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:47:37 IST | INFO | 10.250.0.22 - - [10/Jul/2026 03:17:37] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:52:41 IST | INFO | 10.250.0.22 - - [10/Jul/2026 03:22:41] "HEAD / HTTP/1.1" 200 -
+2026-07-10 08:57:46 IST | INFO | 10.250.0.20 - - [10/Jul/2026 03:27:46] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:00:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:05:10 IST)" (scheduled at 2026-07-10 09:00:10+05:30)
+2026-07-10 09:00:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:05:10 IST)" executed successfully
+2026-07-10 09:02:51 IST | INFO | 10.250.0.21 - - [10/Jul/2026 03:32:51] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:05:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:10:10 IST)" (scheduled at 2026-07-10 09:05:10+05:30)
+2026-07-10 09:05:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:10:10 IST)" executed successfully
+2026-07-10 09:07:56 IST | INFO | 10.250.0.20 - - [10/Jul/2026 03:37:56] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:10:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:15:10 IST)" (scheduled at 2026-07-10 09:10:10+05:30)
+2026-07-10 09:10:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:15:10 IST)" executed successfully
+2026-07-10 09:13:01 IST | INFO | 10.250.0.22 - - [10/Jul/2026 03:43:01] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:15:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:20:10 IST)" (scheduled at 2026-07-10 09:15:10+05:30)
+2026-07-10 09:15:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:20:10 IST)" executed successfully
+2026-07-10 09:18:06 IST | INFO | 10.250.0.22 - - [10/Jul/2026 03:48:06] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:20:00 IST | INFO | Running job "morning_job (trigger: cron[hour='9', minute='20', second='0'], next run at: 2026-07-11 09:20:00 IST)" (scheduled at 2026-07-10 09:20:00+05:30)
+2026-07-10 09:20:00 IST | INFO | ==================================================
+2026-07-10 09:20:00 IST | INFO | 🌅 FIRST ANALYSIS JOB
+2026-07-10 09:20:00 IST | INFO | ==================================================
+2026-07-10 09:20:00 IST | INFO | Fetching all TF data...
+2026-07-10 09:20:02 IST | WARNING | Intraday 5M empty → using historical
+2026-07-10 09:20:03 IST | INFO | 🌅 Running FIRST analysis...
+2026-07-10 09:20:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:25:10 IST)" (scheduled at 2026-07-10 09:20:10+05:30)
+2026-07-10 09:20:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:25:10 IST)" executed successfully
+2026-07-10 09:20:29 IST | INFO | ✅ FIRST done: NEUTRAL | RANGING
+2026-07-10 09:20:29 IST | INFO | ✅ 6 zones saved
+2026-07-10 09:20:31 IST | INFO | ✅ Nearest expiry fetched: 2026-07-14
+2026-07-10 09:20:31 IST | INFO | OI snapshot saved: 09:20 | PCR:0.716
+2026-07-10 09:20:31 IST | INFO | ✅ OI baseline saved | PCR:0.716 ATM:24150 Expiry:2026-07-14
+2026-07-10 09:20:42 IST | INFO | ✅ Zone brief sent
+2026-07-10 09:20:42 IST | INFO | Job "morning_job (trigger: cron[hour='9', minute='20', second='0'], next run at: 2026-07-11 09:20:00 IST)" executed successfully
+2026-07-10 09:23:10 IST | INFO | 10.250.0.22 - - [10/Jul/2026 03:53:10] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:25:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:30:10 IST)" (scheduled at 2026-07-10 09:25:10+05:30)
+2026-07-10 09:25:11 IST | INFO | OI snapshot saved: 09:25 | PCR:0.583
+2026-07-10 09:25:11 IST | INFO | 📍 LTP: 24176.9
+2026-07-10 09:25:11 IST | INFO | No zone touched
+2026-07-10 09:25:11 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:30:10 IST)" executed successfully
+2026-07-10 09:28:15 IST | INFO | 10.250.0.20 - - [10/Jul/2026 03:58:15] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:30:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:35:10 IST)" (scheduled at 2026-07-10 09:30:10+05:30)
+2026-07-10 09:30:11 IST | INFO | OI snapshot saved: 09:30 | PCR:0.754
+2026-07-10 09:30:11 IST | INFO | 📍 LTP: 24168.2
+2026-07-10 09:30:11 IST | INFO | No zone touched
+2026-07-10 09:30:11 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:35:10 IST)" executed successfully
+2026-07-10 09:33:20 IST | INFO | 10.250.0.21 - - [10/Jul/2026 04:03:20] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:35:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:40:10 IST)" (scheduled at 2026-07-10 09:35:10+05:30)
+2026-07-10 09:35:11 IST | INFO | OI snapshot saved: 09:35 | PCR:0.684
+2026-07-10 09:35:11 IST | INFO | 📍 LTP: 24187.55
+2026-07-10 09:35:11 IST | INFO | No zone touched
+2026-07-10 09:35:11 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:40:10 IST)" executed successfully
+2026-07-10 09:38:24 IST | INFO | 10.250.0.22 - - [10/Jul/2026 04:08:24] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:40:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:45:10 IST)" (scheduled at 2026-07-10 09:40:10+05:30)
+2026-07-10 09:40:11 IST | INFO | OI snapshot saved: 09:40 | PCR:0.791
+2026-07-10 09:40:11 IST | INFO | 📍 LTP: 24196.25
+2026-07-10 09:40:11 IST | INFO | No zone touched
+2026-07-10 09:40:11 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:45:10 IST)" executed successfully
+2026-07-10 09:43:29 IST | INFO | 10.250.0.22 - - [10/Jul/2026 04:13:29] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:45:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:50:10 IST)" (scheduled at 2026-07-10 09:45:10+05:30)
+2026-07-10 09:45:11 IST | INFO | OI snapshot saved: 09:45 | PCR:0.912
+2026-07-10 09:45:11 IST | INFO | 📍 LTP: 24199.1
+2026-07-10 09:45:11 IST | INFO | No zone touched
+2026-07-10 09:45:11 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:50:10 IST)" executed successfully
+2026-07-10 09:48:33 IST | INFO | 10.250.0.21 - - [10/Jul/2026 04:18:33] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:50:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:55:10 IST)" (scheduled at 2026-07-10 09:50:10+05:30)
+2026-07-10 09:50:11 IST | INFO | OI snapshot saved: 09:50 | PCR:0.97
+2026-07-10 09:50:11 IST | INFO | 📍 LTP: 24206.55
+2026-07-10 09:50:11 IST | INFO | No zone touched
+2026-07-10 09:50:11 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 09:55:10 IST)" executed successfully
+2026-07-10 09:53:38 IST | INFO | 10.250.0.21 - - [10/Jul/2026 04:23:38] "HEAD / HTTP/1.1" 200 -
+2026-07-10 09:55:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:00:10 IST)" (scheduled at 2026-07-10 09:55:10+05:30)
+2026-07-10 09:55:11 IST | INFO | OI snapshot saved: 09:55 | PCR:1.007
+2026-07-10 09:55:11 IST | INFO | 📍 LTP: 24205.9
+2026-07-10 09:55:11 IST | INFO | No zone touched
+2026-07-10 09:55:11 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:00:10 IST)" executed successfully
+2026-07-10 09:58:42 IST | INFO | 10.250.0.21 - - [10/Jul/2026 04:28:42] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:00:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:05:10 IST)" (scheduled at 2026-07-10 10:00:10+05:30)
+2026-07-10 10:00:11 IST | INFO | OI snapshot saved: 10:00 | PCR:1.036
+2026-07-10 10:00:11 IST | INFO | 📍 LTP: 24220.35
+2026-07-10 10:00:11 IST | INFO | No zone touched
+2026-07-10 10:00:11 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:05:10 IST)" executed successfully
+2026-07-10 10:02:00 IST | INFO | Running job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-10 11:02:00 IST)" (scheduled at 2026-07-10 10:02:00+05:30)
+2026-07-10 10:02:00 IST | INFO | 🔄 HOURLY REANALYSIS
+2026-07-10 10:02:00 IST | INFO | Fetching all TF data...
+2026-07-10 10:02:02 IST | INFO | 🌅 Running HOURLY analysis...
+2026-07-10 10:02:02 IST | INFO | Dropped incomplete 5M candle: 10:00
+2026-07-10 10:02:27 IST | INFO | ✅ HOURLY done: LONG | TRENDING
+2026-07-10 10:02:28 IST | INFO | ✅ 7 zones saved
+2026-07-10 10:02:38 IST | INFO | ✅ Hourly zone update sent | 7 zones
+2026-07-10 10:02:38 IST | INFO | Job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-10 11:02:00 IST)" executed successfully
+2026-07-10 10:03:46 IST | INFO | 10.250.0.20 - - [10/Jul/2026 04:33:46] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:05:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:10:10 IST)" (scheduled at 2026-07-10 10:05:10+05:30)
+2026-07-10 10:05:11 IST | INFO | OI snapshot saved: 10:05 | PCR:1.149
+2026-07-10 10:05:11 IST | INFO | 📍 LTP: 24209.75
+2026-07-10 10:05:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:05:12 IST | INFO | 📊 Candle event: BEARISH_SWEEP_REJECT | wick swept to 24226 above 24217, rejected to 24211
+2026-07-10 10:05:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:05:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24209.75 | Event:BEARISH_SWEEP_REJECT
+2026-07-10 10:05:13 IST | INFO | Dropped incomplete 15M candle: 10:00
+2026-07-10 10:05:26 IST | INFO | 🧠 WAIT | conf:LOW | reason: OI conflict: PCR rising sharply (1.036→1.149) + PE_OI growing (+8.1% last 5min) + PE_WALL strengthening (+17.7L) = strong bearish OI setup. But price action shows BUYER dominance candle (NOT reclaimed) + equal highs at 24217 + wick rejection is WEAK (only 9pts above zone, closed 6pts below). Candle close (24211) is indecisive — no clean 5M confirmation of rejection strength.
+2026-07-10 10:05:26 IST | INFO | 🧠 risk_note: This is a TRAP SETUP. OI shows PUT wall building at 24200 (support) with rising PCR — market makers preparing for downside. Price wick-rejected from 24226 but close is too weak to confirm bearish reversal. If price breaks above 24226 again, OI setup collapses. If price retests 24200-24217 and CLOSES cleanly below 24200 on next 5M candle, THEN BUY_PE becomes valid. DO NOT chase this weak rejection. Morning LONG bias + buyer dominance candle conflict with rising put OI — wait for either a strong breakdown OR a fresh reclaim above 24226.
+2026-07-10 10:05:26 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 10:05:26 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 10:05:26 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:10:10 IST)" executed successfully
+2026-07-10 10:08:52 IST | INFO | 10.250.0.22 - - [10/Jul/2026 04:38:52] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:10:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:15:10 IST)" (scheduled at 2026-07-10 10:10:10+05:30)
+2026-07-10 10:10:11 IST | INFO | OI snapshot saved: 10:10 | PCR:1.184
+2026-07-10 10:10:11 IST | INFO | 📍 LTP: 24216.2
+2026-07-10 10:10:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:10:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=1 upper_wick=7 close=24211
+2026-07-10 10:10:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:10:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24216.2 | Event:RESISTANCE_REJECTION
+2026-07-10 10:10:13 IST | INFO | Dropped incomplete 15M candle: 10:00
+2026-07-10 10:10:22 IST | INFO | 🧠 WAIT | conf:LOW | reason: Resistance zone touched but candle rejection is WEAK (1pt body, 7pt wick, minimal close below entry). PCR rising + PE_OI ramping suggests market is hedging/cautious, NOT triggering a clean bearish breakdown. Dominance candle (BUYER, not reclaimed) still holds — next 5M close must decisively reject below 24154 (50%) to confirm BUY_PE. Current close at 24211 is indecisive — could be trap into next buy or weak rejection — too early.
+2026-07-10 10:10:22 IST | INFO | 🧠 risk_note: If price closes the next 5M candle BELOW 24154 (dominance 50%) with higher volume, revisit BUY_PE. If price breaks above 24217 with conviction, bias flips to BUY_CE toward 24240-24310. Monitor: PE_WALL at 24200 is growing (+6.9L in 5min) — put sellers adding wall, but volume is still LOW. This is a stalemate, not a rejection yet.
+2026-07-10 10:10:22 IST | INFO | 🧠 confirmations: ['Bearish candle body=1pt at 24211 (R2 upper zone 24217) — very weak rejection, not conviction', 'Upper wick=7pts to 24218 — minimal wick, shows limited seller conviction', 'Dominance candle (BUYER side, Reclaimed:NO) still in control; no 5M close below 24154 midpoint yet', 'PCR rising 0.791→1.149→1.184 with PE_OI_CHG +47.6%→+15.6%→+3.5% = put-writing increasing = hedging bias, NOT pure bearish rejection signal']
+2026-07-10 10:10:22 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 10:10:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 10:10:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:15:10 IST)" executed successfully
+2026-07-10 10:13:56 IST | INFO | 10.250.0.20 - - [10/Jul/2026 04:43:56] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:15:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:20:10 IST)" (scheduled at 2026-07-10 10:15:10+05:30)
+2026-07-10 10:15:11 IST | INFO | OI snapshot saved: 10:15 | PCR:1.195
+2026-07-10 10:15:11 IST | INFO | 📍 LTP: 24212.05
+2026-07-10 10:15:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:15:12 IST | INFO | 📊 Candle event: BEARISH_SWEEP_REJECT | wick swept to 24224 above 24217, rejected to 24211
+2026-07-10 10:15:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:15:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24212.05 | Event:BEARISH_SWEEP_REJECT
+2026-07-10 10:15:26 IST | INFO | 🧠 WAIT | conf:LOW | reason: BEARISH_SWEEP_REJECT detected but close (24211) is indecisive — only 6pts below zone and equal to prior 5M close. Dominance candle (BUYER, 24120–24188, 50%=24154) NOT reclaimed — buyers still in control micro-term. OI conflict: PCR rising to 1.195 (bullish wall at 24200 PE) + PE_OI surging (+33.9% / +14.5% / +2.4%) suggests hedge buying, NOT clean bearish conviction. CE_OI flat/falling = no fresh short pressure. Next candle must show clear lower high + strong close below 24205 for BUY_PE confirmation.
+2026-07-10 10:15:26 IST | INFO | 🧠 risk_note: Current LTP 24212 is trapped in a 6pt range around zone — this is a liquidity squeeze, not a directional rejection yet. If price climbs back above 24217 and holds, bearish setup fails and bullish continuation resumes (next target R2 micro-resistance 24240+). If a fresh 5M candle closes <24200 with strong momentum below the dominance 50% (24154), then BUY_PE becomes valid. For now, insufficient separation and conflicting OI = DO NOT FORCE.
+2026-07-10 10:15:26 IST | INFO | 🧠 confirmations: ['Wick swept above 24217 (zone high) to 24224 — seller trap setup', 'Close rejected back to 24211 — below zone, but very weak separation']
+2026-07-10 10:15:26 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 10:15:26 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 10:15:26 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:20:10 IST)" executed successfully
+2026-07-10 10:19:01 IST | INFO | 10.250.0.22 - - [10/Jul/2026 04:49:01] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:20:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:25:10 IST)" (scheduled at 2026-07-10 10:20:10+05:30)
+2026-07-10 10:20:11 IST | INFO | OI snapshot saved: 10:20 | PCR:1.212
+2026-07-10 10:20:11 IST | INFO | 📍 LTP: 24212.4
+2026-07-10 10:20:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:20:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-2 upper_wick=3 close=24211
+2026-07-10 10:20:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:20:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24212.4 | Event:RESISTANCE_REJECTION
+2026-07-10 10:20:13 IST | INFO | Dropped incomplete 15M candle: 10:15
+2026-07-10 10:20:25 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price at R2 (24205–24217) with LTP 24212.4 shows a tiny bearish candle body (−2pts) with minimal upper wick. This is NOT a strong rejection — it's an indecisive equal-high close. Dominance 5M candle (BUYER side, reclaimed=NO) still holds control. OI shows PCR rising to 1.212 (bearish lean), but CE_OI barely moved (+0.4% in 5min), and PE_WALL is modest (+4.3L). This is a micro-resistance zone caught between two tight OI walls. Next candle must confirm genuine rejection (close well below zone) or breakout (close above 24217 with momentum) before entry.
+2026-07-10 10:20:25 IST | INFO | 🧠 risk_note: CRITICAL: Indecisive closes at resistance often precede traps or reversals. Do NOT chase a 2pt down candle into a BUY_PE — wait for the next 5M candle to show either (a) a genuine break below 24205 with follow-through to S1, or (b) a recapture and breakout above 24217 with volume. Current close at 24211 is too ambiguous. If price closes BELOW 24205, watch the candle that follows — if it's weak/doji, this is a bear trap. If price breaks above 24217 on the next candle with a real body and close, lean BUY_CE. Invalidation for any bearish setup: if price reclaims above 24217 decisively.
+2026-07-10 10:20:25 IST | INFO | 🧠 confirmations: ['Bearish candle body -2pts at 24211, but very small — indecisive close', 'Upper wick 3pts suggests rejection attempt, but wick is minimal, not strong', 'Dominance 5M candle (BUYER side, 68pts range) NOT reclaimed — still in control', 'Last 5M: 212→224→216 then 224→216→211 — choppy, equal highs, no follow-through down', 'OI: PCR rising 0.97→1.212 (bearish), but CE_OI flat +0.4% (5min), PE_OI +1.8% — modest put buying, not conviction', 'PE_WALL at 24200 growing +4.3L (5min) — some support setup, but CE_WALL also at 24200 +0.4L — very tight, no clear edge', 'Position 84.7% into range (near resistance) — price is stretched, but indecisive close is a red flag for trap']
+2026-07-10 10:20:25 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 10:20:25 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 10:20:25 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:25:10 IST)" executed successfully
+2026-07-10 10:24:06 IST | INFO | 10.250.0.22 - - [10/Jul/2026 04:54:06] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:25:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:30:10 IST)" (scheduled at 2026-07-10 10:25:10+05:30)
+2026-07-10 10:25:11 IST | INFO | OI snapshot saved: 10:25 | PCR:1.214
+2026-07-10 10:25:11 IST | INFO | 📍 LTP: 24210.8
+2026-07-10 10:25:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:25:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-6 upper_wick=2 close=24208
+2026-07-10 10:25:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:25:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24210.8 | Event:RESISTANCE_REJECTION
+2026-07-10 10:25:13 IST | INFO | Dropped incomplete 15M candle: 10:15
+2026-07-10 10:25:26 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price rejected at R2 (24205-24217) with bearish candle, but dominance candle (BUYER side, NOT reclaimed) still in control. PCR rising sharply (1.007→1.214) + PE_OI surging (+21.5% in 30min) = strong hedging/bearish setup, BUT current rejection candle is micro-range (10pt body) — indecisive, not conviction-level sell. LTP 24210.8 still inside R2 zone. Need confirm: does next 5M close below 24200 cleanly with volume, or does price hold and retest higher?
+2026-07-10 10:25:26 IST | INFO | 🧠 risk_note: Do NOT short yet — rejection candle is weak (small body, thin wick). If LTP breaks back above 24217 on next candle, this was just a micro-reaction, not a true rejection. Invalidation for any BUY_PE would be a close back above R2 high 24217. Monitor next 5M close carefully: if it prints below 24200 with conviction + follow-through toward S1 (24163-24188), then BUY_PE becomes valid. For now, confluence exists (OI + candle structure) but candle quality is too weak — WAIT for clarification.
+2026-07-10 10:25:26 IST | INFO | 🧠 confirmations: ['Bearish candle body at resistance (O:24218, C:24208, body=-10pts)', 'Upper wick rejection (H:24226, wick=18pts above close)']
+2026-07-10 10:25:27 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 10:25:27 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 10:25:27 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:30:10 IST)" executed successfully
+2026-07-10 10:29:10 IST | INFO | 10.250.0.20 - - [10/Jul/2026 04:59:10] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:30:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:35:10 IST)" (scheduled at 2026-07-10 10:30:10+05:30)
+2026-07-10 10:30:11 IST | INFO | OI snapshot saved: 10:30 | PCR:1.219
+2026-07-10 10:30:11 IST | INFO | 📍 LTP: 24202.05
+2026-07-10 10:30:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:30:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-7 upper_wick=9 close=24203
+2026-07-10 10:30:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:30:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24202.05 | Event:RESISTANCE_REJECTION
+2026-07-10 10:30:22 IST | INFO | 🧠 WAIT | conf:LOW | reason: Bearish candle at resistance appears weak — small body with upper wick suggests indecision, not strong rejection. Dominance candle (BUYER side, NOT reclaimed) still favors upside structure. OI context shows PCR rising (1.036→1.219) and PE_OI growing faster (+19.5% in 30min), which contradicts a clean rejection. Need 2+ real confirmations for BUY_PE.
+2026-07-10 10:30:22 IST | INFO | 🧠 risk_note: Price is 98% into range near R2 resistance. If this is a genuine rejection, expect a close below 24205 (zone base) in the next 5M candle with follow-through toward S1 (24163–24188). If price reclaims above 24217 with a strong close, the rejection setup invalidates and setup reverts to bullish breakout — invalidation for a bearish play would be 24219. DO NOT force a BUY_PE here; confirm with next candle.
+2026-07-10 10:30:22 IST | INFO | 🧠 confirmations: ['Last 5M candle shows small bearish body (-7pts) with upper wick (+9pts) at R2 resistance 24217', "Price at 24202, only 5pts below the zone's base — still within the range, not a clear breakdown"]
+2026-07-10 10:30:22 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 10:30:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 10:30:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:35:10 IST)" executed successfully
+2026-07-10 10:34:15 IST | INFO | 10.250.0.20 - - [10/Jul/2026 05:04:15] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:35:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:40:10 IST)" (scheduled at 2026-07-10 10:35:10+05:30)
+2026-07-10 10:35:11 IST | INFO | OI snapshot saved: 10:35 | PCR:1.184
+2026-07-10 10:35:11 IST | INFO | 📍 LTP: 24192.85
+2026-07-10 10:35:12 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 10:35:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-11)
+2026-07-10 10:35:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 10:35:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:40:10 IST)" executed successfully
+2026-07-10 10:39:19 IST | INFO | 10.250.0.22 - - [10/Jul/2026 05:09:19] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:40:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:45:10 IST)" (scheduled at 2026-07-10 10:40:10+05:30)
+2026-07-10 10:40:11 IST | INFO | OI snapshot saved: 10:40 | PCR:1.142
+2026-07-10 10:40:11 IST | INFO | 📍 LTP: 24194.95
+2026-07-10 10:40:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 10:40:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=1 lower_wick=3 close=24196
+2026-07-10 10:40:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:40:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24194.95 | Event:SUPPORT_REJECTION
+2026-07-10 10:40:13 IST | INFO | Dropped incomplete 15M candle: 10:30
+2026-07-10 10:40:21 IST | INFO | 🧠 BUY_CE | conf:HIGH | reason: Strong support rejection at S1 (24163–24188). Dominance candle reclaimed, last 5M closed above zone with bullish body + lower wick. PCR reversing down (1.214→1.142), CE_OI rising, PE_OI falling — classic bullish OI reversal at support. Uptrend structure intact.
+2026-07-10 10:40:21 IST | INFO | 🧠 risk_note: If price closes back below 24163 (S1 low), invalidate. Watch R2 (24205–24217) as immediate resistance; a close above 24217 unlocks run toward 24240–24310. Current LTP 24194.95 respects zone; entry valid on next 5M confirmation above 24200. CE_VOL is LOW—watch for uptick in call buying on entry candle.
+2026-07-10 10:40:21 IST | INFO | 🧠 confirmations: ['Dominance candle (SELLER, 24153–24178) reclaimed above 50% (24166) → seller weakening at support', 'Last 5M candle close 24196 above touched zone (24163–24188) with bullish body + lower wick confirmation', 'PCR falling 1.214→1.142 (most recent leg down) = weakening put wall = bullish reversal OI confluence', 'CE_OI rising +3.1% (5min) + PE_OI falling -0.6% (5min) = fresh short writing by call buyers', 'Price in uptrend (HH_HL structure) bouncing cleanly from demand base; no breakdown into S2']
+2026-07-10 10:40:21 IST | INFO | Zone S1 cooldown: until 11:10:10 (BUY_CE)
+2026-07-10 10:40:23 IST | INFO | ✅ Signal sent: BUY_CE
+2026-07-10 10:40:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:45:10 IST)" executed successfully
+2026-07-10 10:44:25 IST | INFO | 10.250.0.22 - - [10/Jul/2026 05:14:25] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:45:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:50:10 IST)" (scheduled at 2026-07-10 10:45:10+05:30)
+2026-07-10 10:45:11 IST | INFO | OI snapshot saved: 10:45 | PCR:1.122
+2026-07-10 10:45:11 IST | INFO | 📍 LTP: 24208.65
+2026-07-10 10:45:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:45:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=14)
+2026-07-10 10:45:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 10:45:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:50:10 IST)" executed successfully
+2026-07-10 10:49:29 IST | INFO | 10.250.0.21 - - [10/Jul/2026 05:19:29] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:50:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:55:10 IST)" (scheduled at 2026-07-10 10:50:10+05:30)
+2026-07-10 10:50:11 IST | INFO | OI snapshot saved: 10:50 | PCR:1.136
+2026-07-10 10:50:11 IST | INFO | 📍 LTP: 24205.55
+2026-07-10 10:50:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:50:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-3 upper_wick=0 close=24210
+2026-07-10 10:50:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:50:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24205.55 | Event:RESISTANCE_REJECTION
+2026-07-10 10:50:13 IST | INFO | Dropped incomplete 15M candle: 10:45
+2026-07-10 10:50:22 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price at R2 (24205-24217) with detected RESISTANCE_REJECTION, but the bearish candle is WEAK (3pt body, no upper wick). Dominance candle NOT reclaimed — sellers holding, but no follow-through. PCR falling + CE_OI rising (9.2%→4.8%→0.5%) signals fresh call writing, NOT put writing — OI context opposes the weak bearish rejection. Indecision setup.
+2026-07-10 10:50:22 IST | INFO | 🧠 risk_note: Do NOT chase this rejection on small wick. If price closes below 24200 (dominance 50%), the seller rejection FAILS and you re-evaluate for support bounce. If price breaks above 24217 clearly on next 5M candle with higher close, reversal to BUY_CE becomes valid. Current close too weak and OI mixed to confirm BUY_PE — wait for next candle conviction or clearer OI alignment.
+2026-07-10 10:50:22 IST | INFO | 🧠 confirmations: ['Dominance candle (24207-24226) shows SELLER control but NOT reclaimed — sellers still in control, no weakness signal', 'Last 5M candle closed at 24203 (close < open=-3pts) — bearish body but small and weak, not conviction', 'PCR falling 1.212→1.136 suggests bullish OI shift, contradicting the bearish candle close']
+2026-07-10 10:50:22 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 10:50:22 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 10:50:22 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 10:55:10 IST)" executed successfully
+2026-07-10 10:54:35 IST | INFO | 10.250.0.21 - - [10/Jul/2026 05:24:35] "HEAD / HTTP/1.1" 200 -
+2026-07-10 10:55:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:00:10 IST)" (scheduled at 2026-07-10 10:55:10+05:30)
+2026-07-10 10:55:11 IST | INFO | OI snapshot saved: 10:55 | PCR:1.146
+2026-07-10 10:55:11 IST | INFO | 📍 LTP: 24204.25
+2026-07-10 10:55:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 10:55:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=0 upper_wick=7 close=24206
+2026-07-10 10:55:13 IST | INFO | ✅ OI context ready
+2026-07-10 10:55:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24204.25 | Event:RESISTANCE_REJECTION
+2026-07-10 10:55:13 IST | INFO | Dropped incomplete 15M candle: 10:45
+2026-07-10 10:55:23 IST | INFO | 🧠 WAIT | conf:LOW | reason: R2 resistance (24205-24217) showing micro-rejection with doji-like 5M close (body=0, wick=7pts). Dominance candle SELLER side NOT reclaimed means seller conviction is holding, but the rejection signal is too weak and indecisive to confirm a strong BUY_PE. Price is at 99.5% range position (at top of range) — early warning, not a trap yet.
+2026-07-10 10:55:23 IST | INFO | 🧠 risk_note: PCR stabilising near 1.15 with PE_WALL at 24200 +4.1L fresh writing in last 5min (put support forming), but CE_WALL also strong at 24200. OI and price action NOT aligned: no clean rejection candle + weak volume (CE/PE both LOW). Do NOT chase a weak upper-wick signal. Next confirmation would be: (1) Strong bearish 5M close below 24200 with body >5pts, OR (2) breakdown below S1 (24163-24188) on next candle. Until then, this is a setup forming, not confirmed.
+2026-07-10 10:55:23 IST | INFO | 🧠 confirmations: ['Dominance candle (24207-24226) formed at R2 with SELLER side but NOT reclaimed — seller control still active', 'Last 5M candle: body=0, upper_wick=7pts only — extremely weak bearish rejection, indecisive close at 24206']
+2026-07-10 10:55:23 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 10:55:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 10:55:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:00:10 IST)" executed successfully
+2026-07-10 10:59:39 IST | INFO | 10.250.0.22 - - [10/Jul/2026 05:29:39] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:00:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:05:10 IST)" (scheduled at 2026-07-10 11:00:10+05:30)
+2026-07-10 11:00:11 IST | INFO | OI snapshot saved: 11:00 | PCR:1.187
+2026-07-10 11:00:11 IST | INFO | 📍 LTP: 24200.4
+2026-07-10 11:00:11 IST | INFO | 🎯 Zone: R2 (24205-24217) [RESISTANCE]
+2026-07-10 11:00:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-8 upper_wick=3 close=24198
+2026-07-10 11:00:13 IST | INFO | ✅ OI context ready
+2026-07-10 11:00:13 IST | INFO | 🎯 Zone decision: R2 @ LTP:24200.4 | Event:RESISTANCE_REJECTION
+2026-07-10 11:00:21 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price at R2 resistance (24205-24217) showing bearish rejection candle. However, dominance candle NOT reclaimed (Reclaimed:NO), meaning sellers still holding. Need confirmation from NEXT candle to confirm rejection strength — current setup is indecisive, not a clean 2-confirmation reversal yet.
+2026-07-10 11:00:21 IST | INFO | 🧠 risk_note: OI shows PE_WALL growing (+5.9L at 24200 in 5min) and PCR rising (1.146→1.187 in last 2 steps) = put writers reinforcing support below, which actually CONFLICTS with a bearish rejection narrative. This conflict + weak dominance candle reclaim = setup forming but NOT confirmed. If LTP closes BELOW 24188 (S1 low) on next 5M, THEN consider BUY_PE. If LTP breaks ABOVE 24217 on next candle, invalidate rejection and resume uptrend. Currently neither is locked in.
+2026-07-10 11:00:21 IST | INFO | 🧠 confirmations: ['Dominance candle (24207-24226, Side:SELLER) shows seller control at resistance', 'Last 5M candle close 24198 is bearish body (-8pts) with upper wick rejection']
+2026-07-10 11:00:22 IST | INFO | Zone R2: no cooldown (WAIT) — next tick can re-check
+2026-07-10 11:00:22 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 11:00:22 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:05:10 IST)" executed successfully
+2026-07-10 11:02:00 IST | INFO | Running job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-10 12:02:00 IST)" (scheduled at 2026-07-10 11:02:00+05:30)
+2026-07-10 11:02:00 IST | INFO | 🔄 HOURLY REANALYSIS
+2026-07-10 11:02:00 IST | INFO | Fetching all TF data...
+2026-07-10 11:02:02 IST | INFO | 🌅 Running HOURLY analysis...
+2026-07-10 11:02:02 IST | INFO | Dropped incomplete 5M candle: 11:00
+2026-07-10 11:02:27 IST | INFO | ✅ HOURLY done: LONG | TRENDING
+2026-07-10 11:02:28 IST | INFO | ✅ 7 zones saved
+2026-07-10 11:02:39 IST | INFO | ✅ Hourly zone update sent | 7 zones
+2026-07-10 11:02:39 IST | INFO | Job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-10 12:02:00 IST)" executed successfully
+2026-07-10 11:04:44 IST | INFO | 10.250.0.22 - - [10/Jul/2026 05:34:44] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:05:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:10:10 IST)" (scheduled at 2026-07-10 11:05:10+05:30)
+2026-07-10 11:05:11 IST | INFO | OI snapshot saved: 11:05 | PCR:1.176
+2026-07-10 11:05:11 IST | INFO | 📍 LTP: 24197.3
+2026-07-10 11:05:11 IST | INFO | 🎯 Zone: R1 (24200-24220) [RESISTANCE]
+2026-07-10 11:05:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=0 upper_wick=5 close=24201
+2026-07-10 11:05:13 IST | INFO | ✅ OI context ready
+2026-07-10 11:05:13 IST | INFO | 🎯 Zone decision: R1 @ LTP:24197.3 | Event:RESISTANCE_REJECTION
+2026-07-10 11:05:13 IST | INFO | Dropped incomplete 15M candle: 11:00
+2026-07-10 11:05:21 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price at R1 resistance (24200–24220) rejected weakly by dominance candle (SELLER side, not reclaimed). Last 5M close is flat-bodied with tiny wick — no real rejection conviction. OI shows PCR 1.176 with balanced wall-building (both CE & PE walls +ve), no directional clarity.
+2026-07-10 11:05:21 IST | INFO | 🧠 risk_note: Consolidation pattern at resistance. If price closes above 24220, breakout is possible. If it falls below 24188, invalidates the bullish setup. Currently indecisive — wait for next confirmed candle (either strong close above 24220 or breakdown below S1 at 24163–24188). Do NOT chase this on weak candle alone.
+2026-07-10 11:05:21 IST | INFO | 🧠 confirmations: ['Dominance candle (SELLER, 19pts range) formed at R1 but NOT reclaimed — seller control still active', 'Last 5M candle close 24199 (body=0, upper_wick=5) shows indecisive rejection, not conviction', 'Price clustering 24196–24217 for multiple candles = consolidation, not breakout or clean rejection']
+2026-07-10 11:05:21 IST | INFO | Zone R1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 11:05:22 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 11:05:22 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:10:10 IST)" executed successfully
+2026-07-10 11:09:49 IST | INFO | 10.250.0.20 - - [10/Jul/2026 05:39:49] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:10:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:15:10 IST)" (scheduled at 2026-07-10 11:10:10+05:30)
+2026-07-10 11:10:11 IST | INFO | OI snapshot saved: 11:10 | PCR:1.157
+2026-07-10 11:10:11 IST | INFO | 📍 LTP: 24183.4
+2026-07-10 11:10:11 IST | INFO | 🎯 Zone: L1 (24190-24200) [LIQUIDITY]
+2026-07-10 11:10:13 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-12)
+2026-07-10 11:10:13 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 11:10:13 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:15:10 IST)" executed successfully
+2026-07-10 11:14:54 IST | INFO | 10.250.0.22 - - [10/Jul/2026 05:44:54] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:15:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:20:10 IST)" (scheduled at 2026-07-10 11:15:10+05:30)
+2026-07-10 11:15:11 IST | INFO | OI snapshot saved: 11:15 | PCR:1.03
+2026-07-10 11:15:11 IST | INFO | 📍 LTP: 24179.8
+2026-07-10 11:15:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:15:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-5)
+2026-07-10 11:15:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 11:15:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:20:10 IST)" executed successfully
+2026-07-10 11:19:59 IST | INFO | 10.250.0.22 - - [10/Jul/2026 05:49:59] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:20:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:25:10 IST)" (scheduled at 2026-07-10 11:20:10+05:30)
+2026-07-10 11:20:11 IST | INFO | OI snapshot saved: 11:20 | PCR:1.199
+2026-07-10 11:20:11 IST | INFO | 📍 LTP: 24174.25
+2026-07-10 11:20:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:20:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-8)
+2026-07-10 11:20:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 11:20:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:25:10 IST)" executed successfully
+2026-07-10 11:25:04 IST | INFO | 10.250.0.21 - - [10/Jul/2026 05:55:04] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:25:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:30:10 IST)" (scheduled at 2026-07-10 11:25:10+05:30)
+2026-07-10 11:25:11 IST | INFO | OI snapshot saved: 11:25 | PCR:1.168
+2026-07-10 11:25:11 IST | INFO | 📍 LTP: 24174.55
+2026-07-10 11:25:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:25:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=2 lower_wick=6 close=24176
+2026-07-10 11:25:13 IST | INFO | ✅ OI context ready
+2026-07-10 11:25:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24174.55 | Event:SUPPORT_REJECTION
+2026-07-10 11:25:13 IST | INFO | Dropped incomplete 15M candle: 11:15
+2026-07-10 11:25:21 IST | INFO | 🧠 WAIT | conf:LOW | reason: Dominance candle (24188–24207, SELLER, Reclaimed:NO) still controls — sellers holding 24198 level. Last 5M close at 24180 is weak (small body, wick below), not a clean bullish close. PCR falling (1.369→1.199→1.168) is bullish bias, but PE_WALL (-2.7L unwinding) suggests conviction is eroding, not building. Need next candle to confirm actual rejection with body above 24188.
+2026-07-10 11:25:21 IST | INFO | 🧠 risk_note: If price closes next 5M candle ABOVE 24188 with body >3pts and staying above dominance 50% (24198), then BUY_CE becomes viable. Invalidation at 24163 (zone support break). Current close is too weak to act on — trap risk high given seller dominance still in play.
+2026-07-10 11:25:21 IST | INFO | 🧠 confirmations: ['Price at S1 (24163–24188), LTP 24174.55 within zone', 'Last 5M candle shows small body (2pts) with 6pt lower wick — indecisive rejection']
+2026-07-10 11:25:21 IST | INFO | Zone S1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 11:25:21 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 11:25:21 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:30:10 IST)" executed successfully
+2026-07-10 11:30:09 IST | INFO | 10.250.0.22 - - [10/Jul/2026 06:00:09] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:30:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:35:10 IST)" (scheduled at 2026-07-10 11:30:10+05:30)
+2026-07-10 11:30:11 IST | INFO | OI snapshot saved: 11:30 | PCR:1.171
+2026-07-10 11:30:11 IST | INFO | 📍 LTP: 24160.8
+2026-07-10 11:30:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:30:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-7)
+2026-07-10 11:30:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 11:30:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:35:10 IST)" executed successfully
+2026-07-10 11:35:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:40:10 IST)" (scheduled at 2026-07-10 11:35:10+05:30)
+2026-07-10 11:35:11 IST | INFO | OI snapshot saved: 11:35 | PCR:1.132
+2026-07-10 11:35:11 IST | INFO | 📍 LTP: 24167.85
+2026-07-10 11:35:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:35:12 IST | INFO | 📊 Candle event: BULLISH_SWEEP_RECLAIM | wick swept to 24157 below 24163, reclaimed to 24167
+2026-07-10 11:35:13 IST | INFO | ✅ OI context ready
+2026-07-10 11:35:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24167.85 | Event:BULLISH_SWEEP_RECLAIM
+2026-07-10 11:35:13 IST | INFO | Dropped incomplete 15M candle: 11:30
+2026-07-10 11:35:13 IST | INFO | 10.250.0.22 - - [10/Jul/2026 06:05:13] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:35:24 IST | INFO | 🧠 BUY_CE | conf:HIGH | reason: S1 support zone (24163–24188) swept + reclaimed with BULLISH_SWEEP_RECLAIM event. Wick to 24157 confirms liquidity grab; close 24167 holds above zone. CE_OI rising, PE_OI falling, PCR falling into support = real OI confluence at demand base. Dominance candle (SELLER) not reclaimed in 5M, but price action shows buyers defending. Setup is clean and confluence-backed.
+2026-07-10 11:35:24 IST | INFO | 🧠 risk_note: Invalidation if price closes below 24157 on next 5M candle OR breaks below F1 (24130–24160) on 15M. CE_WALL at 24200 (now +3.6L in 5min) is near-term resistance; watch if price stalls below it. PE_VOL is only MED (1.0x), so if selling accelerates, reduce size. Entry confirmation: wait for next 5M close above 24175+.
+2026-07-10 11:35:24 IST | INFO | 🧠 confirmations: ['5M wick swept below 24163 to 24157, reclaimed above 24167 — clean liquidity grab + recovery', 'Dominance candle (24188–24207, SELLER side) NOT reclaimed, but price has since reclaimed above its 50% (24198) — seller conviction weakening', 'CE_OI rising (+12.6%→+3.7%→+2.9%) + PE_OI falling (−7.9%→−2.1%→−0.6%) + PCR falling (1.385→1.199→1.132) = BULLISH OI confluence', 'Last 5M candles show 4 consecutive closes above 24190+ (candles: 211→217→208→211→212→208→203→194→195→211→205→206→199→197→184→180→173→176→158→167) + current bounce to 24167 at S1 zone', 'Morning bias LONG + HH_HL structure still intact; no breakdown of F1 (24130–24160) yet']
+2026-07-10 11:35:24 IST | INFO | Zone S1 cooldown: until 12:05:10 (BUY_CE)
+2026-07-10 11:35:25 IST | INFO | ✅ Signal sent: BUY_CE
+2026-07-10 11:35:25 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:40:10 IST)" executed successfully
+2026-07-10 11:40:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:45:10 IST)" (scheduled at 2026-07-10 11:40:10+05:30)
+2026-07-10 11:40:11 IST | INFO | OI snapshot saved: 11:40 | PCR:1.124
+2026-07-10 11:40:11 IST | INFO | 📍 LTP: 24161.1
+2026-07-10 11:40:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:40:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-8)
+2026-07-10 11:40:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 11:40:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:45:10 IST)" executed successfully
+2026-07-10 11:40:17 IST | INFO | 10.250.0.20 - - [10/Jul/2026 06:10:17] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:45:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:50:10 IST)" (scheduled at 2026-07-10 11:45:10+05:30)
+2026-07-10 11:45:11 IST | INFO | OI snapshot saved: 11:45 | PCR:1.091
+2026-07-10 11:45:11 IST | INFO | 📍 LTP: 24164.5
+2026-07-10 11:45:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:45:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=2)
+2026-07-10 11:45:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 11:45:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:50:10 IST)" executed successfully
+2026-07-10 11:45:22 IST | INFO | 10.250.0.22 - - [10/Jul/2026 06:15:22] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:50:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:55:10 IST)" (scheduled at 2026-07-10 11:50:10+05:30)
+2026-07-10 11:50:11 IST | INFO | OI snapshot saved: 11:50 | PCR:0.861
+2026-07-10 11:50:11 IST | INFO | 📍 LTP: 24175.5
+2026-07-10 11:50:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:50:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=11 lower_wick=1 close=24176
+2026-07-10 11:50:12 IST | INFO | Zone S1 cooldown: 897s left
+2026-07-10 11:50:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 11:55:10 IST)" executed successfully
+2026-07-10 11:50:27 IST | INFO | 10.250.0.20 - - [10/Jul/2026 06:20:27] "HEAD / HTTP/1.1" 200 -
+2026-07-10 11:55:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:00:10 IST)" (scheduled at 2026-07-10 11:55:10+05:30)
+2026-07-10 11:55:11 IST | INFO | OI snapshot saved: 11:55 | PCR:1.094
+2026-07-10 11:55:11 IST | INFO | 📍 LTP: 24159.4
+2026-07-10 11:55:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 11:55:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-19)
+2026-07-10 11:55:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 11:55:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:00:10 IST)" executed successfully
+2026-07-10 11:55:33 IST | INFO | 10.250.0.22 - - [10/Jul/2026 06:25:33] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:00:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:05:10 IST)" (scheduled at 2026-07-10 12:00:10+05:30)
+2026-07-10 12:00:11 IST | INFO | OI snapshot saved: 12:00 | PCR:1.078
+2026-07-10 12:00:11 IST | INFO | 📍 LTP: 24172.8
+2026-07-10 12:00:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:00:12 IST | INFO | 📊 Candle event: BULLISH_SWEEP_RECLAIM | wick swept to 24156 below 24163, reclaimed to 24170
+2026-07-10 12:00:12 IST | INFO | Zone S1 cooldown: 297s left
+2026-07-10 12:00:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:05:10 IST)" executed successfully
+2026-07-10 12:00:38 IST | INFO | 10.250.0.22 - - [10/Jul/2026 06:30:38] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:02:00 IST | INFO | Running job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-10 13:02:00 IST)" (scheduled at 2026-07-10 12:02:00+05:30)
+2026-07-10 12:02:00 IST | INFO | 🔄 HOURLY REANALYSIS
+2026-07-10 12:02:00 IST | INFO | Fetching all TF data...
+2026-07-10 12:02:02 IST | INFO | 🌅 Running HOURLY analysis...
+2026-07-10 12:02:02 IST | INFO | Dropped incomplete 5M candle: 12:00
+2026-07-10 12:02:31 IST | INFO | ✅ HOURLY done: LONG | TRENDING
+2026-07-10 12:02:31 IST | INFO | ✅ 7 zones saved
+2026-07-10 12:02:42 IST | INFO | ✅ Hourly zone update sent | 7 zones
+2026-07-10 12:02:42 IST | INFO | Job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-10 13:02:00 IST)" executed successfully
+2026-07-10 12:05:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:10:10 IST)" (scheduled at 2026-07-10 12:05:10+05:30)
+2026-07-10 12:05:11 IST | INFO | OI snapshot saved: 12:05 | PCR:0.879
+2026-07-10 12:05:11 IST | INFO | 📍 LTP: 24179.45
+2026-07-10 12:05:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:05:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=12 lower_wick=1 close=24183
+2026-07-10 12:05:13 IST | INFO | ✅ OI context ready
+2026-07-10 12:05:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24179.45 | Event:SUPPORT_REJECTION
+2026-07-10 12:05:13 IST | INFO | Dropped incomplete 15M candle: 12:00
+2026-07-10 12:05:25 IST | INFO | 🧠 BUY_CE | conf:HIGH | reason: SUPPORT_REJECTION confirmed: last 5M candle shows strong bullish close (24183) with minimal lower wick (1pt) and body of 12pts. Dominance candle reclaimed above 50%, signaling seller capitulation. OI context bullish (CE rising, PE falling, HIGH call volume). Uptrend structure (HH_HL) intact with buyers defending S1 cleanly.
+2026-07-10 12:05:25 IST | INFO | 🧠 risk_note: ref_sl at 24163 (S1 zone low) — if price closes a 5M candle below 24163, invalidate trade. Nearest resistance L1 (24190–24200) — target this zone for initial resistance. Check: price must hold above 24163 for signal validity. If swept below 24150 (F1 flip zone), broader structure breaks.
+2026-07-10 12:05:25 IST | INFO | 🧠 confirmations: ['Dominance candle (24152–24176, SELLER) reclaimed above 50% (24164) → seller weakness', 'Last completed 5M candle (171–186, close 183) closed strong above zone high (24188 equiv 188) → confirmed breakout', 'PCR falling (0.933→0.861→0.878→0.879 most recent leg stable) + CE_VOL HIGH (2.3x) + PE_VOL LOW (-3.3x) → bullish OI bias', 'Price at 24179.45, inside S1 zone (24163–24188), LTP close to candle close (183) → immediate support holding with strength']
+2026-07-10 12:05:26 IST | INFO | Zone S1 cooldown: until 12:35:10 (BUY_CE)
+2026-07-10 12:05:36 IST | INFO | ✅ Signal sent: BUY_CE
+2026-07-10 12:05:36 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:10:10 IST)" executed successfully
+2026-07-10 12:05:43 IST | INFO | 10.250.0.20 - - [10/Jul/2026 06:35:43] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:10:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:15:10 IST)" (scheduled at 2026-07-10 12:10:10+05:30)
+2026-07-10 12:10:11 IST | INFO | OI snapshot saved: 12:10 | PCR:0.874
+2026-07-10 12:10:11 IST | INFO | 📍 LTP: 24175.6
+2026-07-10 12:10:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:10:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=-1 lower_wick=5 close=24180
+2026-07-10 12:10:12 IST | INFO | Zone S1 cooldown: 1497s left
+2026-07-10 12:10:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:15:10 IST)" executed successfully
+2026-07-10 12:10:47 IST | INFO | 10.250.0.21 - - [10/Jul/2026 06:40:47] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:15:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:20:10 IST)" (scheduled at 2026-07-10 12:15:10+05:30)
+2026-07-10 12:15:11 IST | INFO | OI snapshot saved: 12:15 | PCR:1.1
+2026-07-10 12:15:11 IST | INFO | 📍 LTP: 24163.7
+2026-07-10 12:15:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:15:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-12)
+2026-07-10 12:15:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 12:15:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:20:10 IST)" executed successfully
+2026-07-10 12:15:52 IST | INFO | 10.250.0.21 - - [10/Jul/2026 06:45:52] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:20:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:25:10 IST)" (scheduled at 2026-07-10 12:20:10+05:30)
+2026-07-10 12:20:11 IST | INFO | OI snapshot saved: 12:20 | PCR:1.068
+2026-07-10 12:20:11 IST | INFO | 📍 LTP: 24165.85
+2026-07-10 12:20:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:20:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=0)
+2026-07-10 12:20:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 12:20:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:25:10 IST)" executed successfully
+2026-07-10 12:20:57 IST | INFO | 10.250.0.21 - - [10/Jul/2026 06:50:57] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:25:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:30:10 IST)" (scheduled at 2026-07-10 12:25:10+05:30)
+2026-07-10 12:25:11 IST | INFO | OI snapshot saved: 12:25 | PCR:1.037
+2026-07-10 12:25:11 IST | INFO | 📍 LTP: 24173.5
+2026-07-10 12:25:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:25:13 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=8 lower_wick=4 close=24173
+2026-07-10 12:25:13 IST | INFO | Zone S1 cooldown: 596s left
+2026-07-10 12:25:13 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:30:10 IST)" executed successfully
+2026-07-10 12:26:02 IST | INFO | 10.250.0.22 - - [10/Jul/2026 06:56:02] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:30:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:35:10 IST)" (scheduled at 2026-07-10 12:30:10+05:30)
+2026-07-10 12:30:11 IST | INFO | OI snapshot saved: 12:30 | PCR:0.877
+2026-07-10 12:30:11 IST | INFO | 📍 LTP: 24189.15
+2026-07-10 12:30:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:30:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=15 lower_wick=2 close=24189
+2026-07-10 12:30:12 IST | INFO | Zone S1 cooldown: 297s left
+2026-07-10 12:30:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:35:10 IST)" executed successfully
+2026-07-10 12:31:07 IST | INFO | 10.250.0.20 - - [10/Jul/2026 07:01:07] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:35:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:40:10 IST)" (scheduled at 2026-07-10 12:35:10+05:30)
+2026-07-10 12:35:11 IST | INFO | OI snapshot saved: 12:35 | PCR:0.914
+2026-07-10 12:35:11 IST | INFO | 📍 LTP: 24184.65
+2026-07-10 12:35:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:35:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-7)
+2026-07-10 12:35:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 12:35:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:40:10 IST)" executed successfully
+2026-07-10 12:36:12 IST | INFO | 10.250.0.22 - - [10/Jul/2026 07:06:12] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:40:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:45:10 IST)" (scheduled at 2026-07-10 12:40:10+05:30)
+2026-07-10 12:40:11 IST | INFO | OI snapshot saved: 12:40 | PCR:0.925
+2026-07-10 12:40:11 IST | INFO | 📍 LTP: 24183.4
+2026-07-10 12:40:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:40:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-3)
+2026-07-10 12:40:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 12:40:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:45:10 IST)" executed successfully
+2026-07-10 12:41:17 IST | INFO | 10.250.0.21 - - [10/Jul/2026 07:11:17] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:45:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:50:10 IST)" (scheduled at 2026-07-10 12:45:10+05:30)
+2026-07-10 12:45:11 IST | INFO | OI snapshot saved: 12:45 | PCR:0.926
+2026-07-10 12:45:11 IST | INFO | 📍 LTP: 24192.8
+2026-07-10 12:45:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:45:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=4 lower_wick=4 close=24188
+2026-07-10 12:45:13 IST | INFO | ✅ OI context ready
+2026-07-10 12:45:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24192.8 | Event:SUPPORT_REJECTION
+2026-07-10 12:45:20 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price at S1 support (24163–24188) shows bullish rejection, but last 5M close (24188) is weak—small body, wick equal to body, no follow-through above 24195 resistance yet. OI shows PCR rising (0.877→0.925→0.926), PE_OI growth stronger than CE_OI—bearish OI bias contradicts bullish candle. Need next 5M close above 24195 to confirm genuine bounce.
+2026-07-10 12:45:20 IST | INFO | 🧠 risk_note: Current LTP (24192.8) is inside the S1 zone but has not broken above the R1 resistance (24195–24226) with conviction. If price closes next 5M below 24180, the rejection fails and S1 is likely a trap. OI divergence (rising PCR + PE growth) suggests underlying weakness despite the candle appearance.
+2026-07-10 12:45:20 IST | INFO | 🧠 confirmations: ['Dominance candle (SELLER side) reclaimed above 50% (24164) — seller weakening visible', 'Last 5M candle (188,194,180,188) closed at 24188 with 4pt lower wick — minimal conviction']
+2026-07-10 12:45:21 IST | INFO | Zone S1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 12:45:21 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 12:45:21 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:50:10 IST)" executed successfully
+2026-07-10 12:46:21 IST | INFO | 10.250.0.22 - - [10/Jul/2026 07:16:21] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:50:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:55:10 IST)" (scheduled at 2026-07-10 12:50:10+05:30)
+2026-07-10 12:50:11 IST | INFO | OI snapshot saved: 12:50 | PCR:0.948
+2026-07-10 12:50:11 IST | INFO | 📍 LTP: 24186.45
+2026-07-10 12:50:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:50:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=1 lower_wick=2 close=24192
+2026-07-10 12:50:13 IST | INFO | ✅ OI context ready
+2026-07-10 12:50:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24186.45 | Event:SUPPORT_REJECTION
+2026-07-10 12:50:13 IST | INFO | Dropped incomplete 15M candle: 12:45
+2026-07-10 12:50:27 IST | INFO | 🧠 BUY_CE | conf:HIGH | reason: Price bounced cleanly from S1 support (24163–24188) with strong bullish candle close (24192). Dominance SELLER candle reclaimed, confirming buyer control. PCR and OI show put-wall is present but weakening (PE_WALL +5.9L only vs historical builds); CE shorts unwinding. Setup is a genuine support-bounce reversal, not a trap.
+2026-07-10 12:50:27 IST | INFO | 🧠 risk_note: SL must be placed at 24159 (just below the dominance candle's low 24152 and the touched zone's low 24163). If price closes below 24159 on the next 5M, the rejection is invalidated. Monitor L1 resistance 24190–24200 as immediate target; if rejected there with a bearish close, exit. Current LTP 24186.45 is already within the touched zone—confirm entry only if next candle (or this candle close) stays above 24185.
+2026-07-10 12:50:27 IST | INFO | 🧠 confirmations: ['Dominance candle (24152–24176, SELLER) reclaimed above 50% (24164) → seller weakness', 'Last 5M candle close 24192 well above touched zone (24163–24188) with lower wick (2pts) → strong bullish rejection', 'PCR rising 0.875→0.948 while PE_OI climbing (+6.0% 30min, +1.7% 5min) but PE_WALL growing only +5.9L → put writers defending but not aggressively; CE_OI shrinking (-2.1% 30min, -0.7% 5min) → call shorts unwinding', 'Price at 93.5% of range (near resistance L1:24190–24200) after bounce from S1 → clean follow-through upward expected']
+2026-07-10 12:50:27 IST | INFO | Zone S1 cooldown: until 13:20:10 (BUY_CE)
+2026-07-10 12:50:38 IST | INFO | ✅ Signal sent: BUY_CE
+2026-07-10 12:50:38 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 12:55:10 IST)" executed successfully
+2026-07-10 12:51:27 IST | INFO | 10.250.0.21 - - [10/Jul/2026 07:21:27] "HEAD / HTTP/1.1" 200 -
+2026-07-10 12:55:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:00:10 IST)" (scheduled at 2026-07-10 12:55:10+05:30)
+2026-07-10 12:55:11 IST | INFO | OI snapshot saved: 12:55 | PCR:0.954
+2026-07-10 12:55:11 IST | INFO | 📍 LTP: 24190.9
+2026-07-10 12:55:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 12:55:13 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=0)
+2026-07-10 12:55:13 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 12:55:13 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:00:10 IST)" executed successfully
+2026-07-10 12:56:31 IST | INFO | 10.250.0.21 - - [10/Jul/2026 07:26:31] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:00:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:05:10 IST)" (scheduled at 2026-07-10 13:00:10+05:30)
+2026-07-10 13:00:11 IST | INFO | OI snapshot saved: 13:00 | PCR:0.99
+2026-07-10 13:00:11 IST | INFO | 📍 LTP: 24182.0
+2026-07-10 13:00:11 IST | INFO | 🎯 Zone: S1 (24163-24188) [SUPPORT]
+2026-07-10 13:00:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-3)
+2026-07-10 13:00:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 13:00:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:05:10 IST)" executed successfully
+2026-07-10 13:01:36 IST | INFO | 10.250.0.22 - - [10/Jul/2026 07:31:36] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:02:00 IST | INFO | Running job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-10 14:02:00 IST)" (scheduled at 2026-07-10 13:02:00+05:30)
+2026-07-10 13:02:00 IST | INFO | 🔄 HOURLY REANALYSIS
+2026-07-10 13:02:00 IST | INFO | Fetching all TF data...
+2026-07-10 13:02:02 IST | INFO | 🌅 Running HOURLY analysis...
+2026-07-10 13:02:02 IST | INFO | Dropped incomplete 5M candle: 13:00
+2026-07-10 13:02:27 IST | INFO | ✅ HOURLY done: LONG | TRENDING
+2026-07-10 13:02:28 IST | INFO | ✅ 7 zones saved
+2026-07-10 13:02:38 IST | INFO | ✅ Hourly zone update sent | 7 zones
+2026-07-10 13:02:38 IST | INFO | Job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-10 14:02:00 IST)" executed successfully
+2026-07-10 13:05:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:10:10 IST)" (scheduled at 2026-07-10 13:05:10+05:30)
+2026-07-10 13:05:11 IST | INFO | OI snapshot saved: 13:05 | PCR:0.967
+2026-07-10 13:05:11 IST | INFO | 📍 LTP: 24192.55
+2026-07-10 13:05:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [SUPPORT]
+2026-07-10 13:05:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=13 lower_wick=5 close=24197
+2026-07-10 13:05:12 IST | INFO | Zone S1 cooldown: 897s left
+2026-07-10 13:05:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:10:10 IST)" executed successfully
+2026-07-10 13:06:41 IST | INFO | 10.250.0.22 - - [10/Jul/2026 07:36:41] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:10:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:15:10 IST)" (scheduled at 2026-07-10 13:10:10+05:30)
+2026-07-10 13:10:11 IST | INFO | OI snapshot saved: 13:10 | PCR:0.969
+2026-07-10 13:10:11 IST | INFO | 📍 LTP: 24182.25
+2026-07-10 13:10:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [SUPPORT]
+2026-07-10 13:10:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-11)
+2026-07-10 13:10:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 13:10:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:15:10 IST)" executed successfully
+2026-07-10 13:11:46 IST | INFO | 10.250.0.20 - - [10/Jul/2026 07:41:46] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:15:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:20:10 IST)" (scheduled at 2026-07-10 13:15:10+05:30)
+2026-07-10 13:15:11 IST | INFO | OI snapshot saved: 13:15 | PCR:0.989
+2026-07-10 13:15:11 IST | INFO | 📍 LTP: 24187.9
+2026-07-10 13:15:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [SUPPORT]
+2026-07-10 13:15:12 IST | INFO | 📊 Candle event: SUPPORT_REJECTION | bullish at support: body=3 lower_wick=5 close=24186
+2026-07-10 13:15:12 IST | INFO | Zone S1 cooldown: 297s left
+2026-07-10 13:15:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:20:10 IST)" executed successfully
+2026-07-10 13:16:52 IST | INFO | 10.250.0.20 - - [10/Jul/2026 07:46:52] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:20:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:25:10 IST)" (scheduled at 2026-07-10 13:20:10+05:30)
+2026-07-10 13:20:11 IST | INFO | OI snapshot saved: 13:20 | PCR:1.21
+2026-07-10 13:20:11 IST | INFO | 📍 LTP: 24169.9
+2026-07-10 13:20:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [SUPPORT]
+2026-07-10 13:20:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-12)
+2026-07-10 13:20:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 13:20:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:25:10 IST)" executed successfully
+2026-07-10 13:21:57 IST | INFO | 10.250.0.20 - - [10/Jul/2026 07:51:57] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:25:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:30:10 IST)" (scheduled at 2026-07-10 13:25:10+05:30)
+2026-07-10 13:25:11 IST | INFO | OI snapshot saved: 13:25 | PCR:1.171
+2026-07-10 13:25:11 IST | INFO | 📍 LTP: 24166.9
+2026-07-10 13:25:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [SUPPORT]
+2026-07-10 13:25:12 IST | INFO | 📊 Candle event: BREAKDOWN_CANDLE | close 24164 < zone_low 24175-10
+2026-07-10 13:25:12 IST | INFO | Zone S1 flipped: SUPPORT → FLIP_RESISTANCE
+2026-07-10 13:25:13 IST | INFO | ✅ 7 zones saved
+2026-07-10 13:25:13 IST | INFO | 🔄 Zone flipped: S1 SUPPORT → FLIP_RESISTANCE @ LTP:24166.9
+2026-07-10 13:25:14 IST | INFO | ✅ OI context ready
+2026-07-10 13:25:14 IST | INFO | 🎯 Zone decision: S1 @ LTP:24166.9 | Event:BREAKDOWN_CANDLE
+2026-07-10 13:25:14 IST | INFO | Dropped incomplete 15M candle: 13:15
+2026-07-10 13:25:22 IST | INFO | 🧠 WAIT | conf:LOW | reason: Breakdown below S1 (24175-24192) detected; however, zone was FLIP_RESISTANCE (demand zone post-PDH breakout), not a bearish support. Dominance candle (BUYER, reclaimed YES) shows buyer side lost control but not decisively. PCR reversal and PE_WALL unwinding suggest early bearish pressure, but momentum is still forming — not yet 2 REAL confirmations for BUY_PE.
+2026-07-10 13:25:22 IST | INFO | 🧠 risk_note: Price at 24166.9 is now 9pts below zone low (24175). Before confirming BUY_PE, wait for next completed 5M candle to show rejection bounce back into zone OR clean follow-through continuation to S2 (24130-24155). If price breaks below 24155 (S2), that is invalidation of the FLIP structure. Currently in trap/squeeze territory — do not force a signal.
+2026-07-10 13:25:22 IST | INFO | 🧠 confirmations: ['Last 5M candle closed 24164 below zone low 24175', 'Dominance candle (BUYER side) was reclaimed — buyer weakness detected', 'PCR reversed: was rising 1.153→1.177→1.21 but last step fell to 1.171 (early reversal warning)', 'PE_WALL shrinking -7.1L in 5min (support conviction weakening)']
+2026-07-10 13:25:22 IST | INFO | Zone S1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 13:25:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 13:25:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:30:10 IST)" executed successfully
+2026-07-10 13:27:02 IST | INFO | 10.250.0.20 - - [10/Jul/2026 07:57:02] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:30:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:35:10 IST)" (scheduled at 2026-07-10 13:30:10+05:30)
+2026-07-10 13:30:11 IST | INFO | OI snapshot saved: 13:30 | PCR:0.931
+2026-07-10 13:30:11 IST | INFO | 📍 LTP: 24176.9
+2026-07-10 13:30:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 13:30:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=7)
+2026-07-10 13:30:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 13:30:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:35:10 IST)" executed successfully
+2026-07-10 13:32:07 IST | INFO | 10.250.0.20 - - [10/Jul/2026 08:02:07] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:35:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:40:10 IST)" (scheduled at 2026-07-10 13:35:10+05:30)
+2026-07-10 13:35:11 IST | INFO | OI snapshot saved: 13:35 | PCR:0.923
+2026-07-10 13:35:11 IST | INFO | 📍 LTP: 24185.65
+2026-07-10 13:35:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 13:35:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=8)
+2026-07-10 13:35:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 13:35:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:40:10 IST)" executed successfully
+2026-07-10 13:37:12 IST | INFO | 10.250.0.22 - - [10/Jul/2026 08:07:12] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:40:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:45:10 IST)" (scheduled at 2026-07-10 13:40:10+05:30)
+2026-07-10 13:40:11 IST | INFO | OI snapshot saved: 13:40 | PCR:0.947
+2026-07-10 13:40:11 IST | INFO | 📍 LTP: 24197.25
+2026-07-10 13:40:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 13:40:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=0 upper_wick=6 close=24186
+2026-07-10 13:40:13 IST | INFO | ✅ OI context ready
+2026-07-10 13:40:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24197.25 | Event:RESISTANCE_REJECTION
+2026-07-10 13:40:13 IST | INFO | Dropped incomplete 15M candle: 13:30
+2026-07-10 13:40:23 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price is above S1 and showing only doji-like rejection (body ≈0, minimal follow-through). Dominance candle still BUYER-favored and not reclaimed. Weak upper wick is invitation, not confirmation of selling control. OI shows PE_WALL building but CE_WALL weakening — conflicted signal. Need next 5M candle to confirm if rejection holds or if buyers reclaim.
+2026-07-10 13:40:23 IST | INFO | 🧠 risk_note: If price closes back above 24190 in next 5M, rejection fails and uptrend resumes — this wait becomes obsolete. If it breaks below 24175, then support is lost and a fresh short setup may form. Do not force a PE trade on this weak wick alone.
+2026-07-10 13:40:23 IST | INFO | 🧠 confirmations: ['Price at 24197.25 is in S1 resistance zone (24175-24192) — but ABOVE the zone, not touching it cleanly.', 'Last 5M candle: O190 H196 L181 C186 — body=5pts, upper_wick=6pts, close=24186. Very weak bearish rejection with minimal commitment.', 'Dominance candle (24179-24202, BUYER side, Reclaimed:NO) — BUYER control still in place; no reclaim yet = sellers have not gained real ground.', 'PCR 0.947 (near neutral, slightly bullish <1.0) — no strong put wall here to support a rejection continuation.', 'CE_WALL at 24200 is SHRINKING (-0.7L in 5min) while PE_WALL is GROWING (+5.4L) — early warning that resistance is softening; buyers may resume soon.']
+2026-07-10 13:40:23 IST | INFO | Zone S1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 13:40:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 13:40:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:45:10 IST)" executed successfully
+2026-07-10 13:42:17 IST | INFO | 10.250.0.22 - - [10/Jul/2026 08:12:17] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:45:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:50:10 IST)" (scheduled at 2026-07-10 13:45:10+05:30)
+2026-07-10 13:45:11 IST | INFO | OI snapshot saved: 13:45 | PCR:1.003
+2026-07-10 13:45:11 IST | INFO | 📍 LTP: 24200.0
+2026-07-10 13:45:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 13:45:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=0)
+2026-07-10 13:45:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 13:45:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:50:10 IST)" executed successfully
+2026-07-10 13:47:22 IST | INFO | 10.250.0.21 - - [10/Jul/2026 08:17:22] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:50:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:55:10 IST)" (scheduled at 2026-07-10 13:50:10+05:30)
+2026-07-10 13:50:11 IST | INFO | OI snapshot saved: 13:50 | PCR:1.059
+2026-07-10 13:50:11 IST | INFO | 📍 LTP: 24193.95
+2026-07-10 13:50:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 13:50:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-5)
+2026-07-10 13:50:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 13:50:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 13:55:10 IST)" executed successfully
+2026-07-10 13:52:28 IST | INFO | 10.250.0.20 - - [10/Jul/2026 08:22:28] "HEAD / HTTP/1.1" 200 -
+2026-07-10 13:55:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:00:10 IST)" (scheduled at 2026-07-10 13:55:10+05:30)
+2026-07-10 13:55:11 IST | INFO | OI snapshot saved: 13:55 | PCR:1.06
+2026-07-10 13:55:11 IST | INFO | 📍 LTP: 24195.75
+2026-07-10 13:55:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 13:55:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=3)
+2026-07-10 13:55:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 13:55:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:00:10 IST)" executed successfully
+2026-07-10 13:57:33 IST | INFO | 10.250.0.21 - - [10/Jul/2026 08:27:33] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:00:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:05:10 IST)" (scheduled at 2026-07-10 14:00:10+05:30)
+2026-07-10 14:00:11 IST | INFO | OI snapshot saved: 14:00 | PCR:1.065
+2026-07-10 14:00:11 IST | INFO | 📍 LTP: 24192.65
+2026-07-10 14:00:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 14:00:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=0)
+2026-07-10 14:00:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 14:00:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:05:10 IST)" executed successfully
+2026-07-10 14:02:00 IST | INFO | Running job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-11 10:02:00 IST)" (scheduled at 2026-07-10 14:02:00+05:30)
+2026-07-10 14:02:00 IST | INFO | 🔄 HOURLY REANALYSIS
+2026-07-10 14:02:00 IST | INFO | Fetching all TF data...
+2026-07-10 14:02:02 IST | INFO | 🌅 Running HOURLY analysis...
+2026-07-10 14:02:02 IST | INFO | Dropped incomplete 5M candle: 14:00
+2026-07-10 14:02:24 IST | INFO | ✅ HOURLY done: NEUTRAL | RANGING
+2026-07-10 14:02:25 IST | INFO | ✅ 7 zones saved
+2026-07-10 14:02:26 IST | INFO | ✅ Hourly zone update sent | 7 zones
+2026-07-10 14:02:26 IST | INFO | Job "hourly_job (trigger: cron[hour='10,11,12,13,14', minute='2', second='0'], next run at: 2026-07-11 10:02:00 IST)" executed successfully
+2026-07-10 14:02:38 IST | INFO | 10.250.0.22 - - [10/Jul/2026 08:32:38] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:05:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:10:10 IST)" (scheduled at 2026-07-10 14:05:10+05:30)
+2026-07-10 14:05:11 IST | INFO | OI snapshot saved: 14:05 | PCR:1.079
+2026-07-10 14:05:11 IST | INFO | 📍 LTP: 24192.65
+2026-07-10 14:05:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 14:05:12 IST | INFO | 📊 Candle event: BEARISH_SWEEP_REJECT | wick swept to 24200 above 24192, rejected to 24187
+2026-07-10 14:05:13 IST | INFO | ✅ OI context ready
+2026-07-10 14:05:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24192.65 | Event:BEARISH_SWEEP_REJECT
+2026-07-10 14:05:13 IST | INFO | Dropped incomplete 15M candle: 14:00
+2026-07-10 14:05:21 IST | INFO | 🧠 WAIT | conf:LOW | reason: Wick swept above S1 (24192) to 24200 but rejected decisively. Dominance candle NOT reclaimed (Reclaimed:NO) = BUYER side remains weak. Last 5M close (187) below the dominance 50% (190) = no real confirmation of a bullish reversal. OI shows conflicting signals: PCR rising (bearish setup) but PE_OI and CE_OI both decelerating — not a clean directional shove.
+2026-07-10 14:05:21 IST | INFO | 🧠 risk_note: Price is trapped between dominance 50% (24190) and R1 resistance (24195–24226). If price breaks back above 24200 on the next candle WITH a strong close above dominance 50%, then reconsider BUY_PE. If price rolls below 24180 (5M base), invalidation to 24155 (F1 support). Do NOT chase the wick sweep — wait for a second real confirmation candle.
+2026-07-10 14:05:21 IST | INFO | 🧠 confirmations: ['Dominance candle (BUYER, 24179–24202) has NOT been reclaimed — seller still in control', '5M close (187) is weak — price rejected at 24200 wick but settled below dominance 50% (24190)', 'PCR rising (0.923→1.079) — strong put writing, but PE_OI falling in last 5min (–0.2%) — conflicting signals', 'CE_WALL (24200, –1.9L unwinding) — seller conviction weakening but not yet broken']
+2026-07-10 14:05:22 IST | INFO | Zone S1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 14:05:22 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 14:05:22 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:10:10 IST)" executed successfully
+2026-07-10 14:07:43 IST | INFO | 10.250.0.22 - - [10/Jul/2026 08:37:43] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:10:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:15:10 IST)" (scheduled at 2026-07-10 14:10:10+05:30)
+2026-07-10 14:10:11 IST | INFO | OI snapshot saved: 14:10 | PCR:1.069
+2026-07-10 14:10:11 IST | INFO | 📍 LTP: 24176.35
+2026-07-10 14:10:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 14:10:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-16 upper_wick=0 close=24177
+2026-07-10 14:10:13 IST | INFO | ✅ OI context ready
+2026-07-10 14:10:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24176.35 | Event:RESISTANCE_REJECTION
+2026-07-10 14:10:13 IST | INFO | Dropped incomplete 15M candle: 14:00
+2026-07-10 14:10:27 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price at S1 FLIP_RESISTANCE (24175–24192) rejected cleanly but candle is small, indecisive, and lacks follow-through. Dominance buyer candle reclaimed above 50% suggests buyer strength fading rather than outright reversal. PCR rising + PE_VOL medium indicate protective puts, not directional selling conviction.
+2026-07-10 14:10:27 IST | INFO | 🧠 risk_note: If price breaks below 24161 (below touched zone + wick), that would confirm a clean breakdown toward F1 (24130–24155). If it reclaims above 24195 (R1), the rejection fails and sideways continues. Current close at 24177 is too weak to trade either direction — wait for next candle confirmation.
+2026-07-10 14:10:27 IST | INFO | 🧠 confirmations: ['Dominance candle (BUYER side, 23pt range) reclaimed above 50% at 24190 — buyer weakening signal', 'Last 5M candle closed at 24177 (body -16pts) — bearish rejection but weak follow-through', 'PCR rising 0.947→1.079 — OI buildup in PE (puts), suggests bearish hedge but no conviction yet']
+2026-07-10 14:10:27 IST | INFO | Zone S1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 14:10:28 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 14:10:28 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:15:10 IST)" executed successfully
+2026-07-10 14:12:48 IST | INFO | 10.250.0.21 - - [10/Jul/2026 08:42:48] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:15:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:20:10 IST)" (scheduled at 2026-07-10 14:15:10+05:30)
+2026-07-10 14:15:11 IST | INFO | OI snapshot saved: 14:15 | PCR:1.042
+2026-07-10 14:15:11 IST | INFO | 📍 LTP: 24187.1
+2026-07-10 14:15:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 14:15:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=5)
+2026-07-10 14:15:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 14:15:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:20:10 IST)" executed successfully
+2026-07-10 14:17:52 IST | INFO | 10.250.0.21 - - [10/Jul/2026 08:47:52] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:20:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:25:10 IST)" (scheduled at 2026-07-10 14:20:10+05:30)
+2026-07-10 14:20:11 IST | INFO | OI snapshot saved: 14:20 | PCR:1.045
+2026-07-10 14:20:11 IST | INFO | 📍 LTP: 24189.95
+2026-07-10 14:20:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 14:20:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=2)
+2026-07-10 14:20:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 14:20:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:25:10 IST)" executed successfully
+2026-07-10 14:22:56 IST | INFO | 10.250.0.22 - - [10/Jul/2026 08:52:56] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:25:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:30:10 IST)" (scheduled at 2026-07-10 14:25:10+05:30)
+2026-07-10 14:25:11 IST | INFO | OI snapshot saved: 14:25 | PCR:1.046
+2026-07-10 14:25:11 IST | INFO | 📍 LTP: 24200.45
+2026-07-10 14:25:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 14:25:13 IST | INFO | 📊 Candle event: BREAKOUT_CANDLE | close 24205 > zone_high 24192+10
+2026-07-10 14:25:13 IST | INFO | ✅ OI context ready
+2026-07-10 14:25:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24200.45 | Event:BREAKOUT_CANDLE
+2026-07-10 14:25:14 IST | INFO | Dropped incomplete 15M candle: 14:15
+2026-07-10 14:25:23 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price broke above S1 FLIP zone (24175-24192) and closed at 24205 on last 5M. However, dominance candle (BUYER, Reclaimed:NO) means buyers are still in control but have not yet reclaimed above their 50% midpoint (24198). Current LTP 24200.45 is only 5pts above zone — narrow margin. Next 5M must show sustained close above 24210+ to confirm breakout strength; else risk of trap/pullback into zone.
+2026-07-10 14:25:23 IST | INFO | 🧠 risk_note: Dominance candle shows BUYER control but narrow range (19pts) and Reclaimed:NO suggests conviction may be weak. R1 resistance at 24195-24226 is immediately overhead and overlaps current price. If price closes the next 5M below 24190, breakout fails and pullback to F1 (24130-24155) is likely. OI shows CE_WALL at 24200 with +1.1L growth (5min) but PE_WALL also growing +2.0L — both sides are building conviction, making direction less clear. Do NOT chase here; wait for next completed 5M candle to confirm sustained momentum above 24210.
+2026-07-10 14:25:23 IST | INFO | 🧠 confirmations: ['5M close 24205 > zone_high 24192 (breakout detected)', 'Dominance candle BUYER side, Range 19pts (small-to-medium)']
+2026-07-10 14:25:23 IST | INFO | Zone S1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 14:25:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 14:25:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:30:10 IST)" executed successfully
+2026-07-10 14:28:00 IST | INFO | 10.250.0.21 - - [10/Jul/2026 08:58:00] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:30:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:35:10 IST)" (scheduled at 2026-07-10 14:30:10+05:30)
+2026-07-10 14:30:11 IST | INFO | OI snapshot saved: 14:30 | PCR:1.098
+2026-07-10 14:30:11 IST | INFO | 📍 LTP: 24213.65
+2026-07-10 14:30:11 IST | INFO | 🎯 Zone: R1 (24195-24226) [RESISTANCE]
+2026-07-10 14:30:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=4)
+2026-07-10 14:30:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 14:30:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:35:10 IST)" executed successfully
+2026-07-10 14:33:04 IST | INFO | 10.250.0.21 - - [10/Jul/2026 09:03:04] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:35:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:40:10 IST)" (scheduled at 2026-07-10 14:35:10+05:30)
+2026-07-10 14:35:11 IST | INFO | OI snapshot saved: 14:35 | PCR:1.127
+2026-07-10 14:35:11 IST | INFO | 📍 LTP: 24205.9
+2026-07-10 14:35:11 IST | INFO | 🎯 Zone: R1 (24195-24226) [RESISTANCE]
+2026-07-10 14:35:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-1 upper_wick=2 close=24212
+2026-07-10 14:35:13 IST | INFO | ✅ OI context ready
+2026-07-10 14:35:13 IST | INFO | 🎯 Zone decision: R1 @ LTP:24205.9 | Event:RESISTANCE_REJECTION
+2026-07-10 14:35:13 IST | INFO | Dropped incomplete 15M candle: 14:30
+2026-07-10 14:35:23 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price touched R1 (24195–24226) with a small bearish candle + upper wick, but close is weak & indecisive (212 vs zone top 226). Dominance candle (BUYER, not reclaimed) shows buyer weakness. OI backdrop is bearish (rising PCR + PE wall building), but price action lacks a CLEAN rejection (no strong close below zone, no real follow-through).
+2026-07-10 14:35:23 IST | INFO | 🧠 risk_note: Setup is FORMING but NOT CONFIRMED. Weak candle at resistance often traps early sellers. Need next 5M candle to close decisively below 24190 (zone support) to confirm rejection. If price reclaims above 24215 and holds next candle, risk invalidates — do NOT force a BUY_PE here. Manual confirmation required.
+2026-07-10 14:35:23 IST | INFO | 🧠 confirmations: ['Last 5M candle (213→215 H, 199 L, 212 C) = small body (-1pt), upper wick +2pt at R1 zone, closed near highs but indecisive', 'Dominance candle (BUYER side, Range 19pts, 50%@24198) NOT reclaimed — buyer still in control but price stalled exactly at R1', 'OI: PCR rising (1.045→1.098→1.127), PE_OI growing (+4.5%→+2.1%), PE_WALL reinforcing (+4.4L in 5min) — structure favors downside']
+2026-07-10 14:35:23 IST | INFO | Zone R1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 14:35:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 14:35:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:40:10 IST)" executed successfully
+2026-07-10 14:38:09 IST | INFO | 10.250.0.20 - - [10/Jul/2026 09:08:09] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:40:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:45:10 IST)" (scheduled at 2026-07-10 14:40:10+05:30)
+2026-07-10 14:40:11 IST | INFO | OI snapshot saved: 14:40 | PCR:1.137
+2026-07-10 14:40:11 IST | INFO | 📍 LTP: 24211.3
+2026-07-10 14:40:11 IST | INFO | 🎯 Zone: R1 (24195-24226) [RESISTANCE]
+2026-07-10 14:40:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=6)
+2026-07-10 14:40:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 14:40:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:45:10 IST)" executed successfully
+2026-07-10 14:43:14 IST | INFO | 10.250.0.22 - - [10/Jul/2026 09:13:14] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:45:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:50:10 IST)" (scheduled at 2026-07-10 14:45:10+05:30)
+2026-07-10 14:45:11 IST | INFO | OI snapshot saved: 14:45 | PCR:1.177
+2026-07-10 14:45:11 IST | INFO | 📍 LTP: 24207.05
+2026-07-10 14:45:11 IST | INFO | 🎯 Zone: R1 (24195-24226) [RESISTANCE]
+2026-07-10 14:45:12 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-5 upper_wick=4 close=24208
+2026-07-10 14:45:13 IST | INFO | ✅ OI context ready
+2026-07-10 14:45:13 IST | INFO | 🎯 Zone decision: R1 @ LTP:24207.05 | Event:RESISTANCE_REJECTION
+2026-07-10 14:45:21 IST | INFO | 🧠 WAIT | conf:LOW | reason: Bearish candle at R1 but WEAK: body only -5pts with small wick. No follow-through selling visible yet. Dominance candle (BUYER side, NOT reclaimed) shows buyers still in control. Need 2 real confirmations for BUY_PE.
+2026-07-10 14:45:21 IST | INFO | 🧠 risk_note: PCR rising (1.042→1.177) + PE_OI increasing + CE_OI falling = mild bearish OI backdrop, BUT PE_VOL is LOW (0.9x) — no aggressive put buying yet. Price still 80% into range (near top). Watch if next 5M close breaks below 24200 with volume to confirm rejection. If price reclaims above 24210, rejection setup is invalidated.
+2026-07-10 14:45:21 IST | INFO | 🧠 confirmations: ['Last 5M candle shows bearish body (-5pts) at R1 resistance 24195-24226', 'Small upper wick (4pts) indicates weak seller rejection, not conviction']
+2026-07-10 14:45:21 IST | INFO | Zone R1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 14:45:22 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 14:45:22 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:50:10 IST)" executed successfully
+2026-07-10 14:48:19 IST | INFO | 10.250.0.20 - - [10/Jul/2026 09:18:19] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:50:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:55:10 IST)" (scheduled at 2026-07-10 14:50:10+05:30)
+2026-07-10 14:50:11 IST | INFO | OI snapshot saved: 14:50 | PCR:1.207
+2026-07-10 14:50:11 IST | INFO | 📍 LTP: 24218.1
+2026-07-10 14:50:11 IST | INFO | 🎯 Zone: R1 (24195-24226) [RESISTANCE]
+2026-07-10 14:50:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=17)
+2026-07-10 14:50:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 14:50:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 14:55:10 IST)" executed successfully
+2026-07-10 14:53:24 IST | INFO | 10.250.0.22 - - [10/Jul/2026 09:23:24] "HEAD / HTTP/1.1" 200 -
+2026-07-10 14:55:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:00:10 IST)" (scheduled at 2026-07-10 14:55:10+05:30)
+2026-07-10 14:55:11 IST | INFO | OI snapshot saved: 14:55 | PCR:1.284
+2026-07-10 14:55:11 IST | INFO | 📍 LTP: 24201.45
+2026-07-10 14:55:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 14:55:12 IST | INFO | 📊 Candle event: BREAKOUT_CANDLE | close 24204 > zone_high 24192+10
+2026-07-10 14:55:13 IST | INFO | ✅ OI context ready
+2026-07-10 14:55:13 IST | INFO | 🎯 Zone decision: S1 @ LTP:24201.45 | Event:BREAKOUT_CANDLE
+2026-07-10 14:55:13 IST | INFO | Dropped incomplete 15M candle: 14:45
+2026-07-10 14:55:22 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price broke above S1 (24175-24192) with the dominance candle confirming buyer control. However, PCR is strongly RISING (1.046→1.284, latest 5min +3.6% PE_OI), indicating aggressive PE writing and bearish hedge positioning. OI structure contradicts the immediate breakout signal — R1 resistance at 24200-24226 is immediate overhead, and PE_WALL at 24200 is STRENGTHENING (+12.7L in 5min). Breakout is small-body (candle close 24204 only ~12pts above zone), not conviction-driven.
+2026-07-10 14:55:22 IST | INFO | 🧠 risk_note: LTP 24201.45 is already at R1 zone boundary (24195-24226). If pursuing BUY_CE, invalidation below 24175 (zone low). However, rising PCR + strengthening PE_WALL suggests sellers are protecting 24200 aggressively. Recommend wait for either a 5M close SOLIDLY above 24220 with declining PCR, OR a confirmed rejection back into S1 for BUY_PE setup. Current setup lacks conviction.
+2026-07-10 14:55:22 IST | INFO | 🧠 confirmations: ['5M close 24204 > zone_high 24192 (breakout detected)', 'Dominance candle (BUYER, 24206-24228) with Reclaimed:YES shows buyer strength']
+2026-07-10 14:55:22 IST | INFO | Zone S1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 14:55:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 14:55:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:00:10 IST)" executed successfully
+2026-07-10 14:58:29 IST | INFO | 10.250.0.22 - - [10/Jul/2026 09:28:29] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:00:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:05:10 IST)" (scheduled at 2026-07-10 15:00:10+05:30)
+2026-07-10 15:00:11 IST | INFO | OI snapshot saved: 15:00 | PCR:1.278
+2026-07-10 15:00:11 IST | INFO | 📍 LTP: 24205.35
+2026-07-10 15:00:11 IST | INFO | 🎯 Zone: R1 (24195-24226) [RESISTANCE]
+2026-07-10 15:00:13 IST | INFO | 📊 Candle event: RESISTANCE_REJECTION | bearish at resistance: body=-5 upper_wick=8 close=24198
+2026-07-10 15:00:14 IST | INFO | ✅ OI context ready
+2026-07-10 15:00:14 IST | INFO | 🎯 Zone decision: R1 @ LTP:24205.35 | Event:RESISTANCE_REJECTION
+2026-07-10 15:00:23 IST | INFO | 🧠 WAIT | conf:LOW | reason: Price at R1 resistance showing MIXED signals: dominance candle reclaimed above 50% (bullish micro-structure) but last 5M close indecisive (24198, below zone). PCR rising + PE_VOL high suggest bearish bias, BUT CE_WALL & PE_WALL both shrinking (-7.3L/-8.9L) = both sides reducing conviction. This is a liquidity-fight stalemate, not a confirmed rejection setup yet.
+2026-07-10 15:00:23 IST | INFO | 🧠 risk_note: If LTP breaks above 24220 (R2 base), reclaim the buyer dominance → setup flips to potential BUY_CE. If LTP falls below 24190 and closes outside F1 (24130-24155), then BUY_PE becomes valid. Current indecision at 24205 is NOT tradeable — wait for next candle close to confirm direction.
+2026-07-10 15:00:23 IST | INFO | 🧠 confirmations: ['Dominance candle (BUYER side, 22pt range) closed ABOVE 50% level (24217) — buyer strength present', 'Last 5M candle closed at 24198 (just below R1 mid-24210) — weak rejection, not clean break', 'PE_VOL HIGH (2.9x) + PCR rising (1.098→1.278) — bearish OI bias BUT CE_WALL shrinking (-7.3L) signals conviction waning']
+2026-07-10 15:00:23 IST | INFO | Zone R1: no cooldown (WAIT) — next tick can re-check
+2026-07-10 15:00:23 IST | INFO | ⏭️ WAIT — logged silently, no Telegram alert
+2026-07-10 15:00:23 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:05:10 IST)" executed successfully
+2026-07-10 15:03:34 IST | INFO | 10.250.0.21 - - [10/Jul/2026 09:33:34] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:05:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:10:10 IST)" (scheduled at 2026-07-10 15:05:10+05:30)
+2026-07-10 15:05:11 IST | INFO | OI snapshot saved: 15:05 | PCR:1.252
+2026-07-10 15:05:11 IST | INFO | 📍 LTP: 24200.15
+2026-07-10 15:05:11 IST | INFO | 🎯 Zone: S1 (24175-24192) [FLIP_RESISTANCE]
+2026-07-10 15:05:12 IST | INFO | 📊 Candle event: NO_EVENT | zone touched but no clear candle event (body=-1)
+2026-07-10 15:05:12 IST | INFO | ⏭️ No candle event — skipping AI call
+2026-07-10 15:05:12 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:10:10 IST)" executed successfully
+2026-07-10 15:08:39 IST | INFO | 10.250.0.20 - - [10/Jul/2026 09:38:39] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:10:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:15:10 IST)" (scheduled at 2026-07-10 15:10:10+05:30)
+2026-07-10 15:10:10 IST | INFO | After 15:05 — no more AI calls
+2026-07-10 15:10:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:15:10 IST)" executed successfully
+2026-07-10 15:13:45 IST | INFO | 10.250.0.21 - - [10/Jul/2026 09:43:45] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:15:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:20:10 IST)" (scheduled at 2026-07-10 15:15:10+05:30)
+2026-07-10 15:15:10 IST | INFO | After 15:05 — no more AI calls
+2026-07-10 15:15:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:20:10 IST)" executed successfully
+2026-07-10 15:18:51 IST | INFO | 10.250.0.20 - - [10/Jul/2026 09:48:51] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:20:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:25:10 IST)" (scheduled at 2026-07-10 15:20:10+05:30)
+2026-07-10 15:20:10 IST | INFO | After 15:05 — no more AI calls
+2026-07-10 15:20:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:25:10 IST)" executed successfully
+2026-07-10 15:23:56 IST | INFO | 10.250.0.20 - - [10/Jul/2026 09:53:56] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:25:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:30:10 IST)" (scheduled at 2026-07-10 15:25:10+05:30)
+2026-07-10 15:25:10 IST | INFO | After 15:05 — no more AI calls
+2026-07-10 15:25:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:30:10 IST)" executed successfully
+2026-07-10 15:29:01 IST | INFO | 10.250.0.20 - - [10/Jul/2026 09:59:01] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:30:00 IST | INFO | Running job "closing_job (trigger: cron[hour='15', minute='30', second='0'], next run at: 2026-07-11 15:30:00 IST)" (scheduled at 2026-07-10 15:30:00+05:30)
+2026-07-10 15:30:00 IST | INFO | 🔔 CLOSING JOB
+2026-07-10 15:30:01 IST | INFO | ✅ EOD summary sent
+2026-07-10 15:30:03 IST | INFO | 🧹 Day data flushed
+2026-07-10 15:30:03 IST | INFO | Job "closing_job (trigger: cron[hour='15', minute='30', second='0'], next run at: 2026-07-11 15:30:00 IST)" executed successfully
+2026-07-10 15:30:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:35:10 IST)" (scheduled at 2026-07-10 15:30:10+05:30)
+2026-07-10 15:30:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:35:10 IST)" executed successfully
+2026-07-10 15:34:08 IST | INFO | 10.250.0.21 - - [10/Jul/2026 10:04:08] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:35:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:40:10 IST)" (scheduled at 2026-07-10 15:35:10+05:30)
+2026-07-10 15:35:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:40:10 IST)" executed successfully
+2026-07-10 15:39:12 IST | INFO | 10.250.0.22 - - [10/Jul/2026 10:09:12] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:40:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:45:10 IST)" (scheduled at 2026-07-10 15:40:10+05:30)
+2026-07-10 15:40:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:45:10 IST)" executed successfully
+2026-07-10 15:44:18 IST | INFO | 10.250.0.22 - - [10/Jul/2026 10:14:18] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:45:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:50:10 IST)" (scheduled at 2026-07-10 15:45:10+05:30)
+2026-07-10 15:45:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:50:10 IST)" executed successfully
+2026-07-10 15:49:23 IST | INFO | 10.250.0.22 - - [10/Jul/2026 10:19:23] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:50:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:55:10 IST)" (scheduled at 2026-07-10 15:50:10+05:30)
+2026-07-10 15:50:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-10 15:55:10 IST)" executed successfully
+2026-07-10 15:54:29 IST | INFO | 10.250.0.20 - - [10/Jul/2026 10:24:29] "HEAD / HTTP/1.1" 200 -
+2026-07-10 15:55:10 IST | INFO | Running job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-11 09:00:10 IST)" (scheduled at 2026-07-10 15:55:10+05:30)
+2026-07-10 15:55:10 IST | INFO | Job "zone_monitor_job (trigger: cron[hour='9,10,11,12,13,14,15', minute='0,5,10,15,20,25,30,35,40,45,50,55', second='10'], next run at: 2026-07-11 09:00:10 IST)" executed successfully
+2026-07-10 15:59:34 IST | INFO | 10.250.0.22 - - [10/Jul/2026 10:29:34] "HEAD / HTTP/1.1" 200 -
